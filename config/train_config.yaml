@@ -3,7 +3,7 @@
 # Dataset paths and configuration
 dataset:
   images_dir: "data/images"
-  labels_dir: "data/labels"
+  labels_dir: "data/masks/npy"
   train_split: 0.70
   val_split: 0.15
   test_split: 0.15

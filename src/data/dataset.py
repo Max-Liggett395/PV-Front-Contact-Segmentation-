@@ -6,7 +6,8 @@ cross-sectional SEM images and their corresponding segmentation masks.
 
 Dataset structure:
 - Images: PNG/JPG files in data/images/ (grayscale SEM images)
-- Labels: .npy files in data/labels/ (768x1024 uint8 arrays, values 0-5)
+- Labels: .npy files in data/masks/npy/ (768x1024 uint8 arrays, values 0-5)
+- JSON annotations: data/labels/ (VIA format, used to generate masks)
 
 Classes:
     0: Background
