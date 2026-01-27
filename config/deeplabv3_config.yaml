@@ -1,0 +1,120 @@
+# DeepLabV3 Training Configuration for SEM Image Segmentation
+
+# Dataset paths and configuration
+dataset:
+  images_dir: "data/images"
+  labels_dir: "data/labels"
+  train_split: 0.70
+  val_split: 0.15
+  test_split: 0.15
+  seed: 42
+
+# Model architecture
+model:
+  name: "deeplabv3"
+  num_classes: 6
+  dropout: 0.1
+  in_channels: 1  # Grayscale SEM images
+  backbone: "resnet50"  # Options: resnet50, resnet101
+  pretrained: true
+
+# Training hyperparameters
+training:
+  batch_size: 4
+  num_epochs: 1000
+  learning_rate: 1.0e-4
+  optimizer: "adam"
+  weight_decay: 0.0
+
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 50
+    min_delta: 0.0001
+    monitor: "val_loss"
+    mode: "min"
+
+# Loss function configuration
+loss:
+  type: "cross_entropy"
+  class_weights: [1.0, 1.0, 1.5, 1.0, 1.5, 1.5]
+
+# Data augmentation (Albumentations)
+augmentation:
+  train:
+    gaussian_blur:
+      enabled: true
+      blur_limit: [3, 7]
+      sigma_limit: [0.5, 1.5]
+      p: 0.2
+
+    gauss_noise:
+      enabled: true
+      var_limit: [10.0, 50.0]
+      p: 0.2
+
+    horizontal_flip:
+      enabled: true
+      p: 0.5
+
+    vertical_flip:
+      enabled: true
+      p: 0.5
+
+    rotate:
+      enabled: true
+      limit: 5
+      p: 0.3
+
+    normalize:
+      mean: [0.0]
+      std: [1.0]
+      max_pixel_value: 255.0
+
+  val:
+    normalize:
+      mean: [0.0]
+      std: [1.0]
+      max_pixel_value: 255.0
+
+# Checkpointing
+checkpointing:
+  save_dir: "checkpoints/deeplabv3"
+  save_best: true
+  save_latest: true
+  monitor: "val_loss"
+  mode: "min"
+  verbose: true
+
+# Logging
+logging:
+  log_dir: "logs/deeplabv3"
+  tensorboard: true
+  log_every_n_batches: 10
+  print_metrics: true
+
+# Device configuration
+device:
+  auto_detect: true
+  mixed_precision: false
+
+# Reproducibility
+seed: 42
+
+# Class names for visualization
+class_names:
+  0: "Background"
+  1: "Silver (Ag)"
+  2: "Glass"
+  3: "Silicon (Si)"
+  4: "Void"
+  5: "Interfacial Void"
+
+# Class colors for visualization (RGB)
+class_colors:
+  0: [255, 0, 0]
+  1: [0, 255, 0]
+  2: [0, 0, 255]
+  3: [255, 255, 0]
+  4: [255, 0, 255]
+  5: [0, 255, 255]

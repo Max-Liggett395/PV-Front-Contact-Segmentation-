@@ -1,0 +1,122 @@
+# U-Net Training Configuration for SEM Image Segmentation
+
+# Dataset paths and configuration
+dataset:
+  images_dir: "data/images"
+  labels_dir: "data/labels"
+  train_split: 0.70
+  val_split: 0.15
+  test_split: 0.15
+  seed: 42
+
+# Model architecture
+model:
+  name: "unet"
+  num_classes: 6
+  dropout: 0.3
+  in_channels: 1  # Grayscale SEM images
+
+# Training hyperparameters
+training:
+  batch_size: 4
+  num_epochs: 1000
+  learning_rate: 1.0e-4
+  optimizer: "adam"
+  weight_decay: 0.0
+
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 50
+    min_delta: 0.0001
+    monitor: "val_loss"
+    mode: "min"
+
+# Loss function configuration
+loss:
+  type: "cross_entropy"  # Options: "cross_entropy", "bce_dice"
+  class_weights: [1.0, 1.0, 1.5, 1.0, 1.5, 1.5]  # Background, Ag, Glass, Si, Void, Interfacial Void
+
+# Data augmentation (Albumentations)
+augmentation:
+  train:
+    # Morphological augmentations (most effective for SEM per paper)
+    gaussian_blur:
+      enabled: true
+      blur_limit: [3, 7]
+      sigma_limit: [0.5, 1.5]
+      p: 0.2
+
+    gauss_noise:
+      enabled: true
+      var_limit: [10.0, 50.0]
+      p: 0.2
+
+    # Limited geometric augmentations (less effective but included)
+    horizontal_flip:
+      enabled: true
+      p: 0.5
+
+    vertical_flip:
+      enabled: true
+      p: 0.5
+
+    rotate:
+      enabled: true
+      limit: 5  # ±5 degrees
+      p: 0.3
+
+    # Normalization (always applied)
+    normalize:
+      mean: [0.0]
+      std: [1.0]
+      max_pixel_value: 255.0
+
+  val:
+    # Validation: normalization only
+    normalize:
+      mean: [0.0]
+      std: [1.0]
+      max_pixel_value: 255.0
+
+# Checkpointing
+checkpointing:
+  save_dir: "checkpoints"
+  save_best: true
+  save_latest: true
+  monitor: "val_loss"
+  mode: "min"
+  verbose: true
+
+# Logging
+logging:
+  log_dir: "logs"
+  tensorboard: true
+  log_every_n_batches: 10
+  print_metrics: true
+
+# Device configuration
+device:
+  auto_detect: true  # Auto-detect CUDA/MPS/CPU
+  mixed_precision: false  # Optional: enable for faster training on GPU
+
+# Reproducibility
+seed: 42
+
+# Class names for visualization
+class_names:
+  0: "Background"
+  1: "Silver (Ag)"
+  2: "Glass"
+  3: "Silicon (Si)"
+  4: "Void"
+  5: "Interfacial Void"
+
+# Class colors for visualization (RGB)
+class_colors:
+  0: [255, 0, 0]      # Red - Background
+  1: [0, 255, 0]      # Green - Silver
+  2: [0, 0, 255]      # Blue - Glass
+  3: [255, 255, 0]    # Yellow - Silicon
+  4: [255, 0, 255]    # Magenta - Void
+  5: [0, 255, 255]    # Cyan - Interfacial Void
