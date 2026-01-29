@@ -162,7 +162,7 @@ class Trainer:
 
         for batch_idx, (images, labels) in enumerate(pbar):
             images = images.to(self.device)
-            labels = labels.to(self.device)
+            labels = labels.to(self.device).long()
 
             self.optimizer.zero_grad()
             outputs = self.model(images)
@@ -194,7 +194,7 @@ class Trainer:
         with torch.no_grad():
             for images, labels in pbar:
                 images = images.to(self.device)
-                labels = labels.to(self.device)
+                labels = labels.to(self.device).long()
 
                 outputs = self.model(images)
                 loss = self.loss_fn(outputs, labels)

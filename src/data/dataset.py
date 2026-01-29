@@ -124,9 +124,13 @@ class SEMDataset(Dataset):
         # Convert to tensors if not already
         if not isinstance(image, torch.Tensor):
             image = torch.tensor(image, dtype=torch.float32)
+        else:
+            image = image.float()
 
         if not isinstance(label, torch.Tensor):
-            label = torch.tensor(label, dtype=torch.long)
+            label = torch.tensor(np.asarray(label).astype(np.int64), dtype=torch.long)
+        else:
+            label = label.long()
 
         # Ensure image has channel dimension [C, H, W]
         if image.ndim == 2:

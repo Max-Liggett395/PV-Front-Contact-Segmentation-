@@ -3,7 +3,7 @@
 # Dataset paths and configuration
 dataset:
   images_dir: "data/images"
-  labels_dir: "data/labels"
+  labels_dir: "data/masks/npy"
   train_split: 0.70
   val_split: 0.15
   test_split: 0.15
@@ -21,7 +21,7 @@ model:
 
 # Training hyperparameters
 training:
-  batch_size: 4
+  batch_size: 2
   num_epochs: 1000
   learning_rate: 1.0e-4
   optimizer: "adam"

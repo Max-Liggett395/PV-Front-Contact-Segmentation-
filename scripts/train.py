@@ -186,7 +186,8 @@ def main():
         batch_size=batch_size,
         shuffle=True,
         num_workers=0,
-        pin_memory=(device.type == "cuda")
+        pin_memory=(device.type == "cuda"),
+        drop_last=True
     )
     val_loader = DataLoader(
         val_dataset,
