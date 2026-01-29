@@ -10,16 +10,28 @@ import argparse
 
 
 # Class mapping from annotation labels to numeric values
+# Ordered by pixel prevalence: silver > silicon > background > void > interfacial void > glass
 CLASS_MAP = {
-    "background": 0,
-    "silver": 1,
-    "ag": 1,
-    "glass": 2,
-    "silicon": 3,
-    "si": 3,
-    "void": 4,
-    "interfacial void": 5,
-    "interfacial_void": 5,
+    "silver": 0,
+    "ag": 0,
+    "silicon": 1,
+    "si": 1,
+    "background": 2,
+    "void": 3,
+    "interfacial void": 4,
+    "interfacial_void": 4,
+    "glass": 5,
+}
+
+# Drawing priority: lower values drawn first, higher values drawn on top
+# Hierarchy: background < silver < silicon < glass < void < interfacial void
+DRAW_PRIORITY = {
+    2: 0,  # background
+    0: 1,  # silver
+    1: 2,  # silicon
+    5: 3,  # glass
+    3: 4,  # void
+    4: 5,  # interfacial void
 }
 
 
@@ -88,9 +100,21 @@ def create_mask_from_regions(regions: list, image_shape: tuple) -> np.ndarray:
         Numpy array mask with class indices
     """
     height, width = image_shape
-    mask = np.zeros((height, width), dtype=np.uint8)
+    # Initialize with background class (2)
+    mask = np.full((height, width), CLASS_MAP["background"], dtype=np.uint8)
 
-    for region in regions:
+    # Sort regions by draw priority so voids are drawn on top of base materials
+    def get_region_priority(region):
+        region_attrs = region.get('region_attributes', {})
+        element = get_class_from_attributes(region_attrs)
+        if element and element in CLASS_MAP:
+            class_idx = CLASS_MAP[element]
+            return DRAW_PRIORITY.get(class_idx, 0)
+        return 0
+
+    sorted_regions = sorted(regions, key=get_region_priority)
+
+    for region in sorted_regions:
         shape_attrs = region.get('shape_attributes', {})
         region_attrs = region.get('region_attributes', {})
 
@@ -158,12 +182,12 @@ def generate_masks(images_dir: Path, labels_dir: Path, output_dir: Path, visuali
 
     # Class colors for visualization (BGR for OpenCV)
     class_colors = {
-        0: (0, 0, 255),      # Background - Red
-        1: (0, 255, 0),      # Silver - Green
-        2: (255, 0, 0),      # Glass - Blue
-        3: (0, 255, 255),    # Silicon - Yellow
-        4: (255, 0, 255),    # Void - Magenta
-        5: (255, 255, 0),    # Interfacial Void - Cyan
+        0: (0, 255, 0),      # Silver - Green
+        1: (0, 255, 255),    # Silicon - Yellow
+        2: (0, 0, 255),      # Background - Red
+        3: (255, 0, 255),    # Void - Magenta
+        4: (255, 255, 0),    # Interfacial Void - Cyan
+        5: (255, 0, 0),      # Glass - Blue
     }
 
     processed = 0
@@ -222,13 +246,13 @@ def generate_masks(images_dir: Path, labels_dir: Path, output_dir: Path, visuali
         print(f"Visualizations saved to: {viz_dir}")
 
     # Print class distribution
-    print("\nClass mapping:")
-    print("  0: Background (unlabeled)")
-    print("  1: Silver (Ag)")
-    print("  2: Glass")
-    print("  3: Silicon (Si)")
-    print("  4: Void")
-    print("  5: Interfacial Void")
+    print("\nClass mapping (by prevalence):")
+    print("  0: Silver (Ag)")
+    print("  1: Silicon (Si)")
+    print("  2: Background (unlabeled)")
+    print("  3: Void")
+    print("  4: Interfacial Void")
+    print("  5: Glass")
 
 
 def main():
