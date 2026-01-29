@@ -179,14 +179,14 @@ def generate_masks(images_dir: Path, labels_dir: Path, output_dir: Path, visuali
     json_files = sorted(labels_dir.glob('*.json'))
     print(f"Found {len(json_files)} JSON label files")
 
-    # Class colors for visualization (BGR for OpenCV)
+    # Class colors for visualization (RGB)
     class_colors = {
-        0: (0, 0, 255),      # Background - Red
+        0: (255, 0, 0),      # Background - Red
         1: (0, 255, 0),      # Silver - Green
-        2: (255, 0, 0),      # Glass - Blue
-        3: (0, 255, 255),    # Silicon - Yellow
+        2: (0, 0, 255),      # Glass - Blue
+        3: (255, 255, 0),    # Silicon - Yellow
         4: (255, 0, 255),    # Void - Magenta
-        5: (255, 255, 0),    # Interfacial Void - Cyan
+        5: (0, 255, 255),    # Interfacial Void - Cyan
     }
 
     processed = 0
