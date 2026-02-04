@@ -22,6 +22,17 @@ CLASS_MAP = {
     "interfacial_void": 5,
 }
 
+# Drawing priority: lower values drawn first, higher values drawn on top
+# Hierarchy: background < silver < silicon < glass < void < interfacial void
+DRAW_PRIORITY = {
+    0: 0,  # background
+    1: 1,  # silver
+    3: 2,  # silicon
+    2: 3,  # glass
+    4: 4,  # void
+    5: 5,  # interfacial void
+}
+
 
 def parse_via_json(json_path: Path) -> dict:
     """Parse VIA JSON annotation file.
@@ -88,9 +99,21 @@ def create_mask_from_regions(regions: list, image_shape: tuple) -> np.ndarray:
         Numpy array mask with class indices
     """
     height, width = image_shape
-    mask = np.zeros((height, width), dtype=np.uint8)
+    # Initialize with background class (2)
+    mask = np.full((height, width), CLASS_MAP["background"], dtype=np.uint8)
 
-    for region in regions:
+    # Sort regions by draw priority so voids are drawn on top of base materials
+    def get_region_priority(region):
+        region_attrs = region.get('region_attributes', {})
+        element = get_class_from_attributes(region_attrs)
+        if element and element in CLASS_MAP:
+            class_idx = CLASS_MAP[element]
+            return DRAW_PRIORITY.get(class_idx, 0)
+        return 0
+
+    sorted_regions = sorted(regions, key=get_region_priority)
+
+    for region in sorted_regions:
         shape_attrs = region.get('shape_attributes', {})
         region_attrs = region.get('region_attributes', {})
 
@@ -156,14 +179,14 @@ def generate_masks(images_dir: Path, labels_dir: Path, output_dir: Path, visuali
     json_files = sorted(labels_dir.glob('*.json'))
     print(f"Found {len(json_files)} JSON label files")
 
-    # Class colors for visualization (BGR for OpenCV)
+    # Class colors for visualization (RGB)
     class_colors = {
-        0: (0, 0, 255),      # Background - Red
+        0: (255, 0, 0),      # Background - Red
         1: (0, 255, 0),      # Silver - Green
-        2: (255, 0, 0),      # Glass - Blue
-        3: (0, 255, 255),    # Silicon - Yellow
+        2: (0, 0, 255),      # Glass - Blue
+        3: (255, 255, 0),    # Silicon - Yellow
         4: (255, 0, 255),    # Void - Magenta
-        5: (255, 255, 0),    # Interfacial Void - Cyan
+        5: (0, 255, 255),    # Interfacial Void - Cyan
     }
 
     processed = 0
@@ -223,7 +246,7 @@ def generate_masks(images_dir: Path, labels_dir: Path, output_dir: Path, visuali
 
     # Print class distribution
     print("\nClass mapping:")
-    print("  0: Background (unlabeled)")
+    print("  0: Background")
     print("  1: Silver (Ag)")
     print("  2: Glass")
     print("  3: Silicon (Si)")
