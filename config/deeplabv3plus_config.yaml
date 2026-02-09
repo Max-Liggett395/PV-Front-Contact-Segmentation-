@@ -3,7 +3,7 @@
 # Dataset paths and configuration
 dataset:
   images_dir: "data/images"
-  labels_dir: "data/labels"
+  labels_dir: "data/masks/npy"
   train_split: 0.70
   val_split: 0.15
   test_split: 0.15
@@ -51,7 +51,7 @@ augmentation:
 
     gauss_noise:
       enabled: true
-      var_limit: [10.0, 50.0]
+      std_range: [0.012, 0.028]
       p: 0.2
 
     horizontal_flip:
