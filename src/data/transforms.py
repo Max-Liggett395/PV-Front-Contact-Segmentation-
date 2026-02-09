@@ -41,7 +41,7 @@ def get_train_transforms(config: Dict[str, Any] = None) -> A.Compose:
         # Default configuration matching train_config.yaml
         config = {
             "gaussian_blur": {"enabled": True, "blur_limit": [3, 7], "sigma_limit": [0.5, 1.5], "p": 0.2},
-            "gauss_noise": {"enabled": True, "var_limit": [10.0, 50.0], "p": 0.2},
+            "gauss_noise": {"enabled": True, "std_range": [0.012, 0.028], "p": 0.2},
             "horizontal_flip": {"enabled": True, "p": 0.5},
             "vertical_flip": {"enabled": True, "p": 0.5},
             "rotate": {"enabled": True, "limit": 5, "p": 0.3},
@@ -65,7 +65,7 @@ def get_train_transforms(config: Dict[str, Any] = None) -> A.Compose:
         params = config["gauss_noise"]
         transforms_list.append(
             A.GaussNoise(
-                var_limit=tuple(params["var_limit"]),
+                std_range=tuple(params["std_range"]),
                 p=params["p"]
             )
         )
@@ -173,7 +173,7 @@ MINIMAL_AUGMENTATION = A.Compose([
 
 MORPHOLOGICAL_ONLY = A.Compose([
     A.GaussianBlur(blur_limit=(3, 7), sigma_limit=(0.5, 1.5), p=0.3),
-    A.GaussNoise(var_limit=(10.0, 50.0), p=0.3),
+    A.GaussNoise(std_range=(0.012, 0.028), p=0.3),
     A.Normalize(mean=[0.0], std=[1.0], max_pixel_value=255.0),
     ToTensorV2()
 ])
@@ -188,7 +188,7 @@ GEOMETRIC_ONLY = A.Compose([
 
 HEAVY_AUGMENTATION = A.Compose([
     A.GaussianBlur(blur_limit=(3, 7), sigma_limit=(0.5, 1.5), p=0.5),
-    A.GaussNoise(var_limit=(10.0, 50.0), p=0.5),
+    A.GaussNoise(std_range=(0.012, 0.028), p=0.5),
     A.HorizontalFlip(p=0.5),
     A.VerticalFlip(p=0.5),
     A.Rotate(limit=10, border_mode=0, p=0.5),

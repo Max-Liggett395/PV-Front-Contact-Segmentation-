@@ -49,7 +49,7 @@ augmentation:
 
     gauss_noise:
       enabled: true
-      var_limit: [10.0, 50.0]
+      std_range: [0.012, 0.028]
       p: 0.2
 
     # Limited geometric augmentations (less effective but included)

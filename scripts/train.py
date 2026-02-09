@@ -209,11 +209,11 @@ def main():
     model = model.to(device)
 
     # Initialize LazyModules with a dummy forward pass
-    model.training = False
+    model.eval()
     with torch.no_grad():
         dummy_input = torch.zeros(1, model_config["in_channels"], 768, 1024, device=device)
         _ = model(dummy_input)
-    model.training = True
+    model.train()
 
     model_name = model_config.get("name", "unet")
     print(f"\nModel '{model_name}' initialized successfully!")
