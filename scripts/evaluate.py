@@ -27,7 +27,7 @@ from tqdm import tqdm
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.data.dataset import SEMDataset
+from src.data.dataset import SEMDataset, compute_dataset_statistics
 from src.data.transforms import get_transforms_from_config
 from src.evaluation.metrics import compute_all_metrics, compute_confusion_matrix
 from src.utils.checkpointing import load_model_for_inference
@@ -64,8 +64,20 @@ def main():
     img_dir = config["dataset"]["images_dir"]
     label_dir = config["dataset"]["labels_dir"]
 
-    _, _, test_filenames = create_data_splits(img_dir, config)
+    train_filenames, _, test_filenames = create_data_splits(img_dir, config)
     print(f"Test set: {len(test_filenames)} images")
+
+    # Auto-compute dataset statistics from training set (same normalization as training)
+    print("\nComputing dataset statistics from training set...")
+    dataset_stats = compute_dataset_statistics(img_dir, train_filenames)
+    print(f"  Mean: {dataset_stats['mean']}")
+    print(f"  Std:  {dataset_stats['std']}")
+
+    for mode in ("train", "val"):
+        if mode in config.get("augmentation", {}):
+            if "normalize" in config["augmentation"][mode]:
+                config["augmentation"][mode]["normalize"]["mean"] = dataset_stats["mean"]
+                config["augmentation"][mode]["normalize"]["std"] = dataset_stats["std"]
 
     # Create test dataset
     test_transform = get_transforms_from_config(config, mode="val")
@@ -73,11 +85,12 @@ def main():
 
     # Create data loader
     batch_size = config["training"]["batch_size"]
+    num_workers = config["training"].get("num_workers", 4)
     test_loader = DataLoader(
         test_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0
+        num_workers=num_workers
     )
 
     # Initialize model

@@ -91,6 +91,8 @@ class DiceLoss(nn.Module):
     Args:
         smooth (float): Smoothing factor to avoid division by zero. Default: 1.0
         ignore_background (bool): Whether to exclude background class. Default: True
+        ignore_index (int): Pixel-level ignore index. Pixels with this target
+            value are excluded from the Dice computation. Default: -100
 
     Shape:
         - Input: [B, C, H, W] (probabilities after softmax)
@@ -98,10 +100,12 @@ class DiceLoss(nn.Module):
         - Output: scalar loss value
     """
 
-    def __init__(self, smooth: float = 1.0, ignore_background: bool = True):
+    def __init__(self, smooth: float = 1.0, ignore_background: bool = True,
+                 ignore_index: int = -100):
         super().__init__()
         self.smooth = smooth
         self.ignore_background = ignore_background
+        self.ignore_index = ignore_index
 
     def forward(self, predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
         """
@@ -117,9 +121,17 @@ class DiceLoss(nn.Module):
         # Apply softmax to get probabilities
         predictions = F.softmax(predictions, dim=1)
 
-        # Convert targets to one-hot encoding
+        # Build pixel mask for ignored indices
+        valid_mask = None
+        if self.ignore_index >= 0:
+            valid_mask = (targets != self.ignore_index).float()
+
+        # Convert targets to one-hot encoding (clamp ignore_index to valid range)
         num_classes = predictions.shape[1]
-        targets_one_hot = F.one_hot(targets, num_classes=num_classes)
+        safe_targets = targets.clone().long()
+        if self.ignore_index >= 0:
+            safe_targets[targets == self.ignore_index] = 0
+        targets_one_hot = F.one_hot(safe_targets, num_classes=num_classes)
         targets_one_hot = targets_one_hot.permute(0, 3, 1, 2).float()
 
         # Determine which classes to include
@@ -133,6 +145,10 @@ class DiceLoss(nn.Module):
         for c in range(start_idx, num_classes):
             pred_c = predictions[:, c, :, :]
             target_c = targets_one_hot[:, c, :, :]
+
+            if valid_mask is not None:
+                pred_c = pred_c * valid_mask
+                target_c = target_c * valid_mask
 
             intersection = (pred_c * target_c).sum()
             union = pred_c.sum() + target_c.sum()
@@ -158,6 +174,8 @@ class BCEDiceLoss(nn.Module):
         bce_weight (float): Weight for BCE component. Default: 0.5
         dice_weight (float): Weight for Dice component. Default: 0.5
         smooth (float): Smoothing factor for Dice loss. Default: 1.0
+        class_weights (Optional[List[float]]): Weight for each class in CE component.
+        ignore_index (int): Class index to ignore in loss computation. Default: -100
 
     Shape:
         - Input: [B, C, H, W] (logits, raw model outputs)
@@ -169,12 +187,20 @@ class BCEDiceLoss(nn.Module):
         self,
         bce_weight: float = 0.5,
         dice_weight: float = 0.5,
-        smooth: float = 1.0
+        smooth: float = 1.0,
+        class_weights: Optional[List[float]] = None,
+        ignore_index: int = -100
     ):
         super().__init__()
         self.bce_weight = bce_weight
         self.dice_weight = dice_weight
-        self.dice_loss = DiceLoss(smooth=smooth, ignore_background=True)
+        self.ignore_index = ignore_index
+        self.class_weights = None
+        if class_weights is not None:
+            self.class_weights = torch.tensor(class_weights, dtype=torch.float32)
+        ignore_bg = (ignore_index == 0)
+        self.dice_loss = DiceLoss(smooth=smooth, ignore_background=ignore_bg,
+                                  ignore_index=ignore_index)
 
     def forward(self, predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
         """
@@ -187,8 +213,15 @@ class BCEDiceLoss(nn.Module):
         Returns:
             torch.Tensor: Scalar loss value
         """
+        # Move class weights to correct device
+        weights = self.class_weights
+        if weights is not None and weights.device != predictions.device:
+            self.class_weights = self.class_weights.to(predictions.device)
+            weights = self.class_weights
+
         # BCE component (using cross-entropy for multi-class)
-        bce_loss = F.cross_entropy(predictions, targets, reduction='mean')
+        bce_loss = F.cross_entropy(predictions, targets, weight=weights,
+                                   ignore_index=self.ignore_index, reduction='mean')
 
         # Dice component
         dice_loss = self.dice_loss(predictions, targets)
@@ -225,7 +258,7 @@ def get_loss_function(
     if loss_type == "cross_entropy":
         return WeightedCrossEntropyLoss(class_weights=class_weights, **kwargs)
     elif loss_type == "bce_dice":
-        return BCEDiceLoss(**kwargs)
+        return BCEDiceLoss(class_weights=class_weights, **kwargs)
     elif loss_type == "dice":
         return DiceLoss(**kwargs)
     else:
@@ -254,5 +287,7 @@ def get_loss_from_config(config_dict: dict) -> nn.Module:
     loss_config = config_dict.get("loss", {})
     loss_type = loss_config.get("type", "cross_entropy")
     class_weights = loss_config.get("class_weights", None)
+    ignore_index = loss_config.get("ignore_index", -100)
 
-    return get_loss_function(loss_type, class_weights=class_weights)
+    return get_loss_function(loss_type, class_weights=class_weights,
+                             ignore_index=ignore_index)

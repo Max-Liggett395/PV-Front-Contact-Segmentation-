@@ -232,17 +232,19 @@ def compute_dice_coefficient(
 
 def compute_pixel_accuracy(
     predictions: torch.Tensor,
-    targets: torch.Tensor
+    targets: torch.Tensor,
+    ignore_index: int = -100
 ) -> float:
     """
     Compute pixel-wise classification accuracy.
 
-    Accuracy = (TP + TN) / Total Pixels
+    Accuracy = Correct / Total (excluding ignored pixels)
 
     Args:
         predictions (torch.Tensor): Predicted logits [B, C, H, W] or
             predicted class indices [B, H, W]
         targets (torch.Tensor): Ground truth labels [B, H, W]
+        ignore_index (int): Class index to exclude from accuracy. Default: -100
 
     Returns:
         float: Pixel accuracy in range [0, 1]
@@ -251,11 +253,16 @@ def compute_pixel_accuracy(
     if predictions.ndim == 4:  # [B, C, H, W]
         predictions = torch.argmax(predictions, dim=1)  # [B, H, W]
 
-    # Compute accuracy
-    correct = (predictions == targets).sum().item()
-    total = targets.numel()
+    # Build valid mask
+    if ignore_index >= 0:
+        valid = targets != ignore_index
+        correct = (predictions[valid] == targets[valid]).sum().item()
+        total = valid.sum().item()
+    else:
+        correct = (predictions == targets).sum().item()
+        total = targets.numel()
 
-    accuracy = correct / total
+    accuracy = correct / total if total > 0 else 0.0
 
     return float(accuracy)
 
@@ -305,7 +312,8 @@ def compute_confusion_matrix(
 def compute_all_metrics(
     predictions: torch.Tensor,
     targets: torch.Tensor,
-    num_classes: int = 6
+    num_classes: int = 6,
+    ignore_index: int = -100
 ) -> Dict[str, float]:
     """
     Compute all evaluation metrics.
@@ -315,6 +323,8 @@ def compute_all_metrics(
             predicted class indices [B, H, W]
         targets (torch.Tensor): Ground truth labels [B, H, W]
         num_classes (int): Number of classes. Default: 6
+        ignore_index (int): Class index to exclude from macro averages
+            and pixel accuracy. Default: -100 (none ignored)
 
     Returns:
         Dict[str, float]: Dictionary containing all metrics:
@@ -324,25 +334,30 @@ def compute_all_metrics(
             - Pixel accuracy
 
     Example:
-        >>> metrics = compute_all_metrics(predictions, targets)
+        >>> metrics = compute_all_metrics(predictions, targets, ignore_index=0)
         >>> print(f"Macro F1: {metrics['f1_macro']:.4f}")
         >>> print(f"Pixel Accuracy: {metrics['pixel_accuracy']:.4f}")
     """
+    ignore_background = (ignore_index == 0)
     metrics = {}
 
     # F1 scores
-    f1_metrics = compute_f1_score(predictions, targets, num_classes=num_classes)
+    f1_metrics = compute_f1_score(predictions, targets, num_classes=num_classes,
+                                  ignore_background=ignore_background)
     metrics.update(f1_metrics)
 
     # IoU scores
-    iou_metrics = compute_iou(predictions, targets, num_classes=num_classes)
+    iou_metrics = compute_iou(predictions, targets, num_classes=num_classes,
+                              ignore_background=ignore_background)
     metrics.update(iou_metrics)
 
     # Dice coefficients
-    dice_metrics = compute_dice_coefficient(predictions, targets, num_classes=num_classes)
+    dice_metrics = compute_dice_coefficient(predictions, targets, num_classes=num_classes,
+                                            ignore_background=ignore_background)
     metrics.update(dice_metrics)
 
-    # Pixel accuracy
-    metrics["pixel_accuracy"] = compute_pixel_accuracy(predictions, targets)
+    # Pixel accuracy (exclude ignored pixels)
+    metrics["pixel_accuracy"] = compute_pixel_accuracy(predictions, targets,
+                                                       ignore_index=ignore_index)
 
     return metrics

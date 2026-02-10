@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.models.unet import UNet
 from src.models.deeplabv3 import DeepLabV3, DeepLabV3Plus
-from src.data.dataset import SEMDataset, get_image_filenames_from_dir
+from src.data.dataset import SEMDataset, get_image_filenames_from_dir, compute_dataset_statistics, compute_class_weights
 from src.data.transforms import get_transforms_from_config
 from src.training.losses import get_loss_from_config
 from src.training.trainer import Trainer
@@ -171,6 +171,29 @@ def main():
     print(f"Val set: {len(val_filenames)} images")
     print(f"Test set: {len(test_filenames)} images")
 
+    # Auto-compute dataset statistics from training set
+    print("\nComputing dataset statistics from training set...")
+    dataset_stats = compute_dataset_statistics(img_dir, train_filenames)
+    print(f"  Mean: {dataset_stats['mean']}")
+    print(f"  Std:  {dataset_stats['std']}")
+
+    # Inject computed mean/std into config normalize sections
+    for mode in ("train", "val"):
+        if mode in config.get("augmentation", {}):
+            if "normalize" in config["augmentation"][mode]:
+                config["augmentation"][mode]["normalize"]["mean"] = dataset_stats["mean"]
+                config["augmentation"][mode]["normalize"]["std"] = dataset_stats["std"]
+
+    # Auto-compute class weights from training set
+    print("\nComputing class weights from training set...")
+    num_classes = config["model"]["num_classes"]
+    class_weights = compute_class_weights(img_dir, label_dir, train_filenames, num_classes)
+    config["loss"]["class_weights"] = class_weights
+    class_names = config.get("class_names", {})
+    for i, w in enumerate(class_weights):
+        name = class_names.get(i, f"Class {i}")
+        print(f"  {name}: {w:.4f}")
+
     # Create transforms
     train_transform = get_transforms_from_config(config, mode="train")
     val_transform = get_transforms_from_config(config, mode="val")
@@ -181,18 +204,19 @@ def main():
 
     # Create data loaders
     batch_size = config["training"]["batch_size"]
+    num_workers = config["training"].get("num_workers", 4)
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=0,
+        num_workers=num_workers,
         pin_memory=(device.type == "cuda")
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0,
+        num_workers=num_workers,
         pin_memory=(device.type == "cuda")
     )
 
@@ -237,6 +261,20 @@ def main():
         weight_decay=config["training"].get("weight_decay", 0.0)
     )
 
+    # Initialize LR scheduler
+    scheduler = None
+    sched_config = config.get("training", {}).get("scheduler", {})
+    if sched_config.get("enabled", False):
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode=sched_config.get("mode", "min"),
+            factor=sched_config.get("factor", 0.5),
+            patience=sched_config.get("patience", 10),
+            min_lr=sched_config.get("min_lr", 1e-7),
+        )
+        print(f"\nLR Scheduler: ReduceLROnPlateau (factor={sched_config.get('factor', 0.5)}, "
+              f"patience={sched_config.get('patience', 10)}, min_lr={sched_config.get('min_lr', 1e-7)})")
+
     # Initialize loss function
     loss_fn = get_loss_from_config(config)
 
@@ -259,7 +297,8 @@ def main():
         config=config,
         metrics_fn=metrics_fn,
         checkpoint_dir=checkpoint_dir,
-        log_dir=log_dir
+        log_dir=log_dir,
+        scheduler=scheduler
     )
 
     # Run training

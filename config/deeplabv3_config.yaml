@@ -26,6 +26,17 @@ training:
   optimizer: "adam"
   weight_decay: 0.0
 
+  num_workers: 4
+
+  # LR scheduler
+  scheduler:
+    enabled: true
+    type: "reduce_on_plateau"
+    factor: 0.5
+    patience: 10
+    min_lr: 1.0e-7
+    mode: "min"
+
   # Early stopping
   early_stopping:
     enabled: true
@@ -36,8 +47,8 @@ training:
 
 # Loss function configuration
 loss:
-  type: "cross_entropy"
-  class_weights: [1.0, 1.0, 1.5, 1.0, 1.5, 1.5]
+  type: "bce_dice"  # Combined CE + Dice for better class-imbalance handling
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]  # Placeholder; auto-computed at runtime
 
 # Data augmentation (Albumentations)
 augmentation:
