@@ -70,6 +70,7 @@ class WeightedCrossEntropyLoss(nn.Module):
         if self.class_weights.device != predictions.device:
             self.class_weights = self.class_weights.to(predictions.device)
 
+        targets = targets.long()
         loss = F.cross_entropy(
             predictions,
             targets,
@@ -220,6 +221,7 @@ class BCEDiceLoss(nn.Module):
             weights = self.class_weights
 
         # BCE component (using cross-entropy for multi-class)
+        targets = targets.long()
         bce_loss = F.cross_entropy(predictions, targets, weight=weights,
                                    ignore_index=self.ignore_index, reduction='mean')
 
