@@ -170,7 +170,7 @@ class Trainer:
 
         for batch_idx, (images, labels) in enumerate(pbar):
             images = images.to(self.device)
-            labels = labels.to(self.device)
+            labels = labels.to(self.device).long()
 
             self.optimizer.zero_grad()
             if self.use_amp:
@@ -210,7 +210,7 @@ class Trainer:
         with torch.no_grad():
             for images, labels in pbar:
                 images = images.to(self.device)
-                labels = labels.to(self.device)
+                labels = labels.to(self.device).long()
 
                 if self.use_amp:
                     with torch.amp.autocast("cuda"):
