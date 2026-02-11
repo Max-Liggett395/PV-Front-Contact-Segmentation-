@@ -8,10 +8,10 @@ of Photovoltaic Cell Metallization: A Deep Learning Approach" (2025)
 Architecture details:
 - Encoder-decoder structure with skip connections
 - 5 encoder blocks with max pooling and dropout (p=0.3)
+- BatchNorm after every convolution, before ReLU
 - Bottleneck with double convolution
 - 4 decoder blocks with transposed convolution and skip connections
 - Output: 6 classes (Background, Ag, Glass, Si, Void, Interfacial Void)
-- ~7.8M trainable parameters
 """
 
 import torch
@@ -34,15 +34,29 @@ class UNet(nn.Module):
 
         # Encoder (downsampling path)
         self.enc1 = nn.LazyConv2d(64, 3, 1, 1)
+        self.bn_enc1 = nn.BatchNorm2d(64)
         self.enc1b = nn.LazyConv2d(64, 3, 1, 1)
+        self.bn_enc1b = nn.BatchNorm2d(64)
+
         self.enc2 = nn.LazyConv2d(128, 3, 1, 1)
+        self.bn_enc2 = nn.BatchNorm2d(128)
         self.enc2b = nn.LazyConv2d(128, 3, 1, 1)
+        self.bn_enc2b = nn.BatchNorm2d(128)
+
         self.enc3 = nn.LazyConv2d(256, 3, 1, 1)
+        self.bn_enc3 = nn.BatchNorm2d(256)
         self.enc3b = nn.LazyConv2d(256, 3, 1, 1)
+        self.bn_enc3b = nn.BatchNorm2d(256)
+
         self.enc4 = nn.LazyConv2d(512, 3, 1, 1)
+        self.bn_enc4 = nn.BatchNorm2d(512)
         self.enc4b = nn.LazyConv2d(512, 3, 1, 1)
+        self.bn_enc4b = nn.BatchNorm2d(512)
+
         self.enc5 = nn.LazyConv2d(1024, 3, 1, 1)
+        self.bn_enc5 = nn.BatchNorm2d(1024)
         self.enc5b = nn.LazyConv2d(1024, 3, 1, 1)
+        self.bn_enc5b = nn.BatchNorm2d(1024)
 
         # Decoder (upsampling path)
         self.dec1 = nn.LazyConvTranspose2d(512, 2, 2, 0)
@@ -62,6 +76,16 @@ class UNet(nn.Module):
         self.conv5a = nn.LazyConv2d(1024, 3, 1, 1)
         self.conv5b = nn.LazyConv2d(1024, 3, 1, 1)
 
+        # Decoder BatchNorm layers
+        self.bn_conv5a = nn.BatchNorm2d(1024)
+        self.bn_conv5b = nn.BatchNorm2d(1024)
+        self.bn_conv4a = nn.BatchNorm2d(512)
+        self.bn_conv4b = nn.BatchNorm2d(512)
+        self.bn_conv3a = nn.BatchNorm2d(256)
+        self.bn_conv3b = nn.BatchNorm2d(256)
+        self.bn_conv2a = nn.BatchNorm2d(128)
+        self.bn_conv2b = nn.BatchNorm2d(128)
+
         # Regularization
         self.dropout = nn.Dropout(p=dropout)
         self.max_pool = nn.MaxPool2d(kernel_size=2)
@@ -70,57 +94,57 @@ class UNet(nn.Module):
         self.out = nn.LazyConv2d(num_classes, 1, 1, 0)
 
     def double_conv_block1(self, x):
-        """Encoder block 1: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.enc1(x))
-        x = F.relu(self.enc1b(x))
+        """Encoder block 1: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_enc1(self.enc1(x)))
+        x = F.relu(self.bn_enc1b(self.enc1b(x)))
         return x
 
     def double_conv_block2(self, x):
-        """Encoder block 2: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.enc2(x))
-        x = F.relu(self.enc2b(x))
+        """Encoder block 2: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_enc2(self.enc2(x)))
+        x = F.relu(self.bn_enc2b(self.enc2b(x)))
         return x
 
     def double_conv_block3(self, x):
-        """Encoder block 3: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.enc3(x))
-        x = F.relu(self.enc3b(x))
+        """Encoder block 3: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_enc3(self.enc3(x)))
+        x = F.relu(self.bn_enc3b(self.enc3b(x)))
         return x
 
     def double_conv_block4(self, x):
-        """Encoder block 4: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.enc4(x))
-        x = F.relu(self.enc4b(x))
+        """Encoder block 4: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_enc4(self.enc4(x)))
+        x = F.relu(self.bn_enc4b(self.enc4b(x)))
         return x
 
     def double_conv_block5(self, x):
-        """Bottleneck: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.enc5(x))
-        x = F.relu(self.enc5b(x))
+        """Bottleneck: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_enc5(self.enc5(x)))
+        x = F.relu(self.bn_enc5b(self.enc5b(x)))
         return x
 
     def up_double_conv_block1(self, x):
-        """Decoder block 1: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.conv5a(x))
-        x = F.relu(self.conv5b(x))
+        """Decoder block 1: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_conv5a(self.conv5a(x)))
+        x = F.relu(self.bn_conv5b(self.conv5b(x)))
         return x
 
     def up_double_conv_block2(self, x):
-        """Decoder block 2: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.conv4a(x))
-        x = F.relu(self.conv4b(x))
+        """Decoder block 2: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_conv4a(self.conv4a(x)))
+        x = F.relu(self.bn_conv4b(self.conv4b(x)))
         return x
 
     def up_double_conv_block3(self, x):
-        """Decoder block 3: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.conv3a(x))
-        x = F.relu(self.conv3b(x))
+        """Decoder block 3: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_conv3a(self.conv3a(x)))
+        x = F.relu(self.bn_conv3b(self.conv3b(x)))
         return x
 
     def up_double_conv_block4(self, x):
-        """Decoder block 4: Two 3x3 convolutions with ReLU"""
-        x = F.relu(self.conv2a(x))
-        x = F.relu(self.conv2b(x))
+        """Decoder block 4: Two 3x3 convolutions with BN + ReLU"""
+        x = F.relu(self.bn_conv2a(self.conv2a(x)))
+        x = F.relu(self.bn_conv2b(self.conv2b(x)))
         return x
 
     def downsample_block1(self, x):

@@ -108,6 +108,13 @@ def create_data_splits(img_dir: str, config: dict) -> tuple:
     # Get all image filenames
     all_filenames = get_image_filenames_from_dir(img_dir)
 
+    # Exclude images specified in config (e.g. low-magnification images)
+    exclude_stems = set(config["dataset"].get("exclude", []))
+    if exclude_stems:
+        before = len(all_filenames)
+        all_filenames = [f for f in all_filenames if Path(f).stem not in exclude_stems]
+        print(f"Excluded {before - len(all_filenames)} images ({len(all_filenames)} remaining)")
+
     # Extract split ratios
     train_split = config["dataset"]["train_split"]
     val_split = config["dataset"]["val_split"]
