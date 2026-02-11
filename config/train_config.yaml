@@ -32,7 +32,7 @@ model:
 
 # Training hyperparameters
 training:
-  batch_size: 2
+  batch_size: 4
   num_epochs: 1000
   learning_rate: 1.0e-4
   optimizer: "adam"
@@ -123,7 +123,7 @@ logging:
 # Device configuration
 device:
   auto_detect: true  # Auto-detect CUDA/MPS/CPU
-  mixed_precision: false  # Optional: enable for faster training on GPU
+  mixed_precision: true  # AMP float16 — halves GPU memory usage
 
 # Reproducibility
 seed: 42

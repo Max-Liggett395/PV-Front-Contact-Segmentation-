@@ -128,6 +128,12 @@ class Trainer:
         self.metrics_fn = metrics_fn
         self.scheduler = scheduler
 
+        # Mixed precision (AMP)
+        self.use_amp = config.get("device", {}).get("mixed_precision", False) and device.type == "cuda"
+        self.scaler = torch.amp.GradScaler("cuda") if self.use_amp else None
+        if self.use_amp:
+            print("Mixed precision training (AMP) enabled")
+
         self.checkpoint_dir = Path(checkpoint_dir)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -167,10 +173,18 @@ class Trainer:
             labels = labels.to(self.device)
 
             self.optimizer.zero_grad()
-            outputs = self.model(images)
-            loss = self.loss_fn(outputs, labels)
-            loss.backward()
-            self.optimizer.step()
+            if self.use_amp:
+                with torch.amp.autocast("cuda"):
+                    outputs = self.model(images)
+                    loss = self.loss_fn(outputs, labels)
+                self.scaler.scale(loss).backward()
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+            else:
+                outputs = self.model(images)
+                loss = self.loss_fn(outputs, labels)
+                loss.backward()
+                self.optimizer.step()
 
             batch_loss = loss.item()
             epoch_loss += batch_loss
@@ -198,8 +212,13 @@ class Trainer:
                 images = images.to(self.device)
                 labels = labels.to(self.device)
 
-                outputs = self.model(images)
-                loss = self.loss_fn(outputs, labels)
+                if self.use_amp:
+                    with torch.amp.autocast("cuda"):
+                        outputs = self.model(images)
+                        loss = self.loss_fn(outputs, labels)
+                else:
+                    outputs = self.model(images)
+                    loss = self.loss_fn(outputs, labels)
 
                 batch_loss = loss.item()
                 epoch_loss += batch_loss
@@ -235,6 +254,8 @@ class Trainer:
 
         if self.scheduler is not None:
             checkpoint["scheduler_state_dict"] = self.scheduler.state_dict()
+        if self.scaler is not None:
+            checkpoint["scaler_state_dict"] = self.scaler.state_dict()
 
         torch.save(checkpoint, filepath)
 
@@ -254,6 +275,8 @@ class Trainer:
 
         if self.scheduler is not None and "scheduler_state_dict" in checkpoint:
             self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+        if self.scaler is not None and "scaler_state_dict" in checkpoint:
+            self.scaler.load_state_dict(checkpoint["scaler_state_dict"])
 
         if self.print_metrics:
             print(f"Checkpoint loaded: {filepath} (epoch {self.current_epoch})")
