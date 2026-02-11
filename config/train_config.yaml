@@ -8,6 +8,20 @@ dataset:
   val_split: 0.15
   test_split: 0.15
   seed: 42
+  # Exclude low-magnification images (2K, 2.5K, 3.5K, 4K, 5K) that confuse the model
+  exclude:
+    - "ALBSF_A20_AA_4H_2K_11"
+    - "ALBSF_A21_DI_4H_2K_11"
+    - "ALBSF_A24_Baseline_2K1"
+    - "B31_DI_4hr_2.5K_11"
+    - "NPERT_C24_AA_4H_5K_11"
+    - "NPERT_C24_AA_4H_5K_21"
+    - "NPERT_C25_DI_4H_3.5K_11"
+    - "TOPCon_sp3221a_es08_AA_4K1"
+    - "TOPCon_sp3230a_es08_DI_4K1"
+    - "TOPCon_sp3231a_es16_AA_4K1"
+    # Anomalous 10K image: no Silver class, 54.5% background
+    - "ALBSF_A24_Baseline_10K_21"
 
 # Model architecture
 model:
@@ -18,11 +32,22 @@ model:
 
 # Training hyperparameters
 training:
-  batch_size: 2
+  batch_size: 8
   num_epochs: 1000
   learning_rate: 1.0e-4
   optimizer: "adam"
   weight_decay: 0.0
+
+  num_workers: 8
+
+  # LR scheduler
+  scheduler:
+    enabled: true
+    type: "reduce_on_plateau"
+    factor: 0.5
+    patience: 10
+    min_lr: 1.0e-7
+    mode: "min"
 
   # Early stopping
   early_stopping:
@@ -34,8 +59,8 @@ training:
 
 # Loss function configuration
 loss:
-  type: "cross_entropy"  # Options: "cross_entropy", "bce_dice"
-  class_weights: [1.0, 1.0, 1.5, 1.0, 1.5, 1.5]  # Background, Ag, Glass, Si, Void, Interfacial Void
+  type: "bce_dice"  # Combined CE + Dice for better class-imbalance handling
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]  # Placeholder; auto-computed at runtime
 
 # Data augmentation (Albumentations)
 augmentation:
@@ -49,7 +74,7 @@ augmentation:
 
     gauss_noise:
       enabled: true
-      var_limit: [10.0, 50.0]
+      std_range: [0.012, 0.028]
       p: 0.2
 
     # Limited geometric augmentations (less effective but included)
@@ -98,7 +123,7 @@ logging:
 # Device configuration
 device:
   auto_detect: true  # Auto-detect CUDA/MPS/CPU
-  mixed_precision: false  # Optional: enable for faster training on GPU
+  mixed_precision: true  # AMP float16 — halves GPU memory usage
 
 # Reproducibility
 seed: 42

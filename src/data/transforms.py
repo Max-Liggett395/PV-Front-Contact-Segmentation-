@@ -12,10 +12,24 @@ Per the paper findings:
 Note: All transforms work with both image and mask to maintain correspondence.
 """
 
+import inspect
 from typing import Dict, Any
 
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+
+# Albumentations v2+ renamed var_limit to std_range in GaussNoise
+_GAUSS_NOISE_USE_STD_RANGE = "std_range" in inspect.signature(A.GaussNoise).parameters
+
+
+def _make_gauss_noise(std_range, p):
+    """Create GaussNoise compatible with both old (var_limit) and new (std_range) API."""
+    if _GAUSS_NOISE_USE_STD_RANGE:
+        return A.GaussNoise(std_range=std_range, p=p)
+    # Convert std_range (fraction of 255) back to var_limit (pixel-scale variance)
+    var_low = (std_range[0] * 255) ** 2
+    var_high = (std_range[1] * 255) ** 2
+    return A.GaussNoise(var_limit=(var_low, var_high), p=p)
 
 
 def get_train_transforms(config: Dict[str, Any] = None) -> A.Compose:
@@ -41,7 +55,7 @@ def get_train_transforms(config: Dict[str, Any] = None) -> A.Compose:
         # Default configuration matching train_config.yaml
         config = {
             "gaussian_blur": {"enabled": True, "blur_limit": [3, 7], "sigma_limit": [0.5, 1.5], "p": 0.2},
-            "gauss_noise": {"enabled": True, "var_limit": [10.0, 50.0], "p": 0.2},
+            "gauss_noise": {"enabled": True, "std_range": [0.012, 0.028], "p": 0.2},
             "horizontal_flip": {"enabled": True, "p": 0.5},
             "vertical_flip": {"enabled": True, "p": 0.5},
             "rotate": {"enabled": True, "limit": 5, "p": 0.3},
@@ -64,8 +78,8 @@ def get_train_transforms(config: Dict[str, Any] = None) -> A.Compose:
     if config.get("gauss_noise", {}).get("enabled", False):
         params = config["gauss_noise"]
         transforms_list.append(
-            A.GaussNoise(
-                var_limit=tuple(params["var_limit"]),
+            _make_gauss_noise(
+                std_range=tuple(params["std_range"]),
                 p=params["p"]
             )
         )
@@ -173,7 +187,7 @@ MINIMAL_AUGMENTATION = A.Compose([
 
 MORPHOLOGICAL_ONLY = A.Compose([
     A.GaussianBlur(blur_limit=(3, 7), sigma_limit=(0.5, 1.5), p=0.3),
-    A.GaussNoise(var_limit=(10.0, 50.0), p=0.3),
+    _make_gauss_noise(std_range=(0.012, 0.028), p=0.3),
     A.Normalize(mean=[0.0], std=[1.0], max_pixel_value=255.0),
     ToTensorV2()
 ])
@@ -188,7 +202,7 @@ GEOMETRIC_ONLY = A.Compose([
 
 HEAVY_AUGMENTATION = A.Compose([
     A.GaussianBlur(blur_limit=(3, 7), sigma_limit=(0.5, 1.5), p=0.5),
-    A.GaussNoise(var_limit=(10.0, 50.0), p=0.5),
+    _make_gauss_noise(std_range=(0.012, 0.028), p=0.5),
     A.HorizontalFlip(p=0.5),
     A.VerticalFlip(p=0.5),
     A.Rotate(limit=10, border_mode=0, p=0.5),

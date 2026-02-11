@@ -115,7 +115,8 @@ class Trainer:
         config: Dict,
         metrics_fn: Optional[Callable] = None,
         checkpoint_dir: str = "checkpoints",
-        log_dir: Optional[str] = None
+        log_dir: Optional[str] = None,
+        scheduler=None
     ):
         self.model = model
         self.train_loader = train_loader
@@ -125,6 +126,13 @@ class Trainer:
         self.device = device
         self.config = config
         self.metrics_fn = metrics_fn
+        self.scheduler = scheduler
+
+        # Mixed precision (AMP)
+        self.use_amp = config.get("device", {}).get("mixed_precision", False) and device.type == "cuda"
+        self.scaler = torch.amp.GradScaler("cuda") if self.use_amp else None
+        if self.use_amp:
+            print("Mixed precision training (AMP) enabled")
 
         self.checkpoint_dir = Path(checkpoint_dir)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
@@ -165,10 +173,18 @@ class Trainer:
             labels = labels.to(self.device).long()
 
             self.optimizer.zero_grad()
-            outputs = self.model(images)
-            loss = self.loss_fn(outputs, labels)
-            loss.backward()
-            self.optimizer.step()
+            if self.use_amp:
+                with torch.amp.autocast("cuda"):
+                    outputs = self.model(images)
+                    loss = self.loss_fn(outputs, labels)
+                self.scaler.scale(loss).backward()
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+            else:
+                outputs = self.model(images)
+                loss = self.loss_fn(outputs, labels)
+                loss.backward()
+                self.optimizer.step()
 
             batch_loss = loss.item()
             epoch_loss += batch_loss
@@ -196,8 +212,13 @@ class Trainer:
                 images = images.to(self.device)
                 labels = labels.to(self.device).long()
 
-                outputs = self.model(images)
-                loss = self.loss_fn(outputs, labels)
+                if self.use_amp:
+                    with torch.amp.autocast("cuda"):
+                        outputs = self.model(images)
+                        loss = self.loss_fn(outputs, labels)
+                else:
+                    outputs = self.model(images)
+                    loss = self.loss_fn(outputs, labels)
 
                 batch_loss = loss.item()
                 epoch_loss += batch_loss
@@ -231,6 +252,11 @@ class Trainer:
             "config": self.config
         }
 
+        if self.scheduler is not None:
+            checkpoint["scheduler_state_dict"] = self.scheduler.state_dict()
+        if self.scaler is not None:
+            checkpoint["scaler_state_dict"] = self.scaler.state_dict()
+
         torch.save(checkpoint, filepath)
 
         if self.print_metrics:
@@ -246,6 +272,11 @@ class Trainer:
         self.train_losses = checkpoint.get("train_losses", [])
         self.val_losses = checkpoint.get("val_losses", [])
         self.best_val_loss = checkpoint.get("best_val_loss", float('inf'))
+
+        if self.scheduler is not None and "scheduler_state_dict" in checkpoint:
+            self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+        if self.scaler is not None and "scaler_state_dict" in checkpoint:
+            self.scaler.load_state_dict(checkpoint["scaler_state_dict"])
 
         if self.print_metrics:
             print(f"Checkpoint loaded: {filepath} (epoch {self.current_epoch})")
@@ -283,10 +314,20 @@ class Trainer:
                 except:
                     pass  # Silently skip if still fails
 
+            # Step LR scheduler
+            if self.scheduler is not None:
+                if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                    self.scheduler.step(val_loss)
+                else:
+                    self.scheduler.step()
+
+            current_lr = self.optimizer.param_groups[0]["lr"]
+
             if self.print_metrics:
                 print(f"\nEpoch {epoch}/{num_epochs-1}")
                 print(f"  Train Loss: {train_loss:.4f}")
                 print(f"  Val Loss:   {val_loss:.4f}")
+                print(f"  LR:         {current_lr:.2e}")
 
                 for key, value in val_results.items():
                     if key != "val_loss" and "macro" in key:
@@ -295,6 +336,7 @@ class Trainer:
             if self.writer:
                 self.writer.add_scalar("Train/EpochLoss", train_loss, epoch)
                 self.writer.add_scalar("Val/EpochLoss", val_loss, epoch)
+                self.writer.add_scalar("Train/LR", current_lr, epoch)
                 for key, value in val_results.items():
                     if key != "val_loss":
                         self.writer.add_scalar(f"Val/{key}", value, epoch)

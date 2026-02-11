@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.models.unet import UNet
 from src.models.deeplabv3 import DeepLabV3, DeepLabV3Plus
-from src.data.dataset import SEMDataset, get_image_filenames_from_dir
+from src.data.dataset import SEMDataset, get_image_filenames_from_dir, compute_dataset_statistics, compute_class_weights
 from src.data.transforms import get_transforms_from_config
 from src.training.losses import get_loss_from_config
 from src.training.trainer import Trainer
@@ -108,6 +108,13 @@ def create_data_splits(img_dir: str, config: dict) -> tuple:
     # Get all image filenames
     all_filenames = get_image_filenames_from_dir(img_dir)
 
+    # Exclude images specified in config (e.g. low-magnification images)
+    exclude_stems = set(config["dataset"].get("exclude", []))
+    if exclude_stems:
+        before = len(all_filenames)
+        all_filenames = [f for f in all_filenames if Path(f).stem not in exclude_stems]
+        print(f"Excluded {before - len(all_filenames)} images ({len(all_filenames)} remaining)")
+
     # Extract split ratios
     train_split = config["dataset"]["train_split"]
     val_split = config["dataset"]["val_split"]
@@ -171,6 +178,29 @@ def main():
     print(f"Val set: {len(val_filenames)} images")
     print(f"Test set: {len(test_filenames)} images")
 
+    # Auto-compute dataset statistics from training set
+    print("\nComputing dataset statistics from training set...")
+    dataset_stats = compute_dataset_statistics(img_dir, train_filenames)
+    print(f"  Mean: {dataset_stats['mean']}")
+    print(f"  Std:  {dataset_stats['std']}")
+
+    # Inject computed mean/std into config normalize sections
+    for mode in ("train", "val"):
+        if mode in config.get("augmentation", {}):
+            if "normalize" in config["augmentation"][mode]:
+                config["augmentation"][mode]["normalize"]["mean"] = dataset_stats["mean"]
+                config["augmentation"][mode]["normalize"]["std"] = dataset_stats["std"]
+
+    # Auto-compute class weights from training set
+    print("\nComputing class weights from training set...")
+    num_classes = config["model"]["num_classes"]
+    class_weights = compute_class_weights(img_dir, label_dir, train_filenames, num_classes)
+    config["loss"]["class_weights"] = class_weights
+    class_names = config.get("class_names", {})
+    for i, w in enumerate(class_weights):
+        name = class_names.get(i, f"Class {i}")
+        print(f"  {name}: {w:.4f}")
+
     # Create transforms
     train_transform = get_transforms_from_config(config, mode="train")
     val_transform = get_transforms_from_config(config, mode="val")
@@ -181,11 +211,12 @@ def main():
 
     # Create data loaders
     batch_size = config["training"]["batch_size"]
+    num_workers = config["training"].get("num_workers", 4)
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=0,
+        num_workers=num_workers,
         pin_memory=(device.type == "cuda"),
         drop_last=True
     )
@@ -193,7 +224,7 @@ def main():
         val_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0,
+        num_workers=num_workers,
         pin_memory=(device.type == "cuda")
     )
 
@@ -210,11 +241,11 @@ def main():
     model = model.to(device)
 
     # Initialize LazyModules with a dummy forward pass
-    model.training = False
+    model.eval()
     with torch.no_grad():
         dummy_input = torch.zeros(1, model_config["in_channels"], 768, 1024, device=device)
         _ = model(dummy_input)
-    model.training = True
+    model.train()
 
     model_name = model_config.get("name", "unet")
     print(f"\nModel '{model_name}' initialized successfully!")
@@ -238,6 +269,20 @@ def main():
         weight_decay=config["training"].get("weight_decay", 0.0)
     )
 
+    # Initialize LR scheduler
+    scheduler = None
+    sched_config = config.get("training", {}).get("scheduler", {})
+    if sched_config.get("enabled", False):
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode=sched_config.get("mode", "min"),
+            factor=sched_config.get("factor", 0.5),
+            patience=sched_config.get("patience", 10),
+            min_lr=sched_config.get("min_lr", 1e-7),
+        )
+        print(f"\nLR Scheduler: ReduceLROnPlateau (factor={sched_config.get('factor', 0.5)}, "
+              f"patience={sched_config.get('patience', 10)}, min_lr={sched_config.get('min_lr', 1e-7)})")
+
     # Initialize loss function
     loss_fn = get_loss_from_config(config)
 
@@ -260,7 +305,8 @@ def main():
         config=config,
         metrics_fn=metrics_fn,
         checkpoint_dir=checkpoint_dir,
-        log_dir=log_dir
+        log_dir=log_dir,
+        scheduler=scheduler
     )
 
     # Run training

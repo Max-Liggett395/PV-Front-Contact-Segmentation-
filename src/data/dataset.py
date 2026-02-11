@@ -188,6 +188,88 @@ def get_image_filenames_from_dir(img_dir: str) -> List[str]:
     return sorted(filenames)
 
 
+def compute_dataset_statistics(img_dir: str, img_filenames: List[str]) -> dict:
+    """
+    Compute mean and std of pixel values across training images.
+
+    Iterates raw images (no transforms), returns stats of pixel values scaled to [0,1].
+
+    Args:
+        img_dir: Directory containing image files
+        img_filenames: List of image filenames to compute stats over
+
+    Returns:
+        dict with "mean" and "std" as single-element lists (for grayscale)
+    """
+    img_dir = Path(img_dir)
+    pixel_sum = 0.0
+    pixel_sq_sum = 0.0
+    num_pixels = 0
+
+    for fname in img_filenames:
+        img = Image.open(img_dir / fname).convert("L")
+        img = img.resize((1024, 768), Image.BILINEAR)
+        arr = np.array(img, dtype=np.float64) / 255.0
+        pixel_sum += arr.sum()
+        pixel_sq_sum += (arr ** 2).sum()
+        num_pixels += arr.size
+
+    mean = pixel_sum / num_pixels
+    std = np.sqrt(pixel_sq_sum / num_pixels - mean ** 2)
+
+    return {"mean": [float(mean)], "std": [float(std)]}
+
+
+def compute_class_weights(
+    img_dir: str,
+    label_dir: str,
+    img_filenames: List[str],
+    num_classes: int = 6
+) -> List[float]:
+    """
+    Compute median-frequency balanced class weights from training masks.
+
+    Args:
+        img_dir: Directory containing image files (used to derive mask filenames)
+        label_dir: Directory containing .npy label files
+        img_filenames: List of image filenames in the training set
+        num_classes: Number of classes
+
+    Returns:
+        List of class weights (length num_classes), capped at 10.0
+    """
+    label_dir = Path(label_dir)
+    class_pixel_counts = np.zeros(num_classes, dtype=np.int64)
+
+    for fname in img_filenames:
+        stem = Path(fname).stem
+        label_path = label_dir / f"{stem}.npy"
+        if not label_path.exists():
+            continue
+        mask = np.load(label_path)
+        mask = Image.fromarray(mask.astype(np.uint8))
+        mask = mask.resize((1024, 768), Image.NEAREST)
+        mask = np.array(mask)
+        for c in range(num_classes):
+            class_pixel_counts[c] += (mask == c).sum()
+
+    # Median-frequency balancing: weight_c = median(freq) / freq_c
+    total_pixels = class_pixel_counts.sum()
+    if total_pixels == 0:
+        return [1.0] * num_classes
+
+    frequencies = class_pixel_counts / total_pixels
+    # Avoid division by zero for classes not present
+    frequencies = np.where(frequencies == 0, 1e-10, frequencies)
+    median_freq = np.median(frequencies[frequencies > 1e-10])
+    weights = median_freq / frequencies
+
+    # Cap max weight at 10.0 to avoid instability
+    weights = np.clip(weights, a_min=0.1, a_max=10.0)
+
+    return [float(w) for w in weights]
+
+
 def verify_dataset_integrity(img_dir: str, label_dir: str) -> Tuple[int, List[str]]:
     """
     Verify that all images have corresponding labels.

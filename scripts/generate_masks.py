@@ -7,7 +7,6 @@ from pathlib import Path
 from PIL import Image
 import cv2
 import argparse
-from scipy.ndimage import distance_transform_edt
 
 
 # Class mapping from annotation labels to numeric values
@@ -99,11 +98,9 @@ def create_mask_from_regions(regions: list, image_shape: tuple) -> np.ndarray:
     Returns:
         Numpy array mask with class indices
     """
-    UNCLASSIFIED = 255
     height, width = image_shape
-    # Initialize as unclassified; annotated pixels will be filled by polygons,
-    # remaining pixels will be assigned via nearest-neighbor from annotated ones.
-    mask = np.full((height, width), UNCLASSIFIED, dtype=np.uint8)
+    # Initialize as background (class 0); annotated pixels will be filled by polygons.
+    mask = np.zeros((height, width), dtype=np.uint8)
 
     # Sort regions by draw priority so voids are drawn on top of base materials
     def get_region_priority(region):
@@ -155,12 +152,6 @@ def create_mask_from_regions(regions: list, image_shape: tuple) -> np.ndarray:
             cy = int(shape_attrs.get('cy', 0))
             r = int(shape_attrs.get('r', 0))
             cv2.circle(mask, (cx, cy), r, class_idx, -1)
-
-    # Fill unclassified pixels with nearest annotated class
-    unclassified = mask == UNCLASSIFIED
-    if unclassified.any():
-        _, nearest_indices = distance_transform_edt(unclassified, return_distances=True, return_indices=True)
-        mask[unclassified] = mask[nearest_indices[0][unclassified], nearest_indices[1][unclassified]]
 
     return mask
 
