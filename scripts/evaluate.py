@@ -35,6 +35,69 @@ from src.utils.visualization import save_comparison_grid, tensor_to_numpy
 from scripts.train import create_data_splits, get_device, create_model
 
 
+def predict_sliding_window(model, image, patch_size, stride, device, num_classes):
+    """
+    Run sliding window inference on a single image.
+
+    Args:
+        model: Trained segmentation model
+        image: Input tensor of shape (C, H, W)
+        patch_size: Size of square patches (e.g., 512)
+        stride: Step size between patches (e.g., 256 for 50% overlap)
+        device: Torch device
+        num_classes: Number of segmentation classes
+
+    Returns:
+        Prediction tensor of shape (num_classes, H, W) with averaged logits
+    """
+    _, h, w = image.shape
+    logits_sum = torch.zeros(num_classes, h, w, device=device)
+    count = torch.zeros(1, h, w, device=device)
+
+    for y in range(0, h - patch_size + 1, stride):
+        for x in range(0, w - patch_size + 1, stride):
+            patch = image[:, y:y + patch_size, x:x + patch_size].unsqueeze(0).to(device)
+            with torch.no_grad():
+                output = model(patch)  # (1, num_classes, patch_size, patch_size)
+            logits_sum[:, y:y + patch_size, x:x + patch_size] += output.squeeze(0)
+            count[:, y:y + patch_size, x:x + patch_size] += 1
+
+    # Handle right and bottom edges if image isn't evenly divisible
+    # Right edge
+    if (w - patch_size) % stride != 0:
+        x = w - patch_size
+        for y in range(0, h - patch_size + 1, stride):
+            patch = image[:, y:y + patch_size, x:x + patch_size].unsqueeze(0).to(device)
+            with torch.no_grad():
+                output = model(patch)
+            logits_sum[:, y:y + patch_size, x:x + patch_size] += output.squeeze(0)
+            count[:, y:y + patch_size, x:x + patch_size] += 1
+
+    # Bottom edge
+    if (h - patch_size) % stride != 0:
+        y = h - patch_size
+        for x in range(0, w - patch_size + 1, stride):
+            patch = image[:, y:y + patch_size, x:x + patch_size].unsqueeze(0).to(device)
+            with torch.no_grad():
+                output = model(patch)
+            logits_sum[:, y:y + patch_size, x:x + patch_size] += output.squeeze(0)
+            count[:, y:y + patch_size, x:x + patch_size] += 1
+
+    # Bottom-right corner
+    if (w - patch_size) % stride != 0 and (h - patch_size) % stride != 0:
+        y = h - patch_size
+        x = w - patch_size
+        patch = image[:, y:y + patch_size, x:x + patch_size].unsqueeze(0).to(device)
+        with torch.no_grad():
+            output = model(patch)
+        logits_sum[:, y:y + patch_size, x:x + patch_size] += output.squeeze(0)
+        count[:, y:y + patch_size, x:x + patch_size] += 1
+
+    # Average overlapping predictions
+    logits_avg = logits_sum / count.clamp(min=1)
+    return logits_avg
+
+
 def main():
     parser = argparse.ArgumentParser(description="Test U-Net on test set")
     parser.add_argument("--checkpoint", type=str, required=True,
@@ -49,6 +112,10 @@ def main():
                         help="Number of samples to visualize")
     parser.add_argument("--device", type=str, default=None,
                         help="Force device (cuda, mps, cpu)")
+    parser.add_argument("--patch-size", type=int, default=None,
+                        help="Patch size for sliding window inference (e.g., 512)")
+    parser.add_argument("--stride", type=int, default=None,
+                        help="Stride for sliding window inference (default: patch_size // 2)")
     args = parser.parse_args()
 
     # Load configuration
@@ -103,22 +170,41 @@ def main():
     print(f"Model loaded from: {args.checkpoint}")
 
     # Run inference on test set
-    print("\nRunning inference on test set...")
+    use_sliding_window = args.patch_size is not None
+    if use_sliding_window:
+        stride = args.stride if args.stride is not None else args.patch_size // 2
+        print(f"\nRunning sliding window inference (patch_size={args.patch_size}, stride={stride})...")
+    else:
+        print("\nRunning inference on test set...")
+
     all_predictions = []
     all_targets = []
     all_images = []
 
     model.eval()
-    with torch.no_grad():
-        for images, labels in tqdm(test_loader, desc="Testing"):
-            images = images.to(device)
-            labels = labels.to(device)
+    if use_sliding_window:
+        # Sliding window: process one image at a time from dataset
+        for i in tqdm(range(len(test_dataset)), desc="Testing (sliding window)"):
+            image, label = test_dataset[i]
+            all_images.append(image.unsqueeze(0))
+            all_targets.append(label.unsqueeze(0))
 
-            outputs = model(images)
+            logits = predict_sliding_window(
+                model, image, args.patch_size, stride, device,
+                num_classes=model_config["num_classes"]
+            )
+            all_predictions.append(logits.cpu().unsqueeze(0))
+    else:
+        with torch.no_grad():
+            for images, labels in tqdm(test_loader, desc="Testing"):
+                images = images.to(device)
+                labels = labels.to(device)
 
-            all_predictions.append(outputs.cpu())
-            all_targets.append(labels.cpu())
-            all_images.append(images.cpu())
+                outputs = model(images)
+
+                all_predictions.append(outputs.cpu())
+                all_targets.append(labels.cpu())
+                all_images.append(images.cpu())
 
     all_predictions = torch.cat(all_predictions, dim=0)
     all_targets = torch.cat(all_targets, dim=0)

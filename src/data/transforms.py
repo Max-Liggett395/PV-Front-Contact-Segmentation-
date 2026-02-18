@@ -64,6 +64,16 @@ def get_train_transforms(config: Dict[str, Any] = None) -> A.Compose:
 
     transforms_list = []
 
+    # Random crop (for patch-based training)
+    if config.get("random_crop", {}).get("enabled", False):
+        crop_params = config["random_crop"]
+        transforms_list.append(
+            A.RandomCrop(
+                height=crop_params["height"],
+                width=crop_params["width"]
+            )
+        )
+
     # Morphological augmentations (most effective for SEM per paper)
     if config.get("gaussian_blur", {}).get("enabled", False):
         params = config["gaussian_blur"]
