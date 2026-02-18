@@ -13,7 +13,7 @@ import torch
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.models.unet import UNet, create_unet
+from src.models.unet import UNet, FiLMLayer, create_unet
 
 
 def test_model_initialization():
@@ -158,6 +158,114 @@ def test_model_reproducibility():
     output2 = model2(input_tensor)
 
     assert torch.allclose(output1, output2, atol=1e-6), "Outputs should be identical with same seed"
+
+
+def test_film_layer():
+    """Test FiLMLayer produces correct output shape and near-identity init."""
+    film = FiLMLayer(condition_dim=32, num_features=64)
+
+    x = torch.randn(2, 64, 16, 16)
+    cond = torch.randn(2, 32)
+
+    out = film(x, cond)
+    assert out.shape == x.shape, f"Expected {x.shape}, got {out.shape}"
+    assert torch.isfinite(out).all(), "FiLM output contains non-finite values"
+
+    # With zero conditioning, output should be close to input (gamma~1, beta~0)
+    cond_zero = torch.zeros(2, 32)
+    out_zero = film(x, cond_zero)
+    assert torch.allclose(out_zero, x, atol=0.1), "FiLM with zero input should be near-identity"
+
+
+def test_film_unet_initialization():
+    """Test that FiLM-conditioned U-Net can be initialized."""
+    model = UNet(in_channels=1, num_classes=6, dropout=0.3,
+                 num_magnifications=10, film_embedding_dim=32)
+
+    assert model.film_enabled, "FiLM should be enabled"
+    assert hasattr(model, 'mag_embedding'), "Should have magnification embedding"
+    assert hasattr(model, 'film1'), "Should have FiLM layer 1"
+    assert hasattr(model, 'film5'), "Should have FiLM layer 5 (bottleneck)"
+
+
+def test_film_unet_forward_with_mag_id():
+    """Test FiLM-conditioned U-Net forward pass with magnification IDs."""
+    model = UNet(in_channels=1, num_classes=6, dropout=0.3,
+                 num_magnifications=10, film_embedding_dim=32)
+
+    batch_size = 2
+    x = torch.randn(batch_size, 1, 64, 64)
+    mag_ids = torch.tensor([3, 7])
+
+    output = model(x, mag_id=mag_ids)
+
+    expected_shape = (batch_size, 6, 64, 64)
+    assert output.shape == expected_shape, f"Expected {expected_shape}, got {output.shape}"
+    assert torch.isfinite(output).all(), "Output contains non-finite values"
+
+
+def test_film_unet_forward_without_mag_id():
+    """Test FiLM-conditioned U-Net works without mag_id (backward compat)."""
+    model = UNet(in_channels=1, num_classes=6, dropout=0.3,
+                 num_magnifications=10, film_embedding_dim=32)
+
+    x = torch.randn(1, 1, 64, 64)
+    output = model(x)  # No mag_id
+
+    assert output.shape == (1, 6, 64, 64), f"Wrong shape: {output.shape}"
+
+
+def test_film_unet_different_mag_ids_produce_different_outputs():
+    """Test that different magnification IDs produce different outputs."""
+    model = UNet(in_channels=1, num_classes=6, dropout=0.3,
+                 num_magnifications=10, film_embedding_dim=32)
+
+    # Initialize lazy modules
+    x = torch.randn(1, 1, 64, 64)
+    _ = model(x, mag_id=torch.tensor([0]))
+
+    # Same input, different mag_ids
+    torch.manual_seed(42)
+    x = torch.randn(1, 1, 64, 64)
+
+    model.training = False  # Disable dropout for deterministic comparison
+    out1 = model(x, mag_id=torch.tensor([0]))
+    out2 = model(x, mag_id=torch.tensor([5]))
+
+    assert not torch.allclose(out1, out2, atol=1e-6), \
+        "Different mag_ids should produce different outputs"
+
+
+def test_create_unet_factory_with_film():
+    """Test factory function with FiLM parameters."""
+    model = create_unet(num_magnifications=5, film_embedding_dim=16)
+
+    assert model.film_enabled, "FiLM should be enabled"
+    assert isinstance(model, UNet)
+
+    x = torch.randn(1, 1, 64, 64)
+    mag_ids = torch.tensor([2])
+    output = model(x, mag_id=mag_ids)
+    assert output.shape == (1, 6, 64, 64)
+
+
+def test_film_unet_gradient_flow():
+    """Test that gradients flow through FiLM layers."""
+    model = UNet(in_channels=1, num_classes=6, dropout=0.3,
+                 num_magnifications=10, film_embedding_dim=32)
+
+    x = torch.randn(1, 1, 64, 64, requires_grad=True)
+    mag_ids = torch.tensor([3])
+    target = torch.randint(0, 6, (1, 64, 64))
+
+    output = model(x, mag_id=mag_ids)
+    loss = torch.nn.CrossEntropyLoss()(output, target)
+    loss.backward()
+
+    # Check FiLM layers have gradients
+    assert model.film1.gamma_fc.weight.grad is not None, "FiLM gamma should have gradients"
+    assert model.film1.beta_fc.weight.grad is not None, "FiLM beta should have gradients"
+    assert model.mag_embedding.weight.grad is not None, "Mag embedding should have gradients"
 
 
 if __name__ == "__main__":

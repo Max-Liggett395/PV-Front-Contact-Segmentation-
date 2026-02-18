@@ -339,16 +339,11 @@ class UNet(nn.Module):
         return outputs
 
     def count_parameters(self):
-        """Count total trainable parameters"""
+        """Count total trainable parameters (skips uninitialized LazyModule params)."""
         total = 0
         for p in self.parameters():
-            if p.requires_grad:
-                # Check if parameter is initialized (for LazyModules)
-                if hasattr(p, 'is_materialized'):
-                    if p.is_materialized():
-                        total += p.numel()
-                else:
-                    total += p.numel()
+            if p.requires_grad and not isinstance(p, torch.nn.parameter.UninitializedParameter):
+                total += p.numel()
         return total
 
 
