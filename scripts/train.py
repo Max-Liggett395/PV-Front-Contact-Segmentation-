@@ -11,7 +11,9 @@ Optional arguments:
 """
 
 import argparse
+import json
 import sys
+from collections import Counter
 from pathlib import Path
 import yaml
 import random
@@ -19,7 +21,7 @@ import random
 import numpy as np
 import torch
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 from sklearn.model_selection import train_test_split
 
 # Add parent directory to path for imports
@@ -34,12 +36,14 @@ from src.training.trainer import Trainer
 from src.evaluation.metrics import compute_f1_score
 
 
-def create_model(model_config: dict):
+def create_model(model_config: dict, num_magnifications: int = None, film_embedding_dim: int = 32):
     """
     Factory function to create model based on configuration.
 
     Args:
         model_config: Model configuration dictionary with 'name' key
+        num_magnifications: Number of magnification categories for FiLM conditioning
+        film_embedding_dim: Dimension of magnification embedding
 
     Returns:
         Model instance
@@ -50,7 +54,9 @@ def create_model(model_config: dict):
         return UNet(
             in_channels=model_config["in_channels"],
             num_classes=model_config["num_classes"],
-            dropout=model_config.get("dropout", 0.3)
+            dropout=model_config.get("dropout", 0.3),
+            num_magnifications=num_magnifications,
+            film_embedding_dim=film_embedding_dim,
         )
     elif model_name == "deeplabv3":
         return DeepLabV3(
@@ -201,21 +207,67 @@ def main():
         name = class_names.get(i, f"Class {i}")
         print(f"  {name}: {w:.4f}")
 
+    # Load magnification map if FiLM is enabled
+    film_config = config.get("film", {})
+    magnification_map = None
+    num_magnifications = None
+    film_embedding_dim = film_config.get("embedding_dim", 32)
+
+    if film_config.get("enabled", False):
+        mag_map_path = film_config.get("magnification_map", "data/magnification_map.json")
+        print(f"\nLoading magnification map from {mag_map_path}...")
+        with open(mag_map_path, 'r') as f:
+            magnification_map = json.load(f)
+        print(f"  Loaded {len(magnification_map)} entries")
+
     # Create transforms
     train_transform = get_transforms_from_config(config, mode="train")
     val_transform = get_transforms_from_config(config, mode="val")
 
     # Create datasets
-    train_dataset = SEMDataset(img_dir, label_dir, train_filenames, transform=train_transform)
-    val_dataset = SEMDataset(img_dir, label_dir, val_filenames, transform=val_transform)
+    train_dataset = SEMDataset(img_dir, label_dir, train_filenames,
+                               transform=train_transform, magnification_map=magnification_map)
+    val_dataset = SEMDataset(img_dir, label_dir, val_filenames,
+                             transform=val_transform, magnification_map=magnification_map)
 
-    # Create data loaders
+    if magnification_map is not None:
+        mag_categories = train_dataset.get_magnification_categories()
+        num_magnifications = len(mag_categories)
+        print(f"  Magnification categories: {num_magnifications}")
+        print(f"  Values: {mag_categories}")
+
+    # Create weighted sampler if configured
     batch_size = config["training"]["batch_size"]
     num_workers = config["training"].get("num_workers", 4)
+    train_sampler = None
+    train_shuffle = True
+
+    sampling_config = config.get("sampling", {})
+    if sampling_config.get("weighted_by_magnification", False) and magnification_map is not None:
+        print("\nCreating WeightedRandomSampler by magnification...")
+        mag_ids = train_dataset.get_sample_mag_ids()
+        mag_counts = Counter(mag_ids)
+        # Weight = 1 / count for each sample's magnification category
+        sample_weights = [1.0 / mag_counts[mid] for mid in mag_ids]
+        train_sampler = WeightedRandomSampler(
+            weights=sample_weights,
+            num_samples=len(train_dataset),
+            replacement=True
+        )
+        train_shuffle = False  # Sampler and shuffle are mutually exclusive
+        print(f"  Magnification distribution in training set:")
+        train_mag_cats = train_dataset.get_magnification_categories()
+        if train_mag_cats:
+            for mid, count in sorted(mag_counts.items()):
+                mag_val = train_mag_cats[mid] if mid < len(train_mag_cats) else "?"
+                print(f"    {mag_val} KX: {count} images (weight={1.0/count:.4f})")
+
+    # Create data loaders
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=train_shuffle,
+        sampler=train_sampler,
         num_workers=num_workers,
         pin_memory=(device.type == "cuda"),
         drop_last=True
@@ -235,16 +287,17 @@ def main():
     # Initialize model
     print("\nInitializing model...")
     model_config = config["model"]
-    model = create_model(model_config)
+    model = create_model(model_config, num_magnifications=num_magnifications,
+                         film_embedding_dim=film_embedding_dim)
 
     # Move model to device
     model = model.to(device)
 
     # Initialize LazyModules with a dummy forward pass
-    model.eval()
     with torch.no_grad():
         dummy_input = torch.zeros(1, model_config["in_channels"], 768, 1024, device=device)
-        _ = model(dummy_input)
+        dummy_mag = torch.zeros(1, dtype=torch.long, device=device) if num_magnifications else None
+        _ = model(dummy_input, mag_id=dummy_mag)
     model.train()
 
     model_name = model_config.get("name", "unet")
