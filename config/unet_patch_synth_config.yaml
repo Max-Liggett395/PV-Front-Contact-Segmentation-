@@ -1,0 +1,156 @@
+# U-Net Patch-Based Training with Synthetic Data + Focal Dice Loss
+# Extends unet_patch_config.yaml with:
+#   - Synthetic morphological mask augmentation (data/synthetic/)
+#   - Focal Dice loss for rare-class focus
+#   - ElasticTransform + GridDistortion for spatial deformation
+#   - Increased morphological aug probabilities
+
+# Dataset paths and configuration
+dataset:
+  images_dir: "data/images"
+  labels_dir: "data/masks/npy"
+  synthetic_dir: "data/synthetic"
+  train_split: 0.70
+  val_split: 0.15
+  test_split: 0.15
+  seed: 42
+
+# Model architecture
+model:
+  name: "unet"
+  num_classes: 6
+  dropout: 0.3
+  in_channels: 1  # Grayscale SEM images
+
+# Training hyperparameters
+training:
+  batch_size: 16
+  num_epochs: 1000
+  learning_rate: 1.0e-4
+  optimizer: "adam"
+  weight_decay: 0.0
+
+  num_workers: 8
+
+  # LR scheduler
+  scheduler:
+    enabled: true
+    type: "reduce_on_plateau"
+    factor: 0.5
+    patience: 10
+    min_lr: 1.0e-7
+    mode: "max"
+
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 50
+    min_delta: 0.0001
+    monitor: "f1_macro"
+    mode: "max"
+
+# Loss function configuration — Focal Dice for rare-class focus
+loss:
+  type: "focal_dice"
+  gamma: 2.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+# Data augmentation (Albumentations) — heavier pipeline
+augmentation:
+  train:
+    random_crop:
+      enabled: true
+      height: 512
+      width: 512
+
+    # Morphological augmentations (increased p)
+    gaussian_blur:
+      enabled: true
+      blur_limit: [3, 7]
+      sigma_limit: [0.5, 1.5]
+      p: 0.3
+
+    gauss_noise:
+      enabled: true
+      std_range: [0.012, 0.028]
+      p: 0.3
+
+    # Geometric augmentations
+    horizontal_flip:
+      enabled: true
+      p: 0.5
+
+    vertical_flip:
+      enabled: true
+      p: 0.5
+
+    rotate:
+      enabled: true
+      limit: 5
+      p: 0.3
+
+    # Spatial distortion augmentations
+    elastic_transform:
+      enabled: true
+      alpha: 120
+      sigma: 6
+      p: 0.3
+
+    grid_distortion:
+      enabled: true
+      num_steps: 5
+      distort_limit: 0.3
+      p: 0.2
+
+    normalize:
+      mean: [0.0]
+      std: [1.0]
+      max_pixel_value: 255.0
+
+  val:
+    normalize:
+      mean: [0.0]
+      std: [1.0]
+      max_pixel_value: 255.0
+
+# Checkpointing
+checkpointing:
+  save_dir: "checkpoints/unet_patch_synth"
+  save_best: true
+  save_latest: true
+  monitor: "f1_macro"
+  mode: "max"
+  verbose: true
+
+# Logging
+logging:
+  log_dir: "logs/unet_patch_synth"
+  tensorboard: true
+  log_every_n_batches: 10
+  print_metrics: true
+
+# Device configuration
+device:
+  auto_detect: true
+  mixed_precision: true
+
+# Reproducibility
+seed: 42
+
+# Class names for visualization
+class_names:
+  0: "Background"
+  1: "Silver (Ag)"
+  2: "Glass"
+  3: "Silicon (Si)"
+  4: "Void"
+  5: "Interfacial Void"
+
+# Class colors for visualization (RGB)
+class_colors:
+  0: [255, 0, 0]
+  1: [0, 255, 0]
+  2: [0, 0, 255]
+  3: [255, 255, 0]
+  4: [255, 0, 255]
+  5: [0, 255, 255]

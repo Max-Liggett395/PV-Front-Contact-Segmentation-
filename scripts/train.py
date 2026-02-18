@@ -21,7 +21,7 @@ import random
 import numpy as np
 import torch
 import torch.optim as optim
-from torch.utils.data import DataLoader, WeightedRandomSampler
+from torch.utils.data import DataLoader, WeightedRandomSampler, ConcatDataset
 from sklearn.model_selection import train_test_split
 
 # Add parent directory to path for imports
@@ -271,11 +271,52 @@ def main():
     val_dataset = SEMDataset(img_dir, label_dir, val_filenames,
                              transform=val_transform, magnification_map=magnification_map)
 
+    # Capture magnification info from original train dataset before potential ConcatDataset wrapping
     if magnification_map is not None:
         mag_categories = train_dataset.get_magnification_categories()
         num_magnifications = len(mag_categories)
         print(f"  Magnification categories: {num_magnifications}")
         print(f"  Values: {mag_categories}")
+
+    # Load synthetic data if configured
+    synthetic_dir = config["dataset"].get("synthetic_dir")
+    if synthetic_dir:
+        synthetic_dir = Path(synthetic_dir)
+        synth_images_dir = str(synthetic_dir / "images")
+        synth_labels_dir = str(synthetic_dir / "masks" / "npy")
+
+        # Find synthetic variants matching training stems only
+        train_stems = {Path(f).stem for f in train_filenames}
+        synth_filenames = get_image_filenames_from_dir(synth_images_dir)
+        synth_train_filenames = [
+            f for f in synth_filenames
+            if any(Path(f).stem.startswith(s + "_synth") for s in train_stems)
+        ]
+
+        if synth_train_filenames:
+            # Build synthetic magnification map if FiLM is enabled
+            synth_mag_map = None
+            if magnification_map is not None:
+                synth_mag_path = synthetic_dir / "magnification_map.json"
+                if synth_mag_path.exists():
+                    with open(synth_mag_path, "r") as f:
+                        synth_mag_map = json.load(f)
+                    # Apply same binning if configured
+                    bin_edges = film_config.get("bin_edges")
+                    if bin_edges:
+                        synth_mag_map = bin_magnifications(synth_mag_map, bin_edges)
+                    print(f"  Loaded synthetic magnification map: {len(synth_mag_map)} entries")
+
+            synth_dataset = SEMDataset(
+                synth_images_dir, synth_labels_dir, synth_train_filenames,
+                transform=train_transform, magnification_map=synth_mag_map
+            )
+            n_original = len(train_dataset)
+            train_dataset = ConcatDataset([train_dataset, synth_dataset])
+            print(f"\nCombined training set: {len(train_dataset)} images "
+                  f"({n_original} original + {len(synth_dataset)} synthetic)")
+        else:
+            print(f"\nWarning: synthetic_dir set but no matching synthetic files found for training stems")
 
     # Create weighted sampler if configured
     batch_size = config["training"]["batch_size"]
@@ -284,7 +325,9 @@ def main():
     train_shuffle = True
 
     sampling_config = config.get("sampling", {})
-    if sampling_config.get("weighted_by_magnification", False) and magnification_map is not None:
+    if sampling_config.get("weighted_by_magnification", False) and magnification_map is not None and synthetic_dir:
+        print("\nNote: Skipping WeightedRandomSampler — synthetic data expansion provides implicit balance")
+    elif sampling_config.get("weighted_by_magnification", False) and magnification_map is not None:
         print("\nCreating WeightedRandomSampler by magnification...")
         mag_ids = train_dataset.get_sample_mag_ids()
         mag_counts = Counter(mag_ids)

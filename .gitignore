@@ -5,3 +5,5 @@ checkpoints/
 logs/
 *.egg-info/
 .DS_Store
+SESSION_NOTES.md
+data/synthetic/
