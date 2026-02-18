@@ -12,11 +12,49 @@ Architecture details:
 - Bottleneck with double convolution
 - 4 decoder blocks with transposed convolution and skip connections
 - Output: 6 classes (Background, Ag, Glass, Si, Void, Interfacial Void)
+- Optional FiLM (Feature-wise Linear Modulation) conditioning on magnification
 """
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+
+class FiLMLayer(nn.Module):
+    """
+    Feature-wise Linear Modulation (FiLM) layer.
+
+    Applies an affine transformation (scale and shift) to feature maps,
+    conditioned on an external input (e.g., magnification embedding).
+
+    Args:
+        condition_dim (int): Dimension of the conditioning vector
+        num_features (int): Number of feature map channels to modulate
+    """
+
+    def __init__(self, condition_dim, num_features):
+        super().__init__()
+        self.gamma_fc = nn.Linear(condition_dim, num_features)
+        self.beta_fc = nn.Linear(condition_dim, num_features)
+
+        # Initialize gamma near 1.0 (identity scale) and beta near 0.0 (no shift)
+        nn.init.ones_(self.gamma_fc.weight.data[:, 0] if condition_dim > 0 else self.gamma_fc.weight.data)
+        nn.init.zeros_(self.gamma_fc.bias.data)
+        nn.init.zeros_(self.beta_fc.weight.data)
+        nn.init.zeros_(self.beta_fc.bias.data)
+
+    def forward(self, x, condition):
+        """
+        Args:
+            x: Feature maps [B, C, H, W]
+            condition: Conditioning vector [B, condition_dim]
+
+        Returns:
+            Modulated feature maps [B, C, H, W]
+        """
+        gamma = self.gamma_fc(condition).unsqueeze(-1).unsqueeze(-1) + 1.0  # Center around 1
+        beta = self.beta_fc(condition).unsqueeze(-1).unsqueeze(-1)
+        return gamma * x + beta
 
 
 class UNet(nn.Module):
@@ -27,10 +65,26 @@ class UNet(nn.Module):
         in_channels (int): Number of input channels (default: 1 for grayscale)
         num_classes (int): Number of output classes (default: 6)
         dropout (float): Dropout probability (default: 0.3)
+        num_magnifications (int or None): Number of magnification categories for FiLM.
+            If None, FiLM conditioning is disabled (backward compatible).
+        film_embedding_dim (int): Dimension of magnification embedding (default: 32)
     """
 
-    def __init__(self, in_channels=1, num_classes=6, dropout=0.3):
+    def __init__(self, in_channels=1, num_classes=6, dropout=0.3,
+                 num_magnifications=None, film_embedding_dim=32):
         super(UNet, self).__init__()
+
+        self.film_enabled = num_magnifications is not None
+
+        # FiLM conditioning
+        if self.film_enabled:
+            self.mag_embedding = nn.Embedding(num_magnifications, film_embedding_dim)
+            # FiLM layers after each encoder block (4) + bottleneck (1) = 5
+            self.film1 = FiLMLayer(film_embedding_dim, 64)
+            self.film2 = FiLMLayer(film_embedding_dim, 128)
+            self.film3 = FiLMLayer(film_embedding_dim, 256)
+            self.film4 = FiLMLayer(film_embedding_dim, 512)
+            self.film5 = FiLMLayer(film_embedding_dim, 1024)  # Bottleneck
 
         # Encoder (downsampling path)
         self.enc1 = nn.LazyConv2d(64, 3, 1, 1)
@@ -228,24 +282,50 @@ class UNet(nn.Module):
         x = self.up_double_conv_block4(x)
         return x
 
-    def forward(self, x):
+    def forward(self, x, mag_id=None):
         """
         Forward pass through U-Net.
 
         Args:
             x (torch.Tensor): Input tensor of shape [B, C, H, W]
+            mag_id (torch.Tensor, optional): Magnification category IDs [B].
+                Required when FiLM is enabled. Ignored when FiLM is disabled.
 
         Returns:
             torch.Tensor: Output tensor of shape [B, num_classes, H, W]
         """
-        # Encoder: contracting path - downsample
-        f1, p1 = self.downsample_block1(x)
-        f2, p2 = self.downsample_block2(p1)
-        f3, p3 = self.downsample_block3(p2)
-        f4, p4 = self.downsample_block4(p3)
+        # Compute FiLM conditioning embedding
+        cond = None
+        if self.film_enabled and mag_id is not None:
+            cond = self.mag_embedding(mag_id)  # [B, embedding_dim]
+
+        # Encoder: contracting path
+        # FiLM is applied after conv but before pool, so both the skip
+        # connection (f) and pooled output (p) use modulated features.
+        f1 = self.double_conv_block1(x)
+        if cond is not None:
+            f1 = self.film1(f1, cond)
+        p1 = self.dropout(self.max_pool(f1))
+
+        f2 = self.double_conv_block2(p1)
+        if cond is not None:
+            f2 = self.film2(f2, cond)
+        p2 = self.dropout(self.max_pool(f2))
+
+        f3 = self.double_conv_block3(p2)
+        if cond is not None:
+            f3 = self.film3(f3, cond)
+        p3 = self.dropout(self.max_pool(f3))
+
+        f4 = self.double_conv_block4(p3)
+        if cond is not None:
+            f4 = self.film4(f4, cond)
+        p4 = self.dropout(self.max_pool(f4))
 
         # Bottleneck
         bottleneck = self.double_conv_block5(p4)
+        if cond is not None:
+            bottleneck = self.film5(bottleneck, cond)
 
         # Decoder: expanding path - upsample with skip connections
         u6 = self.upsample_block1(bottleneck, f4)
@@ -272,7 +352,8 @@ class UNet(nn.Module):
         return total
 
 
-def create_unet(in_channels=1, num_classes=6, dropout=0.3):
+def create_unet(in_channels=1, num_classes=6, dropout=0.3,
+                num_magnifications=None, film_embedding_dim=32):
     """
     Factory function to create a U-Net model.
 
@@ -280,9 +361,17 @@ def create_unet(in_channels=1, num_classes=6, dropout=0.3):
         in_channels (int): Number of input channels
         num_classes (int): Number of output classes
         dropout (float): Dropout probability
+        num_magnifications (int or None): Number of magnification categories for FiLM
+        film_embedding_dim (int): Dimension of magnification embedding
 
     Returns:
         UNet: Initialized U-Net model
     """
-    model = UNet(in_channels=in_channels, num_classes=num_classes, dropout=dropout)
+    model = UNet(
+        in_channels=in_channels,
+        num_classes=num_classes,
+        dropout=dropout,
+        num_magnifications=num_magnifications,
+        film_embedding_dim=film_embedding_dim,
+    )
     return model
