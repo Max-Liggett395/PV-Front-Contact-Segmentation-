@@ -1,4 +1,10 @@
-# U-Net Training Configuration for SEM Image Segmentation
+# U-Net + FiLM Training Configuration for SEM Image Segmentation
+#
+# FiLM (Feature-wise Linear Modulation) conditions the model on magnification,
+# allowing all 116 images to be used (no exclusions needed).
+# Weighted sampling balances underrepresented magnifications.
+#
+# Usage: python scripts/train.py --config config/unet_film_config.yaml
 
 # Dataset paths and configuration
 dataset:
@@ -8,20 +14,17 @@ dataset:
   val_split: 0.15
   test_split: 0.15
   seed: 42
-  # Exclude low-magnification images (2K, 2.5K, 3.5K, 4K, 5K) that confuse the model
-  exclude:
-    - "ALBSF_A20_AA_4H_2K_11"
-    - "ALBSF_A21_DI_4H_2K_11"
-    - "ALBSF_A24_Baseline_2K1"
-    - "B31_DI_4hr_2.5K_11"
-    - "NPERT_C24_AA_4H_5K_11"
-    - "NPERT_C24_AA_4H_5K_21"
-    - "NPERT_C25_DI_4H_3.5K_11"
-    - "TOPCon_sp3221a_es08_AA_4K1"
-    - "TOPCon_sp3230a_es08_DI_4K1"
-    - "TOPCon_sp3231a_es16_AA_4K1"
-    # Anomalous 10K image: no Silver class, 54.5% background
-    - "ALBSF_A24_Baseline_10K_21"
+  # No exclusions — FiLM conditioning handles magnification differences
+
+# FiLM (Feature-wise Linear Modulation) conditioning on magnification
+film:
+  enabled: true
+  embedding_dim: 32
+  magnification_map: "data/magnification_map.json"
+
+# Weighted sampling to balance magnification representation
+sampling:
+  weighted_by_magnification: true
 
 # Model architecture
 model:
@@ -106,7 +109,7 @@ augmentation:
 
 # Checkpointing
 checkpointing:
-  save_dir: "checkpoints/unet"
+  save_dir: "checkpoints/unet_film"
   save_best: true
   save_latest: true
   monitor: "val_loss"
