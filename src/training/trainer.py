@@ -201,13 +201,13 @@ class Trainer:
             self.optimizer.zero_grad()
             if self.use_amp:
                 with torch.amp.autocast("cuda"):
-                    outputs = self.model(images, mag_id=mag_ids)
+                    outputs = self.model(images, mag_id=mag_ids) if mag_ids is not None else self.model(images)
                     loss = self.loss_fn(outputs, labels)
                 self.scaler.scale(loss).backward()
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
             else:
-                outputs = self.model(images, mag_id=mag_ids)
+                outputs = self.model(images, mag_id=mag_ids) if mag_ids is not None else self.model(images)
                 loss = self.loss_fn(outputs, labels)
                 loss.backward()
                 self.optimizer.step()
@@ -243,10 +243,10 @@ class Trainer:
 
                 if self.use_amp:
                     with torch.amp.autocast("cuda"):
-                        outputs = self.model(images, mag_id=mag_ids)
+                        outputs = self.model(images, mag_id=mag_ids) if mag_ids is not None else self.model(images)
                         loss = self.loss_fn(outputs, labels)
                 else:
-                    outputs = self.model(images, mag_id=mag_ids)
+                    outputs = self.model(images, mag_id=mag_ids) if mag_ids is not None else self.model(images)
                     loss = self.loss_fn(outputs, labels)
 
                 batch_loss = loss.item()

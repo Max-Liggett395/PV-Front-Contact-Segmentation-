@@ -328,8 +328,10 @@ def main():
     # Initialize LazyModules with a dummy forward pass
     with torch.no_grad():
         dummy_input = torch.zeros(1, model_config["in_channels"], 768, 1024, device=device)
-        dummy_mag = torch.zeros(1, dtype=torch.long, device=device) if num_magnifications else None
-        _ = model(dummy_input, mag_id=dummy_mag)
+        if num_magnifications:
+            _ = model(dummy_input, mag_id=torch.zeros(1, dtype=torch.long, device=device))
+        else:
+            _ = model(dummy_input)
     model.train()
 
     model_name = model_config.get("name", "unet")
