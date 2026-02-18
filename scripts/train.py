@@ -325,7 +325,9 @@ def main():
     # Move model to device
     model = model.to(device)
 
-    # Initialize LazyModules with a dummy forward pass
+    # Initialize LazyModules with a dummy forward pass (use model.eval() to avoid
+    # BatchNorm issues with batch_size=1, e.g. DeepLabV3's ASPP pooling branch)
+    model.eval()
     with torch.no_grad():
         dummy_input = torch.zeros(1, model_config["in_channels"], 768, 1024, device=device)
         if num_magnifications:
