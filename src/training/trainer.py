@@ -160,6 +160,13 @@ class Trainer:
         self.log_every_n_batches = config.get("logging", {}).get("log_every_n_batches", 10)
         self.print_metrics = config.get("logging", {}).get("print_metrics", True)
 
+    @staticmethod
+    def _unpack_batch(batch):
+        """Unpack a batch into (images, labels, mag_ids). mag_ids is None for 2-tuples."""
+        if len(batch) == 3:
+            return batch[0], batch[1], batch[2]
+        return batch[0], batch[1], None
+
     def train_epoch(self) -> float:
         """Run one training epoch and return average loss."""
         self.model.train()
@@ -168,20 +175,23 @@ class Trainer:
 
         pbar = tqdm(self.train_loader, desc=f"Epoch {self.current_epoch} [Train]", leave=False)
 
-        for batch_idx, (images, labels) in enumerate(pbar):
+        for batch_idx, batch in enumerate(pbar):
+            images, labels, mag_ids = self._unpack_batch(batch)
             images = images.to(self.device)
             labels = labels.to(self.device).long()
+            if mag_ids is not None:
+                mag_ids = mag_ids.to(self.device)
 
             self.optimizer.zero_grad()
             if self.use_amp:
                 with torch.amp.autocast("cuda"):
-                    outputs = self.model(images)
+                    outputs = self.model(images, mag_id=mag_ids)
                     loss = self.loss_fn(outputs, labels)
                 self.scaler.scale(loss).backward()
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
             else:
-                outputs = self.model(images)
+                outputs = self.model(images, mag_id=mag_ids)
                 loss = self.loss_fn(outputs, labels)
                 loss.backward()
                 self.optimizer.step()
@@ -208,16 +218,19 @@ class Trainer:
         pbar = tqdm(self.val_loader, desc=f"Epoch {self.current_epoch} [Val]", leave=False)
 
         with torch.no_grad():
-            for images, labels in pbar:
+            for batch in pbar:
+                images, labels, mag_ids = self._unpack_batch(batch)
                 images = images.to(self.device)
                 labels = labels.to(self.device).long()
+                if mag_ids is not None:
+                    mag_ids = mag_ids.to(self.device)
 
                 if self.use_amp:
                     with torch.amp.autocast("cuda"):
-                        outputs = self.model(images)
+                        outputs = self.model(images, mag_id=mag_ids)
                         loss = self.loss_fn(outputs, labels)
                 else:
-                    outputs = self.model(images)
+                    outputs = self.model(images, mag_id=mag_ids)
                     loss = self.loss_fn(outputs, labels)
 
                 batch_loss = loss.item()
