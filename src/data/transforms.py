@@ -115,6 +115,27 @@ def get_train_transforms(config: Dict[str, Any] = None) -> A.Compose:
             )
         )
 
+    # Spatial distortion augmentations (deform boundaries for rare-class generalization)
+    if config.get("elastic_transform", {}).get("enabled", False):
+        params = config["elastic_transform"]
+        transforms_list.append(
+            A.ElasticTransform(
+                alpha=params.get("alpha", 120),
+                sigma=params.get("sigma", 120 * 0.05),
+                p=params["p"]
+            )
+        )
+
+    if config.get("grid_distortion", {}).get("enabled", False):
+        params = config["grid_distortion"]
+        transforms_list.append(
+            A.GridDistortion(
+                num_steps=params.get("num_steps", 5),
+                distort_limit=params.get("distort_limit", 0.3),
+                p=params["p"]
+            )
+        )
+
     # Normalization (always applied)
     norm_params = config.get("normalize", {"mean": [0.0], "std": [1.0], "max_pixel_value": 255.0})
     transforms_list.append(

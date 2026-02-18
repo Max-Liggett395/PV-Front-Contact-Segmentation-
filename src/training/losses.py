@@ -234,6 +234,89 @@ class BCEDiceLoss(nn.Module):
         return total_loss
 
 
+class FocalLoss(nn.Module):
+    """
+    Focal Loss for semantic segmentation.
+
+    Down-weights well-classified pixels and focuses on hard examples,
+    particularly useful for rare classes that get misclassified.
+
+    Args:
+        gamma (float): Focusing parameter. Higher gamma = more focus on hard examples.
+            Default: 2.0
+        class_weights (Optional[List[float]]): Weight for each class.
+        ignore_index (int): Class index to ignore. Default: -100
+    """
+
+    def __init__(
+        self,
+        gamma: float = 2.0,
+        class_weights: Optional[List[float]] = None,
+        ignore_index: int = -100
+    ):
+        super().__init__()
+        self.gamma = gamma
+        self.ignore_index = ignore_index
+        self.class_weights = None
+        if class_weights is not None:
+            self.class_weights = torch.tensor(class_weights, dtype=torch.float32)
+
+    def forward(self, predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        weights = self.class_weights
+        if weights is not None and weights.device != predictions.device:
+            self.class_weights = self.class_weights.to(predictions.device)
+            weights = self.class_weights
+
+        targets = targets.long()
+        ce_loss = F.cross_entropy(
+            predictions, targets, weight=weights,
+            ignore_index=self.ignore_index, reduction='none'
+        )
+        pt = torch.exp(-ce_loss)
+        focal_loss = ((1 - pt) ** self.gamma * ce_loss).mean()
+        return focal_loss
+
+
+class FocalDiceLoss(nn.Module):
+    """
+    Combined Focal Loss and Dice Loss.
+
+    Replaces CE with Focal in the BCEDiceLoss pattern to further focus
+    on hard examples while maintaining global overlap optimization.
+
+    Args:
+        focal_weight (float): Weight for focal component. Default: 0.5
+        dice_weight (float): Weight for dice component. Default: 0.5
+        gamma (float): Focal loss focusing parameter. Default: 2.0
+        smooth (float): Smoothing factor for Dice loss. Default: 1.0
+        class_weights (Optional[List[float]]): Weight for each class.
+        ignore_index (int): Class index to ignore. Default: -100
+    """
+
+    def __init__(
+        self,
+        focal_weight: float = 0.5,
+        dice_weight: float = 0.5,
+        gamma: float = 2.0,
+        smooth: float = 1.0,
+        class_weights: Optional[List[float]] = None,
+        ignore_index: int = -100
+    ):
+        super().__init__()
+        self.focal_weight = focal_weight
+        self.dice_weight = dice_weight
+        self.focal_loss_fn = FocalLoss(gamma=gamma, class_weights=class_weights,
+                                       ignore_index=ignore_index)
+        ignore_bg = (ignore_index == 0)
+        self.dice_loss_fn = DiceLoss(smooth=smooth, ignore_background=ignore_bg,
+                                     ignore_index=ignore_index)
+
+    def forward(self, predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        focal = self.focal_loss_fn(predictions, targets)
+        dice = self.dice_loss_fn(predictions, targets)
+        return self.focal_weight * focal + self.dice_weight * dice
+
+
 def get_loss_function(
     loss_type: str,
     class_weights: Optional[List[float]] = None,
@@ -263,10 +346,14 @@ def get_loss_function(
         return BCEDiceLoss(class_weights=class_weights, **kwargs)
     elif loss_type == "dice":
         return DiceLoss(**kwargs)
+    elif loss_type == "focal":
+        return FocalLoss(class_weights=class_weights, **kwargs)
+    elif loss_type == "focal_dice":
+        return FocalDiceLoss(class_weights=class_weights, **kwargs)
     else:
         raise ValueError(
             f"Unknown loss type: {loss_type}. "
-            f"Available options: 'cross_entropy', 'bce_dice', 'dice'"
+            f"Available options: 'cross_entropy', 'bce_dice', 'dice', 'focal', 'focal_dice'"
         )
 
 
@@ -291,5 +378,10 @@ def get_loss_from_config(config_dict: dict) -> nn.Module:
     class_weights = loss_config.get("class_weights", None)
     ignore_index = loss_config.get("ignore_index", -100)
 
+    # Pass extra kwargs for focal-based losses
+    extra_kwargs = {}
+    if "gamma" in loss_config:
+        extra_kwargs["gamma"] = loss_config["gamma"]
+
     return get_loss_function(loss_type, class_weights=class_weights,
-                             ignore_index=ignore_index)
+                             ignore_index=ignore_index, **extra_kwargs)

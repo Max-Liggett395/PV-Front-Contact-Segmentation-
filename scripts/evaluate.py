@@ -98,6 +98,56 @@ def predict_sliding_window(model, image, patch_size, stride, device, num_classes
     return logits_avg
 
 
+def predict_with_tta(model, image, device, num_classes, patch_size=None, stride=None):
+    """
+    Run test-time augmentation on a single image.
+
+    Generates 4 variants (original, hflip, vflip, both flips), runs inference
+    on each, reverses the transforms on the output logits, and averages.
+
+    Args:
+        model: Trained segmentation model
+        image: Input tensor of shape (C, H, W)
+        device: Torch device
+        num_classes: Number of segmentation classes
+        patch_size: If set, use sliding window inference per variant
+        stride: Stride for sliding window (default: patch_size // 2)
+
+    Returns:
+        Averaged logits tensor of shape (num_classes, H, W)
+    """
+    # Define flip transforms and their inverse operations
+    # Each entry: (transform_fn, inverse_fn)
+    tta_transforms = [
+        (lambda x: x, lambda x: x),                                    # original
+        (lambda x: torch.flip(x, [-1]), lambda x: torch.flip(x, [-1])),  # hflip
+        (lambda x: torch.flip(x, [-2]), lambda x: torch.flip(x, [-2])),  # vflip
+        (lambda x: torch.flip(x, [-2, -1]), lambda x: torch.flip(x, [-2, -1])),  # both
+    ]
+
+    logits_sum = None
+
+    for transform_fn, inverse_fn in tta_transforms:
+        augmented = transform_fn(image)
+
+        if patch_size is not None:
+            s = stride if stride is not None else patch_size // 2
+            logits = predict_sliding_window(model, augmented, patch_size, s, device, num_classes)
+        else:
+            with torch.no_grad():
+                logits = model(augmented.unsqueeze(0).to(device)).squeeze(0)
+
+        # Reverse the spatial transform on the logits
+        logits = inverse_fn(logits)
+
+        if logits_sum is None:
+            logits_sum = logits
+        else:
+            logits_sum = logits_sum + logits
+
+    return logits_sum / len(tta_transforms)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Test U-Net on test set")
     parser.add_argument("--checkpoint", type=str, required=True,
@@ -116,6 +166,8 @@ def main():
                         help="Patch size for sliding window inference (e.g., 512)")
     parser.add_argument("--stride", type=int, default=None,
                         help="Stride for sliding window inference (default: patch_size // 2)")
+    parser.add_argument("--tta", action="store_true",
+                        help="Enable test-time augmentation (flips: original, h, v, both)")
     args = parser.parse_args()
 
     # Load configuration
@@ -171,9 +223,16 @@ def main():
 
     # Run inference on test set
     use_sliding_window = args.patch_size is not None
+    use_tta = args.tta
+    stride = args.stride if args.stride is not None else (args.patch_size // 2 if args.patch_size else None)
+
+    mode_parts = []
     if use_sliding_window:
-        stride = args.stride if args.stride is not None else args.patch_size // 2
-        print(f"\nRunning sliding window inference (patch_size={args.patch_size}, stride={stride})...")
+        mode_parts.append(f"sliding window (patch_size={args.patch_size}, stride={stride})")
+    if use_tta:
+        mode_parts.append("TTA (4 flip variants)")
+    if mode_parts:
+        print(f"\nRunning inference with {' + '.join(mode_parts)}...")
     else:
         print("\nRunning inference on test set...")
 
@@ -182,17 +241,30 @@ def main():
     all_images = []
 
     model.eval()
-    if use_sliding_window:
-        # Sliding window: process one image at a time from dataset
-        for i in tqdm(range(len(test_dataset)), desc="Testing (sliding window)"):
+    if use_sliding_window or use_tta:
+        # Per-image inference: required for sliding window and/or TTA
+        desc = "Testing"
+        if use_tta:
+            desc += " (TTA)"
+        if use_sliding_window:
+            desc += " (sliding window)"
+        for i in tqdm(range(len(test_dataset)), desc=desc):
             image, label = test_dataset[i]
             all_images.append(image.unsqueeze(0))
             all_targets.append(label.unsqueeze(0))
 
-            logits = predict_sliding_window(
-                model, image, args.patch_size, stride, device,
-                num_classes=model_config["num_classes"]
-            )
+            if use_tta:
+                logits = predict_with_tta(
+                    model, image, device,
+                    num_classes=model_config["num_classes"],
+                    patch_size=args.patch_size,
+                    stride=stride
+                )
+            else:
+                logits = predict_sliding_window(
+                    model, image, args.patch_size, stride, device,
+                    num_classes=model_config["num_classes"]
+                )
             all_predictions.append(logits.cpu().unsqueeze(0))
     else:
         with torch.no_grad():
