@@ -20,7 +20,7 @@ Classes:
 
 import os
 from pathlib import Path
-from typing import Optional, Tuple, List, Callable
+from typing import Optional, Tuple, List, Dict, Callable, Union
 
 import numpy as np
 import torch
@@ -39,6 +39,9 @@ class SEMDataset(Dataset):
             If None, all images in img_dir are used.
         transform (Optional[Callable]): Albumentations transform to apply
             to both image and mask. Should accept image and mask as keywords.
+        magnification_map (Optional[Dict[str, float]]): Mapping from filename
+            stem to magnification value (in KX). When provided, __getitem__
+            returns (image, label, mag_id) instead of (image, label).
 
     Attributes:
         img_dir (Path): Path to image directory
@@ -52,7 +55,8 @@ class SEMDataset(Dataset):
         img_dir: str,
         label_dir: str,
         img_filenames: Optional[List[str]] = None,
-        transform: Optional[Callable] = None
+        transform: Optional[Callable] = None,
+        magnification_map: Optional[Dict[str, float]] = None
     ):
         self.img_dir = Path(img_dir)
         self.label_dir = Path(label_dir)
@@ -77,25 +81,39 @@ class SEMDataset(Dataset):
         if len(self.image_list) == 0:
             raise ValueError(f"No images found in {img_dir}")
 
+        # Magnification conditioning
+        self.magnification_map = magnification_map
+        self.magnification_categories = None
+        self._mag_to_id = None
+
+        if magnification_map is not None:
+            # Build sorted unique magnification categories and ID mapping
+            unique_mags = sorted(set(magnification_map.values()))
+            self.magnification_categories = unique_mags
+            self._mag_to_id = {mag: idx for idx, mag in enumerate(unique_mags)}
+
     def __len__(self) -> int:
         """Return the total number of samples in the dataset."""
         return len(self.image_list)
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> Union[Tuple[torch.Tensor, torch.Tensor],
+                                             Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
         """
-        Load and return a single sample (image, label).
+        Load and return a single sample.
 
         Args:
             idx (int): Index of the sample to load
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]:
+            If magnification_map is None:
+                (image, label)
+            If magnification_map is provided:
+                (image, label, mag_id)
+
+            Where:
                 - image: Tensor of shape [1, H, W] (grayscale)
                 - label: Tensor of shape [H, W] with integer class labels (0-5)
-
-        Note:
-            Images are resized to 1024x768 using bilinear interpolation.
-            Labels are resized using nearest-neighbor to preserve discrete values.
+                - mag_id: Scalar long tensor with magnification category index
         """
         # Construct paths
         img_path = self.image_list[idx]
@@ -136,6 +154,14 @@ class SEMDataset(Dataset):
         if image.ndim == 2:
             image = image.unsqueeze(0)
 
+        if self.magnification_map is not None and self._mag_to_id is not None:
+            mag_val = self.magnification_map.get(img_basename)
+            if mag_val is not None:
+                mag_id = torch.tensor(self._mag_to_id[mag_val], dtype=torch.long)
+            else:
+                mag_id = torch.tensor(0, dtype=torch.long)
+            return image, label, mag_id
+
         return image, label
 
     def get_class_distribution(self) -> dict:
@@ -151,11 +177,30 @@ class SEMDataset(Dataset):
         class_counts = {i: 0 for i in range(6)}
 
         for idx in range(len(self)):
-            _, label = self[idx]
+            sample = self[idx]
+            label = sample[1]  # Works for both 2-tuple and 3-tuple
             for class_idx in range(6):
                 class_counts[class_idx] += (label == class_idx).sum().item()
 
         return class_counts
+
+    def get_magnification_categories(self) -> Optional[List[float]]:
+        """Return sorted list of unique magnification values, or None if no map."""
+        return self.magnification_categories
+
+    def get_sample_mag_ids(self) -> Optional[List[int]]:
+        """Return list of magnification category IDs for each sample, or None if no map."""
+        if self.magnification_map is None or self._mag_to_id is None:
+            return None
+        ids = []
+        for img_path in self.image_list:
+            stem = Path(img_path).stem
+            mag_val = self.magnification_map.get(stem)
+            if mag_val is not None:
+                ids.append(self._mag_to_id[mag_val])
+            else:
+                ids.append(0)
+        return ids
 
     def get_image_filename(self, idx: int) -> str:
         """
