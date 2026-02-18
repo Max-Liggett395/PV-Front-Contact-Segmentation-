@@ -29,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.models.unet import UNet
 from src.models.deeplabv3 import DeepLabV3, DeepLabV3Plus
+from src.models.segformer import SegFormer
 from src.data.dataset import SEMDataset, get_image_filenames_from_dir, compute_dataset_statistics, compute_class_weights
 from src.data.transforms import get_transforms_from_config
 from src.training.losses import get_loss_from_config
@@ -75,8 +76,16 @@ def create_model(model_config: dict, num_magnifications: int = None, film_embedd
             dropout=model_config.get("dropout", 0.1),
             low_level_channels=model_config.get("low_level_channels", 48)
         )
+    elif model_name == "segformer":
+        return SegFormer(
+            in_channels=model_config["in_channels"],
+            num_classes=model_config["num_classes"],
+            variant=model_config.get("variant", "b2"),
+            pretrained=model_config.get("pretrained", True),
+            dropout=model_config.get("dropout", 0.1),
+        )
     else:
-        raise ValueError(f"Unknown model: {model_name}. Supported: unet, deeplabv3, deeplabv3+")
+        raise ValueError(f"Unknown model: {model_name}. Supported: unet, deeplabv3, deeplabv3+, segformer")
 
 
 def set_seed(seed: int):
