@@ -138,16 +138,29 @@ class Trainer:
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
         self.current_epoch = 0
-        self.best_val_loss = float('inf')
         self.train_losses = []
         self.val_losses = []
 
+        # Configurable metric monitoring for checkpointing, early stopping, LR scheduler
+        ckpt_config = config.get("checkpointing", {})
+        self.monitor = ckpt_config.get("monitor", "val_loss")
+        self.monitor_mode = ckpt_config.get("mode", "min")
+        if self.monitor_mode == "min":
+            self.best_metric = float('inf')
+            self._is_better = lambda new, best: new < best
+        else:
+            self.best_metric = float('-inf')
+            self._is_better = lambda new, best: new > best
+
         early_stop_config = config.get("training", {}).get("early_stopping", {})
         if early_stop_config.get("enabled", True):
+            # Use the same monitor/mode from checkpointing config for consistency
+            es_monitor = early_stop_config.get("monitor", self.monitor)
+            es_mode = early_stop_config.get("mode", self.monitor_mode)
             self.early_stopping = EarlyStopping(
                 patience=early_stop_config.get("patience", 50),
                 min_delta=early_stop_config.get("min_delta", 0.0001),
-                mode=early_stop_config.get("mode", "min"),
+                mode=es_mode,
                 verbose=config.get("logging", {}).get("print_metrics", True)
             )
         else:
@@ -159,6 +172,9 @@ class Trainer:
 
         self.log_every_n_batches = config.get("logging", {}).get("log_every_n_batches", 10)
         self.print_metrics = config.get("logging", {}).get("print_metrics", True)
+
+        if self.print_metrics:
+            print(f"Monitoring: {self.monitor} (mode={self.monitor_mode})")
 
     @staticmethod
     def _unpack_batch(batch):
@@ -261,7 +277,8 @@ class Trainer:
             "optimizer_state_dict": self.optimizer.state_dict(),
             "train_losses": self.train_losses,
             "val_losses": self.val_losses,
-            "best_val_loss": self.best_val_loss,
+            "best_metric": self.best_metric,
+            "monitor": self.monitor,
             "config": self.config
         }
 
@@ -284,7 +301,9 @@ class Trainer:
         self.current_epoch = checkpoint["epoch"]
         self.train_losses = checkpoint.get("train_losses", [])
         self.val_losses = checkpoint.get("val_losses", [])
-        self.best_val_loss = checkpoint.get("best_val_loss", float('inf'))
+        # Support loading old checkpoints with best_val_loss
+        self.best_metric = checkpoint.get("best_metric",
+                                          checkpoint.get("best_val_loss", float('inf')))
 
         if self.scheduler is not None and "scheduler_state_dict" in checkpoint:
             self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
@@ -327,10 +346,13 @@ class Trainer:
                 except:
                     pass  # Silently skip if still fails
 
+            # Extract monitored metric from val_results
+            monitor_value = val_results.get(self.monitor, val_loss)
+
             # Step LR scheduler
             if self.scheduler is not None:
                 if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
-                    self.scheduler.step(val_loss)
+                    self.scheduler.step(monitor_value)
                 else:
                     self.scheduler.step()
 
@@ -354,8 +376,8 @@ class Trainer:
                     if key != "val_loss":
                         self.writer.add_scalar(f"Val/{key}", value, epoch)
 
-            if val_loss < self.best_val_loss:
-                self.best_val_loss = val_loss
+            if self._is_better(monitor_value, self.best_metric):
+                self.best_metric = monitor_value
                 best_path = self.checkpoint_dir / "best_model.pth"
                 self.save_checkpoint(str(best_path), is_best=True)
 
@@ -363,7 +385,7 @@ class Trainer:
             self.save_checkpoint(str(latest_path), is_best=False)
 
             if self.early_stopping:
-                if self.early_stopping(val_loss):
+                if self.early_stopping(monitor_value):
                     print(f"\nEarly stopping at epoch {epoch}")
                     break
 
@@ -371,7 +393,7 @@ class Trainer:
         print("\n" + "=" * 70)
         print(f"Training complete!")
         print(f"Total time: {elapsed_time/3600:.2f} hours")
-        print(f"Best validation loss: {self.best_val_loss:.4f}")
+        print(f"Best {self.monitor}: {self.best_metric:.4f}")
         print(f"Best model saved at: {self.checkpoint_dir / 'best_model.pth'}")
         print("=" * 70)
 

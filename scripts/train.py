@@ -104,6 +104,29 @@ def get_device(force_device: str = None) -> torch.device:
         return torch.device("cpu")
 
 
+def bin_magnifications(magnification_map: dict, bin_edges: list) -> dict:
+    """
+    Bin continuous magnification values into discrete groups.
+
+    Each magnification value is assigned to a bin based on which interval it
+    falls into. Bins are defined by edges: [e0, e1, e2, ...] creates bins
+    [0, e0), [e0, e1), [e1, e2), ..., [eN, inf).
+
+    Args:
+        magnification_map: dict mapping filename stem to magnification (KX)
+        bin_edges: sorted list of bin boundaries (e.g., [1, 3, 5, 8])
+
+    Returns:
+        dict mapping filename stem to bin index (float, for compat with dataset)
+    """
+    import bisect
+    binned_map = {}
+    for stem, mag in magnification_map.items():
+        bin_idx = bisect.bisect_right(bin_edges, mag)
+        binned_map[stem] = float(bin_idx)
+    return binned_map
+
+
 def create_data_splits(img_dir: str, config: dict) -> tuple:
     """
     Create train/val/test splits from dataset.
@@ -219,6 +242,15 @@ def main():
         with open(mag_map_path, 'r') as f:
             magnification_map = json.load(f)
         print(f"  Loaded {len(magnification_map)} entries")
+        print(f"  Unique magnifications: {len(set(magnification_map.values()))}")
+
+        # Apply binning if configured
+        bin_edges = film_config.get("bin_edges")
+        if bin_edges:
+            print(f"  Binning magnifications with edges: {bin_edges}")
+            magnification_map = bin_magnifications(magnification_map, bin_edges)
+            num_bins = len(set(magnification_map.values()))
+            print(f"  After binning: {num_bins} bins")
 
     # Create transforms
     train_transform = get_transforms_from_config(config, mode="train")

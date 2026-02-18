@@ -21,6 +21,9 @@ film:
   enabled: true
   embedding_dim: 32
   magnification_map: "data/magnification_map.json"
+  # Bin 29 unique magnifications into 5 groups for denser embedding learning
+  # Bins: [<1 KX, 1-3 KX, 3-5 KX, 5-8 KX, 8+ KX]
+  bin_edges: [1.0, 3.0, 5.0, 8.0]
 
 # Weighted sampling to balance magnification representation
 sampling:
@@ -43,22 +46,22 @@ training:
 
   num_workers: 8
 
-  # LR scheduler
+  # LR scheduler (mode=max because we monitor f1_macro)
   scheduler:
     enabled: true
     type: "reduce_on_plateau"
     factor: 0.5
     patience: 10
     min_lr: 1.0e-7
-    mode: "min"
+    mode: "max"
 
-  # Early stopping
+  # Early stopping (monitor f1_macro — more stable than val_loss for segmentation)
   early_stopping:
     enabled: true
     patience: 50
-    min_delta: 0.0001
-    monitor: "val_loss"
-    mode: "min"
+    min_delta: 0.001
+    monitor: "f1_macro"
+    mode: "max"
 
 # Loss function configuration
 loss:
@@ -107,13 +110,13 @@ augmentation:
       std: [1.0]
       max_pixel_value: 255.0
 
-# Checkpointing
+# Checkpointing (save best model by f1_macro)
 checkpointing:
   save_dir: "checkpoints/unet_film"
   save_best: true
   save_latest: true
-  monitor: "val_loss"
-  mode: "min"
+  monitor: "f1_macro"
+  mode: "max"
   verbose: true
 
 # Logging
