@@ -106,7 +106,7 @@ augmentation:
 
 # Checkpointing
 checkpointing:
-  save_dir: "checkpoints"
+  save_dir: "checkpoints/unet"
   save_best: true
   save_latest: true
   monitor: "val_loss"
