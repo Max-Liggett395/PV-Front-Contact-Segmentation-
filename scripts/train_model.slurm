@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --partition=gpu2v100   # Change to: gpul40s, gpu4090, gpu2h100, etc.
+#SBATCH --partition=sdle       # SDLE lab dedicated GPU node (also: gpu, cgpu)
 #SBATCH --gres=gpu:1
 #SBATCH --time=04:00:00
 #SBATCH --mem=32G
