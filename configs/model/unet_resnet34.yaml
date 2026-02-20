@@ -1,0 +1,5 @@
+# Custom U-Net matching original notebook
+architecture: unet
+in_channels: 1
+num_classes: 6
+dropout: 0.3

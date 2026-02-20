@@ -1,0 +1,24 @@
+# DeepLabV3+ ResNet101 on merged dataset
+# Matches original notebook training setup
+data: data/merged
+model: model/deeplabv3plus_resnet101
+
+training:
+  max_epochs: 1000
+  device: auto
+  mixed_precision: true  # AMP on CUDA (matches notebook)
+  monitor: val_loss
+  monitor_mode: min
+  patience: 1000
+  min_delta: 0.0
+
+optimizer:
+  type: adam
+  lr: 0.00005
+  weight_decay: 0.0
+
+scheduler: null
+
+loss:
+  type: ce
+  class_weights: [1.0, 1.0, 1.5, 1.0, 1.5, 1.5]
