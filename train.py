@@ -37,6 +37,10 @@ def main():
     # Pass in_channels from model config to data config
     data_cfg["in_channels"] = model_cfg.get("in_channels", 1)
 
+    # Allow experiment config to override data settings (e.g. batch_size)
+    data_overrides = exp_cfg.get("data_overrides", {})
+    data_cfg.update(data_overrides)
+
     # Data
     dm = SEMDataModule(data_cfg)
     dm.setup()
