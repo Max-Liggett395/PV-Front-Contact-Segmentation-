@@ -5,6 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
+#SBATCH --partition=gpu2v100   # Change to: gpul40s, gpu4090, gpu2h100, etc.
 #SBATCH --gres=gpu:1
 #SBATCH --time=04:00:00
 #SBATCH --mem=32G
@@ -27,11 +28,18 @@ echo "Experiment: $EXPERIMENT"
 echo "Run Name: $RUN_NAME"
 echo "=========================================="
 
+# Load modules (adjust versions to what's available: `module avail`)
+# module load cuda/12.1
+# module load python/3.10
+
 # Activate environment
 source .venv/bin/activate
 
 # Create log directories
 mkdir -p logs/slurm
+
+# Print GPU info
+nvidia-smi
 
 # Train
 python train.py --experiment "$EXPERIMENT" --run-name "$RUN_NAME"
