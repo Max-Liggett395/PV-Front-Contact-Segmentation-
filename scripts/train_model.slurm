@@ -29,18 +29,20 @@ echo "Experiment: $EXPERIMENT"
 echo "Run Name: $RUN_NAME"
 echo "=========================================="
 
-# Load modules (adjust versions to what's available: `module avail`)
-# module load cuda/12.1
-# module load python/3.10
+# Load modules
+module load python/3.9 2>/dev/null || module load python 2>/dev/null
 
 # Activate environment
-source .venv/bin/activate
+source $HOME/sem/.venv/bin/activate
 
 # Create log directories
 mkdir -p logs/slurm
 
 # Print GPU info
 nvidia-smi
+
+# Change to project directory
+cd $HOME/sem
 
 # Train
 python train.py --experiment "$EXPERIMENT" --run-name "$RUN_NAME"
