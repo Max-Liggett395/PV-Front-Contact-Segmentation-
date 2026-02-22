@@ -1,0 +1,7 @@
+# 116-image dataset
+image_dir: data/images
+mask_dir: data/dataset_116_masks
+batch_size: 1
+num_workers: 2
+seed: 42
+train_split: 0.85

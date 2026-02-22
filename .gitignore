@@ -1,5 +1,6 @@
-# Data
-data/
+# Data (large files, but keep symlink dir and data configs)
+/data/*
+!/data/dataset_116_masks/
 
 # Logs and outputs
 logs/

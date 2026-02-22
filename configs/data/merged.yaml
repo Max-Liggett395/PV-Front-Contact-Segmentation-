@@ -1,0 +1,7 @@
+# Merged dataset (130 images, all with NPY masks)
+image_dir: data/merged/images
+mask_dir: data/merged/masks
+batch_size: 1
+num_workers: 2
+seed: 42
+train_split: 0.85
