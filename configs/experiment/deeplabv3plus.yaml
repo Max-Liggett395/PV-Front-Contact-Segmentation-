@@ -7,7 +7,7 @@ data_overrides:
   batch_size: 2  # matches notebook
 
 training:
-  max_epochs: 100
+  max_epochs: 1000
   device: auto
   mixed_precision: true
   monitor: val_loss

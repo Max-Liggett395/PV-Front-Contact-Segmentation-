@@ -1,15 +1,14 @@
-# Baseline experiment: Custom U-Net on merged dataset
-# Matches original notebook training setup
-data: data/merged
-model: model/unet_resnet34
+# DeepLabV3 ResNet50 on dataset_83 (83 original NPY masks)
+data: data/dataset_83
+model: model/deeplabv3_resnet50
 
 data_overrides:
-  batch_size: 1  # matches notebook
+  batch_size: 2  # matches notebook
 
 training:
   max_epochs: 1000
   device: auto
-  mixed_precision: false
+  mixed_precision: true
   monitor: val_loss
   monitor_mode: min
   patience: 100

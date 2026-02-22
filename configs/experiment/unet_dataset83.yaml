@@ -1,6 +1,5 @@
-# Baseline experiment: Custom U-Net on merged dataset
-# Matches original notebook training setup
-data: data/merged
+# U-Net ResNet34 on dataset_83 (83 original NPY masks)
+data: data/dataset_83
 model: model/unet_resnet34
 
 data_overrides:

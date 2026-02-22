@@ -1,6 +1,5 @@
-# Baseline experiment: Custom U-Net on merged dataset
-# Matches original notebook training setup
-data: data/merged
+# U-Net ResNet34 on dataset_116 (116 JSON-annotated masks)
+data: data/dataset_116
 model: model/unet_resnet34
 
 data_overrides:
