@@ -8,7 +8,7 @@
 #SBATCH --account=rxf131
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
-#SBATCH --time=04:00:00
+#SBATCH --time=06:00:00
 #SBATCH --mem=32G
 
 # Usage: sbatch --job-name=sem-unet scripts/train_model.slurm configs/experiment/baseline.yaml unet
@@ -29,8 +29,9 @@ echo "Experiment: $EXPERIMENT"
 echo "Run Name: $RUN_NAME"
 echo "=========================================="
 
-# Load modules
-module load python/3.9 2>/dev/null || module load python 2>/dev/null
+# Load modules (must match Python version used to create .venv)
+module load GCCcore/12.3.0
+module load Python/3.11.3-GCCcore-12.3.0
 
 # Activate environment
 source $HOME/sem/.venv/bin/activate
