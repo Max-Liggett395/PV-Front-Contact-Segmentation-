@@ -8,7 +8,7 @@
 #SBATCH --account=rxf131
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
-#SBATCH --time=06:00:00
+#SBATCH --time=08:00:00
 #SBATCH --mem=32G
 
 # Usage: sbatch --job-name=sem-unet scripts/train_model.slurm configs/experiment/baseline.yaml unet
