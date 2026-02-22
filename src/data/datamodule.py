@@ -41,6 +41,13 @@ class SEMDataModule:
         ]
         image_paths.sort()
 
+        if not image_paths:
+            raise RuntimeError(
+                f"No matching image/mask pairs found.\n"
+                f"  image_dir: {self.image_dir} (exists={os.path.isdir(self.image_dir)})\n"
+                f"  mask_dir:  {self.mask_dir} (exists={os.path.isdir(self.mask_dir)})"
+            )
+
         # Build full dataset (no transform yet — applied via wrapper)
         full_dataset = SEMDataset(
             image_paths, self.mask_dir, transform=None, in_channels=self.in_channels,
@@ -72,6 +79,7 @@ class SEMDataModule:
             shuffle=True,
             num_workers=self.num_workers,
             pin_memory=True,
+            drop_last=True,
         )
 
     def val_dataloader(self):
