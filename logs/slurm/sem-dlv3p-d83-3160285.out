@@ -1,0 +1,34 @@
+==========================================
+Job ID: 3160285
+Node: gput059
+GPU: 0
+Experiment: configs/experiment/deeplabv3plus_dataset83.yaml
+Run Name: deeplabv3plus-d83-1000ep
+==========================================
+Sun Feb 22 12:37:53 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-PCIE-32GB           On  |   00000000:D8:00.0 Off |                    0 |
+| N/A   30C    P0             23W /  250W |       0MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 11 train / 3 val (from 14 total)
+Model: deeplabv3plus
+Trainable parameters: 58,627,142
+Epoch 1/1000 | train_loss: 1.5704 | miou: 0.1393 | f1_macro: 0.2180 | pixel_accuracy: 0.3527 | val_loss: 1.7674
+Epoch 2/1000 | train_loss: 1.1355 | miou: 0.2067 | f1_macro: 0.2983 | pixel_accuracy: 0.4971 | val_loss: 1.6742
+Epoch 3/1000 | train_loss: 0.9326 | miou: 0.2565 | f1_macro: 0.3653 | pixel_accuracy: 0.5682 | val_loss: 1.5368
+Epoch 4/1000 | train_loss: 0.8426 | miou: 0.2926 | f1_macro: 0.4144 | pixel_accuracy: 0.6048 | val_loss: 1.4089

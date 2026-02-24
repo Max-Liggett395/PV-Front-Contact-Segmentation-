@@ -1,0 +1,33 @@
+==========================================
+Job ID: 3160291
+Node: gput064
+GPU: 0
+Experiment: configs/experiment/deeplabv3plus.yaml
+Run Name: deeplabv3plus-merged-1000ep
+==========================================
+Sun Feb 22 12:37:52 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA L40S                    On  |   00000000:CA:00.0 Off |                    0 |
+| N/A   27C    P8             32W /  350W |       0MiB /  46068MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 110 train / 20 val (from 130 total)
+Model: deeplabv3plus
+Trainable parameters: 58,627,142
+Epoch 1/1000 | train_loss: 1.3321 | miou: 0.4672 | f1_macro: 0.5611 | pixel_accuracy: 0.8162 | val_loss: 0.6763
+Epoch 2/1000 | train_loss: 0.9955 | miou: 0.5469 | f1_macro: 0.6590 | pixel_accuracy: 0.8480 | val_loss: 0.5284
+Epoch 3/1000 | train_loss: 0.8356 | miou: 0.4788 | f1_macro: 0.6052 | pixel_accuracy: 0.7826 | val_loss: 0.7269

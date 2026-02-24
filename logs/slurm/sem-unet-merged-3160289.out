@@ -1,0 +1,33 @@
+==========================================
+Job ID: 3160289
+Node: gput074
+GPU: 0
+Experiment: configs/experiment/baseline.yaml
+Run Name: unet-merged-1000ep
+==========================================
+Sun Feb 22 12:37:54 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 4090        On  |   00000000:CA:00.0 Off |                  Off |
+| 32%   22C    P8             20W /  450W |       1MiB /  24564MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 110 train / 20 val (from 130 total)
+Model: unet
+Trainable parameters: 31,030,918
+Epoch 1/1000 | train_loss: 1.6555 | miou: 0.1150 | f1_macro: 0.1699 | pixel_accuracy: 0.3939 | val_loss: 1.4951
+Epoch 2/1000 | train_loss: 1.4799 | miou: 0.2060 | f1_macro: 0.2893 | pixel_accuracy: 0.5492 | val_loss: 1.3539
+Epoch 3/1000 | train_loss: 1.3932 | miou: 0.2493 | f1_macro: 0.3311 | pixel_accuracy: 0.6060 | val_loss: 1.3011

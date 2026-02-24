@@ -1,0 +1,22 @@
+Device: cuda
+
+================================================================================
+SPLIT ANALYSIS
+================================================================================
+
+Notebook split:
+  Val cells: ['NPERT.c40', 'SLTE.C16CR11', 'SLTE.C17BB11', 'SLTE.C17CRA1', 'SLTE.C36BB21', 'TOPCon.sp3224a', 'VCAD.C33BB21', 'Yingli.C36BB21', 'gLASSgLASS.GG1']
+  Val cells with train cell-mates: 8/9
+  Matched cells: ['NPERT.c40', 'SLTE.C16CR11', 'SLTE.C17BB11', 'SLTE.C17CRA1', 'SLTE.C36BB21', 'TOPCon.sp3224a', 'VCAD.C33BB21', 'Yingli.C36BB21']
+
+Pipeline split (seed=42):
+  Val cells: ['NPERT.CG006', 'NPERT.c40', 'SLTE.C16CR11', 'SLTE.C17BB11', 'SLTE.C17CRA1', 'SLTE.C17CRA2', 'SLTE.C36BB21', 'TOPCon.sp3224a', 'VCADPERC.C33CR2', 'Yingli.C36BB21']
+  Val cells with train cell-mates: 9/10
+  Matched cells: ['NPERT.CG006', 'NPERT.c40', 'SLTE.C16CR11', 'SLTE.C17BB11', 'SLTE.C17CRA1', 'SLTE.C17CRA2', 'SLTE.C36BB21', 'TOPCon.sp3224a', 'VCADPERC.C33CR2']
+
+  Notebook val cells with NO training cell-mate: ['gLASSgLASS.GG1']
+  Pipeline val cells with NO training cell-mate: ['Yingli.C36BB21']
+
+================================================================================
+NOTEBOOK CHECKPOINT EVALUATION
+================================================================================

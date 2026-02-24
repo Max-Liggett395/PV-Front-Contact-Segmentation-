@@ -1,0 +1,304 @@
+==========================================
+Job ID: 3160941
+Node: gput074
+GPU: 0
+Experiment: configs/experiment/unet_dataset116.yaml
+Run Name: unet-d116
+==========================================
+Sun Feb 22 16:04:25 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 4090        On  |   00000000:0A:00.0 Off |                  Off |
+| 32%   25C    P8             22W /  450W |       1MiB /  24564MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 98 train / 18 val (from 116 total)
+Model: unet
+Trainable parameters: 31,030,918
+Epoch 1/1000 | train_loss: 1.6304 | miou: 0.1431 | f1_macro: 0.1994 | pixel_accuracy: 0.4525 | val_loss: 1.5192
+Epoch 2/1000 | train_loss: 1.4700 | miou: 0.2465 | f1_macro: 0.3300 | pixel_accuracy: 0.5961 | val_loss: 1.4522
+Epoch 3/1000 | train_loss: 1.4339 | miou: 0.2619 | f1_macro: 0.3432 | pixel_accuracy: 0.6198 | val_loss: 1.4236
+Epoch 4/1000 | train_loss: 1.4182 | miou: 0.1986 | f1_macro: 0.2744 | pixel_accuracy: 0.4805 | val_loss: 1.4338
+Epoch 5/1000 | train_loss: 1.3796 | miou: 0.2593 | f1_macro: 0.3404 | pixel_accuracy: 0.6133 | val_loss: 1.3339
+Epoch 6/1000 | train_loss: 1.3695 | miou: 0.2693 | f1_macro: 0.3490 | pixel_accuracy: 0.6284 | val_loss: 1.2992
+Epoch 7/1000 | train_loss: 1.3226 | miou: 0.2775 | f1_macro: 0.3551 | pixel_accuracy: 0.6325 | val_loss: 1.2855
+Epoch 8/1000 | train_loss: 1.3126 | miou: 0.2707 | f1_macro: 0.3504 | pixel_accuracy: 0.6294 | val_loss: 1.2654
+Epoch 9/1000 | train_loss: 1.3186 | miou: 0.2744 | f1_macro: 0.3533 | pixel_accuracy: 0.6357 | val_loss: 1.2400
+Epoch 10/1000 | train_loss: 1.2953 | miou: 0.2852 | f1_macro: 0.3618 | pixel_accuracy: 0.6475 | val_loss: 1.2269
+Epoch 11/1000 | train_loss: 1.2956 | miou: 0.2691 | f1_macro: 0.3488 | pixel_accuracy: 0.6266 | val_loss: 1.2181
+Epoch 12/1000 | train_loss: 1.2826 | miou: 0.2802 | f1_macro: 0.3575 | pixel_accuracy: 0.6382 | val_loss: 1.2195
+Epoch 13/1000 | train_loss: 1.3009 | miou: 0.2642 | f1_macro: 0.3445 | pixel_accuracy: 0.6175 | val_loss: 1.2102
+Epoch 14/1000 | train_loss: 1.2778 | miou: 0.2709 | f1_macro: 0.3506 | pixel_accuracy: 0.6305 | val_loss: 1.1970
+Epoch 15/1000 | train_loss: 1.2698 | miou: 0.2736 | f1_macro: 0.3528 | pixel_accuracy: 0.6335 | val_loss: 1.1742
+Epoch 16/1000 | train_loss: 1.2753 | miou: 0.2742 | f1_macro: 0.3533 | pixel_accuracy: 0.6365 | val_loss: 1.2164
+Epoch 17/1000 | train_loss: 1.2845 | miou: 0.2738 | f1_macro: 0.3532 | pixel_accuracy: 0.6359 | val_loss: 1.1831
+Epoch 18/1000 | train_loss: 1.2601 | miou: 0.2870 | f1_macro: 0.3634 | pixel_accuracy: 0.6512 | val_loss: 1.1641
+Epoch 19/1000 | train_loss: 1.2987 | miou: 0.2742 | f1_macro: 0.3535 | pixel_accuracy: 0.6358 | val_loss: 1.1514
+Epoch 20/1000 | train_loss: 1.2594 | miou: 0.2850 | f1_macro: 0.3619 | pixel_accuracy: 0.6485 | val_loss: 1.1651
+Epoch 21/1000 | train_loss: 1.2764 | miou: 0.2849 | f1_macro: 0.3618 | pixel_accuracy: 0.6492 | val_loss: 1.1312
+Epoch 22/1000 | train_loss: 1.2603 | miou: 0.2867 | f1_macro: 0.3631 | pixel_accuracy: 0.6506 | val_loss: 1.1319
+Epoch 23/1000 | train_loss: 1.2398 | miou: 0.2789 | f1_macro: 0.3575 | pixel_accuracy: 0.6431 | val_loss: 1.1470
+Epoch 24/1000 | train_loss: 1.2615 | miou: 0.2772 | f1_macro: 0.3559 | pixel_accuracy: 0.6402 | val_loss: 1.1058
+Epoch 25/1000 | train_loss: 1.2615 | miou: 0.2856 | f1_macro: 0.3626 | pixel_accuracy: 0.6517 | val_loss: 1.1106
+Epoch 26/1000 | train_loss: 1.2591 | miou: 0.2857 | f1_macro: 0.3624 | pixel_accuracy: 0.6494 | val_loss: 1.0913
+Epoch 27/1000 | train_loss: 1.2432 | miou: 0.2846 | f1_macro: 0.3618 | pixel_accuracy: 0.6496 | val_loss: 1.0772
+Epoch 28/1000 | train_loss: 1.2449 | miou: 0.2906 | f1_macro: 0.3685 | pixel_accuracy: 0.6551 | val_loss: 1.0922
+Epoch 29/1000 | train_loss: 1.2191 | miou: 0.3426 | f1_macro: 0.4519 | pixel_accuracy: 0.6694 | val_loss: 1.0626
+Epoch 30/1000 | train_loss: 1.2480 | miou: 0.3585 | f1_macro: 0.4599 | pixel_accuracy: 0.6762 | val_loss: 0.9996
+Epoch 31/1000 | train_loss: 1.2047 | miou: 0.3736 | f1_macro: 0.4909 | pixel_accuracy: 0.6795 | val_loss: 1.0222
+Epoch 32/1000 | train_loss: 1.1912 | miou: 0.3589 | f1_macro: 0.4723 | pixel_accuracy: 0.6717 | val_loss: 1.0279
+Epoch 33/1000 | train_loss: 1.1522 | miou: 0.3714 | f1_macro: 0.4936 | pixel_accuracy: 0.6745 | val_loss: 1.0084
+Epoch 34/1000 | train_loss: 1.1625 | miou: 0.3885 | f1_macro: 0.5051 | pixel_accuracy: 0.6957 | val_loss: 0.9983
+Epoch 35/1000 | train_loss: 1.1956 | miou: 0.3801 | f1_macro: 0.5029 | pixel_accuracy: 0.6815 | val_loss: 1.0320
+Epoch 36/1000 | train_loss: 1.1669 | miou: 0.4103 | f1_macro: 0.5386 | pixel_accuracy: 0.7004 | val_loss: 1.0400
+Epoch 37/1000 | train_loss: 1.1818 | miou: 0.3880 | f1_macro: 0.5085 | pixel_accuracy: 0.6863 | val_loss: 0.9752
+Epoch 38/1000 | train_loss: 1.1756 | miou: 0.3724 | f1_macro: 0.4908 | pixel_accuracy: 0.6790 | val_loss: 0.9681
+Epoch 39/1000 | train_loss: 1.1277 | miou: 0.3870 | f1_macro: 0.5112 | pixel_accuracy: 0.6888 | val_loss: 0.9702
+Epoch 40/1000 | train_loss: 1.1679 | miou: 0.3471 | f1_macro: 0.4631 | pixel_accuracy: 0.6661 | val_loss: 1.0326
+Epoch 41/1000 | train_loss: 1.1811 | miou: 0.3586 | f1_macro: 0.4832 | pixel_accuracy: 0.6437 | val_loss: 1.0626
+Epoch 42/1000 | train_loss: 1.1477 | miou: 0.4054 | f1_macro: 0.5311 | pixel_accuracy: 0.6989 | val_loss: 0.9563
+Epoch 43/1000 | train_loss: 1.1542 | miou: 0.4183 | f1_macro: 0.5466 | pixel_accuracy: 0.7039 | val_loss: 0.9306
+Epoch 44/1000 | train_loss: 1.0803 | miou: 0.3917 | f1_macro: 0.5151 | pixel_accuracy: 0.6865 | val_loss: 0.9510
+Epoch 45/1000 | train_loss: 1.1126 | miou: 0.4249 | f1_macro: 0.5541 | pixel_accuracy: 0.7064 | val_loss: 0.8830
+Epoch 46/1000 | train_loss: 1.1608 | miou: 0.3742 | f1_macro: 0.4809 | pixel_accuracy: 0.7064 | val_loss: 0.9839
+Epoch 47/1000 | train_loss: 1.1483 | miou: 0.4083 | f1_macro: 0.5294 | pixel_accuracy: 0.7059 | val_loss: 0.8963
+Epoch 48/1000 | train_loss: 1.0798 | miou: 0.4251 | f1_macro: 0.5421 | pixel_accuracy: 0.7270 | val_loss: 0.8619
+Epoch 49/1000 | train_loss: 1.0961 | miou: 0.3978 | f1_macro: 0.5141 | pixel_accuracy: 0.6982 | val_loss: 0.9059
+Epoch 50/1000 | train_loss: 1.0386 | miou: 0.3752 | f1_macro: 0.4888 | pixel_accuracy: 0.6952 | val_loss: 0.9141
+Epoch 51/1000 | train_loss: 1.0461 | miou: 0.4450 | f1_macro: 0.5642 | pixel_accuracy: 0.7418 | val_loss: 0.8452
+Epoch 52/1000 | train_loss: 1.0265 | miou: 0.4324 | f1_macro: 0.5542 | pixel_accuracy: 0.7288 | val_loss: 0.8710
+Epoch 53/1000 | train_loss: 0.9850 | miou: 0.4435 | f1_macro: 0.5628 | pixel_accuracy: 0.7425 | val_loss: 0.8681
+Epoch 54/1000 | train_loss: 0.9895 | miou: 0.4551 | f1_macro: 0.5736 | pixel_accuracy: 0.7508 | val_loss: 0.8154
+Epoch 55/1000 | train_loss: 0.9987 | miou: 0.3961 | f1_macro: 0.5087 | pixel_accuracy: 0.7203 | val_loss: 0.9100
+Epoch 56/1000 | train_loss: 0.9757 | miou: 0.4581 | f1_macro: 0.5738 | pixel_accuracy: 0.7479 | val_loss: 0.8381
+Epoch 57/1000 | train_loss: 0.9994 | miou: 0.4645 | f1_macro: 0.5796 | pixel_accuracy: 0.7631 | val_loss: 0.8106
+Epoch 58/1000 | train_loss: 0.9764 | miou: 0.4678 | f1_macro: 0.5863 | pixel_accuracy: 0.7547 | val_loss: 0.8060
+Epoch 59/1000 | train_loss: 0.9901 | miou: 0.4622 | f1_macro: 0.5787 | pixel_accuracy: 0.7570 | val_loss: 0.7971
+Epoch 60/1000 | train_loss: 0.9933 | miou: 0.4382 | f1_macro: 0.5492 | pixel_accuracy: 0.7373 | val_loss: 0.8540
+Epoch 61/1000 | train_loss: 0.9822 | miou: 0.4662 | f1_macro: 0.5791 | pixel_accuracy: 0.7631 | val_loss: 0.7843
+Epoch 62/1000 | train_loss: 0.9783 | miou: 0.4486 | f1_macro: 0.5581 | pixel_accuracy: 0.7622 | val_loss: 0.7969
+Epoch 63/1000 | train_loss: 0.9634 | miou: 0.4477 | f1_macro: 0.5654 | pixel_accuracy: 0.7507 | val_loss: 0.8094
+Epoch 64/1000 | train_loss: 0.9728 | miou: 0.4683 | f1_macro: 0.5848 | pixel_accuracy: 0.7623 | val_loss: 0.8052
+Epoch 65/1000 | train_loss: 0.9572 | miou: 0.4534 | f1_macro: 0.5690 | pixel_accuracy: 0.7552 | val_loss: 0.8089
+Epoch 66/1000 | train_loss: 0.9441 | miou: 0.4700 | f1_macro: 0.5837 | pixel_accuracy: 0.7626 | val_loss: 0.7727
+Epoch 67/1000 | train_loss: 0.9592 | miou: 0.4750 | f1_macro: 0.5882 | pixel_accuracy: 0.7650 | val_loss: 0.7681
+Epoch 68/1000 | train_loss: 0.9478 | miou: 0.4890 | f1_macro: 0.6083 | pixel_accuracy: 0.7745 | val_loss: 0.7574
+Epoch 69/1000 | train_loss: 0.9321 | miou: 0.4673 | f1_macro: 0.5860 | pixel_accuracy: 0.7612 | val_loss: 0.7807
+Epoch 70/1000 | train_loss: 0.9460 | miou: 0.4791 | f1_macro: 0.5940 | pixel_accuracy: 0.7797 | val_loss: 0.7238
+Epoch 71/1000 | train_loss: 0.9449 | miou: 0.4932 | f1_macro: 0.6108 | pixel_accuracy: 0.7794 | val_loss: 0.7481
+Epoch 72/1000 | train_loss: 0.9487 | miou: 0.4891 | f1_macro: 0.6036 | pixel_accuracy: 0.7790 | val_loss: 0.7490
+Epoch 73/1000 | train_loss: 0.9186 | miou: 0.4781 | f1_macro: 0.5997 | pixel_accuracy: 0.7617 | val_loss: 0.7504
+Epoch 74/1000 | train_loss: 0.9378 | miou: 0.4550 | f1_macro: 0.5676 | pixel_accuracy: 0.7701 | val_loss: 0.7891
+Epoch 75/1000 | train_loss: 0.9485 | miou: 0.4627 | f1_macro: 0.5789 | pixel_accuracy: 0.7627 | val_loss: 0.7582
+Epoch 76/1000 | train_loss: 0.9059 | miou: 0.4844 | f1_macro: 0.5983 | pixel_accuracy: 0.7812 | val_loss: 0.7387
+Epoch 77/1000 | train_loss: 0.9381 | miou: 0.4586 | f1_macro: 0.5744 | pixel_accuracy: 0.7627 | val_loss: 0.7569
+Epoch 78/1000 | train_loss: 0.9240 | miou: 0.4375 | f1_macro: 0.5338 | pixel_accuracy: 0.7708 | val_loss: 0.7346
+Epoch 79/1000 | train_loss: 0.9360 | miou: 0.4861 | f1_macro: 0.5994 | pixel_accuracy: 0.7791 | val_loss: 0.7235
+Epoch 80/1000 | train_loss: 0.9007 | miou: 0.4872 | f1_macro: 0.5996 | pixel_accuracy: 0.7791 | val_loss: 0.7237
+Epoch 81/1000 | train_loss: 0.9038 | miou: 0.4643 | f1_macro: 0.5696 | pixel_accuracy: 0.7778 | val_loss: 0.7218
+Epoch 82/1000 | train_loss: 0.9371 | miou: 0.4687 | f1_macro: 0.5859 | pixel_accuracy: 0.7623 | val_loss: 0.7486
+Epoch 83/1000 | train_loss: 0.9014 | miou: 0.4634 | f1_macro: 0.5801 | pixel_accuracy: 0.7546 | val_loss: 0.7971
+Epoch 84/1000 | train_loss: 0.9275 | miou: 0.4718 | f1_macro: 0.5893 | pixel_accuracy: 0.7627 | val_loss: 0.7651
+Epoch 85/1000 | train_loss: 0.9011 | miou: 0.4889 | f1_macro: 0.6033 | pixel_accuracy: 0.7818 | val_loss: 0.7265
+Epoch 86/1000 | train_loss: 0.9040 | miou: 0.4937 | f1_macro: 0.6053 | pixel_accuracy: 0.7875 | val_loss: 0.7149
+Epoch 87/1000 | train_loss: 0.8851 | miou: 0.4892 | f1_macro: 0.6048 | pixel_accuracy: 0.7846 | val_loss: 0.7664
+Epoch 88/1000 | train_loss: 0.9131 | miou: 0.4986 | f1_macro: 0.6114 | pixel_accuracy: 0.7895 | val_loss: 0.7047
+Epoch 89/1000 | train_loss: 0.8949 | miou: 0.4955 | f1_macro: 0.6094 | pixel_accuracy: 0.7831 | val_loss: 0.7092
+Epoch 90/1000 | train_loss: 0.9038 | miou: 0.4607 | f1_macro: 0.5710 | pixel_accuracy: 0.7742 | val_loss: 0.7148
+Epoch 91/1000 | train_loss: 0.8882 | miou: 0.4949 | f1_macro: 0.6057 | pixel_accuracy: 0.7875 | val_loss: 0.6903
+Epoch 92/1000 | train_loss: 0.9012 | miou: 0.4853 | f1_macro: 0.5954 | pixel_accuracy: 0.7790 | val_loss: 0.7490
+Epoch 93/1000 | train_loss: 0.8996 | miou: 0.4791 | f1_macro: 0.5952 | pixel_accuracy: 0.7677 | val_loss: 0.7535
+Epoch 94/1000 | train_loss: 0.8957 | miou: 0.4953 | f1_macro: 0.6145 | pixel_accuracy: 0.7849 | val_loss: 0.7111
+Epoch 95/1000 | train_loss: 0.8691 | miou: 0.4961 | f1_macro: 0.6074 | pixel_accuracy: 0.7934 | val_loss: 0.6783
+Epoch 96/1000 | train_loss: 0.8483 | miou: 0.5073 | f1_macro: 0.6210 | pixel_accuracy: 0.7911 | val_loss: 0.6876
+Epoch 97/1000 | train_loss: 0.8904 | miou: 0.5125 | f1_macro: 0.6235 | pixel_accuracy: 0.7999 | val_loss: 0.6915
+Epoch 98/1000 | train_loss: 0.8905 | miou: 0.4814 | f1_macro: 0.5997 | pixel_accuracy: 0.7850 | val_loss: 0.7218
+Epoch 99/1000 | train_loss: 0.9053 | miou: 0.4796 | f1_macro: 0.5948 | pixel_accuracy: 0.7851 | val_loss: 0.6854
+Epoch 100/1000 | train_loss: 0.8676 | miou: 0.5198 | f1_macro: 0.6355 | pixel_accuracy: 0.7995 | val_loss: 0.6491
+Epoch 101/1000 | train_loss: 0.8833 | miou: 0.5084 | f1_macro: 0.6220 | pixel_accuracy: 0.7981 | val_loss: 0.6957
+Epoch 102/1000 | train_loss: 0.8781 | miou: 0.5166 | f1_macro: 0.6343 | pixel_accuracy: 0.7941 | val_loss: 0.6906
+Epoch 103/1000 | train_loss: 0.8718 | miou: 0.5182 | f1_macro: 0.6282 | pixel_accuracy: 0.8031 | val_loss: 0.6695
+Epoch 104/1000 | train_loss: 0.8573 | miou: 0.5310 | f1_macro: 0.6457 | pixel_accuracy: 0.8078 | val_loss: 0.6892
+Epoch 105/1000 | train_loss: 0.8744 | miou: 0.5350 | f1_macro: 0.6521 | pixel_accuracy: 0.8115 | val_loss: 0.6800
+Epoch 106/1000 | train_loss: 0.8524 | miou: 0.5045 | f1_macro: 0.6195 | pixel_accuracy: 0.7892 | val_loss: 0.6995
+Epoch 107/1000 | train_loss: 0.8660 | miou: 0.5315 | f1_macro: 0.6453 | pixel_accuracy: 0.8109 | val_loss: 0.6716
+Epoch 108/1000 | train_loss: 0.8560 | miou: 0.5315 | f1_macro: 0.6538 | pixel_accuracy: 0.7995 | val_loss: 0.6721
+Epoch 109/1000 | train_loss: 0.8440 | miou: 0.5565 | f1_macro: 0.6799 | pixel_accuracy: 0.8135 | val_loss: 0.6573
+Epoch 110/1000 | train_loss: 0.8514 | miou: 0.5285 | f1_macro: 0.6498 | pixel_accuracy: 0.8010 | val_loss: 0.6762
+Epoch 111/1000 | train_loss: 0.8692 | miou: 0.5463 | f1_macro: 0.6603 | pixel_accuracy: 0.8181 | val_loss: 0.6430
+Epoch 112/1000 | train_loss: 0.8596 | miou: 0.5255 | f1_macro: 0.6438 | pixel_accuracy: 0.7977 | val_loss: 0.7356
+Epoch 113/1000 | train_loss: 0.8163 | miou: 0.5521 | f1_macro: 0.6734 | pixel_accuracy: 0.8166 | val_loss: 0.6486
+Epoch 114/1000 | train_loss: 0.8270 | miou: 0.5535 | f1_macro: 0.6700 | pixel_accuracy: 0.8146 | val_loss: 0.6547
+Epoch 115/1000 | train_loss: 0.8594 | miou: 0.5288 | f1_macro: 0.6487 | pixel_accuracy: 0.8047 | val_loss: 0.6554
+Epoch 116/1000 | train_loss: 0.8409 | miou: 0.5504 | f1_macro: 0.6714 | pixel_accuracy: 0.8148 | val_loss: 0.6747
+Epoch 117/1000 | train_loss: 0.8097 | miou: 0.5615 | f1_macro: 0.6788 | pixel_accuracy: 0.8202 | val_loss: 0.6459
+Epoch 118/1000 | train_loss: 0.8327 | miou: 0.5632 | f1_macro: 0.6848 | pixel_accuracy: 0.8178 | val_loss: 0.6270
+Epoch 119/1000 | train_loss: 0.8512 | miou: 0.5507 | f1_macro: 0.6660 | pixel_accuracy: 0.8182 | val_loss: 0.6361
+Epoch 120/1000 | train_loss: 0.8319 | miou: 0.5626 | f1_macro: 0.6814 | pixel_accuracy: 0.8244 | val_loss: 0.6411
+Epoch 121/1000 | train_loss: 0.8412 | miou: 0.5149 | f1_macro: 0.6261 | pixel_accuracy: 0.8073 | val_loss: 0.6808
+Epoch 122/1000 | train_loss: 0.8173 | miou: 0.5615 | f1_macro: 0.6820 | pixel_accuracy: 0.8226 | val_loss: 0.6188
+Epoch 123/1000 | train_loss: 0.8208 | miou: 0.5590 | f1_macro: 0.6795 | pixel_accuracy: 0.8200 | val_loss: 0.6439
+Epoch 124/1000 | train_loss: 0.8399 | miou: 0.5539 | f1_macro: 0.6730 | pixel_accuracy: 0.8143 | val_loss: 0.6168
+Epoch 125/1000 | train_loss: 0.8177 | miou: 0.5589 | f1_macro: 0.6711 | pixel_accuracy: 0.8260 | val_loss: 0.6513
+Epoch 126/1000 | train_loss: 0.8241 | miou: 0.5646 | f1_macro: 0.6805 | pixel_accuracy: 0.8205 | val_loss: 0.6512
+Epoch 127/1000 | train_loss: 0.8404 | miou: 0.5602 | f1_macro: 0.6761 | pixel_accuracy: 0.8213 | val_loss: 0.6272
+Epoch 128/1000 | train_loss: 0.8179 | miou: 0.5768 | f1_macro: 0.6981 | pixel_accuracy: 0.8247 | val_loss: 0.6044
+Epoch 129/1000 | train_loss: 0.8052 | miou: 0.5666 | f1_macro: 0.6875 | pixel_accuracy: 0.8186 | val_loss: 0.6122
+Epoch 130/1000 | train_loss: 0.7834 | miou: 0.5845 | f1_macro: 0.6954 | pixel_accuracy: 0.8360 | val_loss: 0.5716
+Epoch 131/1000 | train_loss: 0.8140 | miou: 0.5769 | f1_macro: 0.6952 | pixel_accuracy: 0.8300 | val_loss: 0.6215
+Epoch 132/1000 | train_loss: 0.8149 | miou: 0.5687 | f1_macro: 0.6842 | pixel_accuracy: 0.8227 | val_loss: 0.6282
+Epoch 133/1000 | train_loss: 0.8053 | miou: 0.5676 | f1_macro: 0.6836 | pixel_accuracy: 0.8268 | val_loss: 0.6024
+Epoch 134/1000 | train_loss: 0.7957 | miou: 0.5865 | f1_macro: 0.7026 | pixel_accuracy: 0.8369 | val_loss: 0.5682
+Epoch 135/1000 | train_loss: 0.7928 | miou: 0.5746 | f1_macro: 0.6922 | pixel_accuracy: 0.8232 | val_loss: 0.6329
+Epoch 136/1000 | train_loss: 0.8128 | miou: 0.5745 | f1_macro: 0.6890 | pixel_accuracy: 0.8257 | val_loss: 0.6289
+Epoch 137/1000 | train_loss: 0.8073 | miou: 0.5632 | f1_macro: 0.6778 | pixel_accuracy: 0.8165 | val_loss: 0.6380
+Epoch 138/1000 | train_loss: 0.8482 | miou: 0.5253 | f1_macro: 0.6515 | pixel_accuracy: 0.7881 | val_loss: 0.6722
+Epoch 139/1000 | train_loss: 0.7964 | miou: 0.5784 | f1_macro: 0.6902 | pixel_accuracy: 0.8329 | val_loss: 0.6225
+Epoch 140/1000 | train_loss: 0.7997 | miou: 0.5901 | f1_macro: 0.7021 | pixel_accuracy: 0.8383 | val_loss: 0.5543
+Epoch 141/1000 | train_loss: 0.7993 | miou: 0.5723 | f1_macro: 0.6862 | pixel_accuracy: 0.8277 | val_loss: 0.5793
+Epoch 142/1000 | train_loss: 0.7895 | miou: 0.5787 | f1_macro: 0.6919 | pixel_accuracy: 0.8263 | val_loss: 0.6271
+Epoch 143/1000 | train_loss: 0.7947 | miou: 0.5484 | f1_macro: 0.6710 | pixel_accuracy: 0.8079 | val_loss: 0.7168
+Epoch 144/1000 | train_loss: 0.7903 | miou: 0.5820 | f1_macro: 0.6998 | pixel_accuracy: 0.8272 | val_loss: 0.6410
+Epoch 145/1000 | train_loss: 0.7966 | miou: 0.5911 | f1_macro: 0.7053 | pixel_accuracy: 0.8377 | val_loss: 0.5824
+Epoch 146/1000 | train_loss: 0.7630 | miou: 0.5186 | f1_macro: 0.6511 | pixel_accuracy: 0.7729 | val_loss: 0.7990
+Epoch 147/1000 | train_loss: 0.8292 | miou: 0.5745 | f1_macro: 0.6967 | pixel_accuracy: 0.8170 | val_loss: 0.5701
+Epoch 148/1000 | train_loss: 0.7889 | miou: 0.5896 | f1_macro: 0.7010 | pixel_accuracy: 0.8413 | val_loss: 0.5792
+Epoch 149/1000 | train_loss: 0.7661 | miou: 0.5773 | f1_macro: 0.6902 | pixel_accuracy: 0.8309 | val_loss: 0.5794
+Epoch 150/1000 | train_loss: 0.7841 | miou: 0.5904 | f1_macro: 0.7013 | pixel_accuracy: 0.8394 | val_loss: 0.5661
+Epoch 151/1000 | train_loss: 0.7945 | miou: 0.5856 | f1_macro: 0.6975 | pixel_accuracy: 0.8382 | val_loss: 0.5627
+Epoch 152/1000 | train_loss: 0.7806 | miou: 0.5897 | f1_macro: 0.7036 | pixel_accuracy: 0.8354 | val_loss: 0.5825
+Epoch 153/1000 | train_loss: 0.7832 | miou: 0.5738 | f1_macro: 0.6890 | pixel_accuracy: 0.8195 | val_loss: 0.5950
+Epoch 154/1000 | train_loss: 0.7699 | miou: 0.5985 | f1_macro: 0.7139 | pixel_accuracy: 0.8400 | val_loss: 0.5650
+Epoch 155/1000 | train_loss: 0.7627 | miou: 0.5990 | f1_macro: 0.7158 | pixel_accuracy: 0.8421 | val_loss: 0.5818
+Epoch 156/1000 | train_loss: 0.7703 | miou: 0.5941 | f1_macro: 0.7105 | pixel_accuracy: 0.8365 | val_loss: 0.5577
+Epoch 157/1000 | train_loss: 0.7720 | miou: 0.5784 | f1_macro: 0.6892 | pixel_accuracy: 0.8314 | val_loss: 0.5915
+Epoch 158/1000 | train_loss: 0.7667 | miou: 0.5845 | f1_macro: 0.7025 | pixel_accuracy: 0.8291 | val_loss: 0.5630
+Epoch 159/1000 | train_loss: 0.7650 | miou: 0.6153 | f1_macro: 0.7315 | pixel_accuracy: 0.8480 | val_loss: 0.5667
+Epoch 160/1000 | train_loss: 0.7742 | miou: 0.5922 | f1_macro: 0.7104 | pixel_accuracy: 0.8324 | val_loss: 0.5825
+Epoch 161/1000 | train_loss: 0.7981 | miou: 0.5490 | f1_macro: 0.6683 | pixel_accuracy: 0.8116 | val_loss: 0.6521
+Epoch 162/1000 | train_loss: 0.7793 | miou: 0.6017 | f1_macro: 0.7202 | pixel_accuracy: 0.8373 | val_loss: 0.5737
+Epoch 163/1000 | train_loss: 0.7612 | miou: 0.5966 | f1_macro: 0.7093 | pixel_accuracy: 0.8404 | val_loss: 0.5550
+Epoch 164/1000 | train_loss: 0.7650 | miou: 0.6005 | f1_macro: 0.7138 | pixel_accuracy: 0.8401 | val_loss: 0.5717
+Epoch 165/1000 | train_loss: 0.7648 | miou: 0.5972 | f1_macro: 0.7123 | pixel_accuracy: 0.8437 | val_loss: 0.5598
+Epoch 166/1000 | train_loss: 0.7856 | miou: 0.6018 | f1_macro: 0.7168 | pixel_accuracy: 0.8393 | val_loss: 0.5125
+Epoch 167/1000 | train_loss: 0.7660 | miou: 0.5929 | f1_macro: 0.7081 | pixel_accuracy: 0.8356 | val_loss: 0.5804
+Epoch 168/1000 | train_loss: 0.7541 | miou: 0.5926 | f1_macro: 0.7046 | pixel_accuracy: 0.8406 | val_loss: 0.5991
+Epoch 169/1000 | train_loss: 0.7509 | miou: 0.5970 | f1_macro: 0.7063 | pixel_accuracy: 0.8395 | val_loss: 0.5710
+Epoch 170/1000 | train_loss: 0.7626 | miou: 0.5877 | f1_macro: 0.6987 | pixel_accuracy: 0.8368 | val_loss: 0.5777
+Epoch 171/1000 | train_loss: 0.7622 | miou: 0.6010 | f1_macro: 0.7132 | pixel_accuracy: 0.8443 | val_loss: 0.5382
+Epoch 172/1000 | train_loss: 0.7699 | miou: 0.5998 | f1_macro: 0.7129 | pixel_accuracy: 0.8400 | val_loss: 0.5408
+Epoch 173/1000 | train_loss: 0.7568 | miou: 0.5960 | f1_macro: 0.7148 | pixel_accuracy: 0.8389 | val_loss: 0.5888
+Epoch 174/1000 | train_loss: 0.7588 | miou: 0.6073 | f1_macro: 0.7196 | pixel_accuracy: 0.8453 | val_loss: 0.5512
+Epoch 175/1000 | train_loss: 0.7471 | miou: 0.6128 | f1_macro: 0.7270 | pixel_accuracy: 0.8487 | val_loss: 0.5766
+Epoch 176/1000 | train_loss: 0.7336 | miou: 0.5803 | f1_macro: 0.6936 | pixel_accuracy: 0.8340 | val_loss: 0.6195
+Epoch 177/1000 | train_loss: 0.7573 | miou: 0.6128 | f1_macro: 0.7243 | pixel_accuracy: 0.8473 | val_loss: 0.5268
+Epoch 178/1000 | train_loss: 0.7524 | miou: 0.6198 | f1_macro: 0.7317 | pixel_accuracy: 0.8530 | val_loss: 0.5019
+Epoch 179/1000 | train_loss: 0.7551 | miou: 0.5951 | f1_macro: 0.7077 | pixel_accuracy: 0.8423 | val_loss: 0.5791
+Epoch 180/1000 | train_loss: 0.7619 | miou: 0.6165 | f1_macro: 0.7296 | pixel_accuracy: 0.8492 | val_loss: 0.5177
+Epoch 181/1000 | train_loss: 0.7459 | miou: 0.6081 | f1_macro: 0.7254 | pixel_accuracy: 0.8444 | val_loss: 0.5392
+Epoch 182/1000 | train_loss: 0.7432 | miou: 0.6084 | f1_macro: 0.7158 | pixel_accuracy: 0.8523 | val_loss: 0.5314
+Epoch 183/1000 | train_loss: 0.7454 | miou: 0.6012 | f1_macro: 0.7119 | pixel_accuracy: 0.8452 | val_loss: 0.5802
+Epoch 184/1000 | train_loss: 0.7543 | miou: 0.6066 | f1_macro: 0.7177 | pixel_accuracy: 0.8494 | val_loss: 0.5117
+Epoch 185/1000 | train_loss: 0.7526 | miou: 0.6121 | f1_macro: 0.7241 | pixel_accuracy: 0.8525 | val_loss: 0.5643
+Epoch 186/1000 | train_loss: 0.7306 | miou: 0.6136 | f1_macro: 0.7253 | pixel_accuracy: 0.8507 | val_loss: 0.5967
+Epoch 187/1000 | train_loss: 0.7437 | miou: 0.5128 | f1_macro: 0.6456 | pixel_accuracy: 0.7793 | val_loss: 0.9773
+Epoch 188/1000 | train_loss: 0.8198 | miou: 0.5942 | f1_macro: 0.7049 | pixel_accuracy: 0.8421 | val_loss: 0.5741
+Epoch 189/1000 | train_loss: 0.7529 | miou: 0.6089 | f1_macro: 0.7216 | pixel_accuracy: 0.8499 | val_loss: 0.5874
+Epoch 190/1000 | train_loss: 0.7430 | miou: 0.6094 | f1_macro: 0.7185 | pixel_accuracy: 0.8514 | val_loss: 0.5851
+Epoch 191/1000 | train_loss: 0.7349 | miou: 0.6179 | f1_macro: 0.7312 | pixel_accuracy: 0.8520 | val_loss: 0.5582
+Epoch 192/1000 | train_loss: 0.7176 | miou: 0.6213 | f1_macro: 0.7289 | pixel_accuracy: 0.8551 | val_loss: 0.5389
+Epoch 193/1000 | train_loss: 0.7411 | miou: 0.6160 | f1_macro: 0.7293 | pixel_accuracy: 0.8457 | val_loss: 0.5427
+Epoch 194/1000 | train_loss: 0.7309 | miou: 0.6094 | f1_macro: 0.7174 | pixel_accuracy: 0.8527 | val_loss: 0.5546
+Epoch 195/1000 | train_loss: 0.7191 | miou: 0.6119 | f1_macro: 0.7204 | pixel_accuracy: 0.8487 | val_loss: 0.5605
+Epoch 196/1000 | train_loss: 0.7385 | miou: 0.6104 | f1_macro: 0.7265 | pixel_accuracy: 0.8444 | val_loss: 0.5732
+Epoch 197/1000 | train_loss: 0.7283 | miou: 0.6122 | f1_macro: 0.7162 | pixel_accuracy: 0.8546 | val_loss: 0.5496
+Epoch 198/1000 | train_loss: 0.7119 | miou: 0.6105 | f1_macro: 0.7257 | pixel_accuracy: 0.8497 | val_loss: 0.6034
+Epoch 199/1000 | train_loss: 0.7247 | miou: 0.6091 | f1_macro: 0.7238 | pixel_accuracy: 0.8457 | val_loss: 0.5783
+Epoch 200/1000 | train_loss: 0.7138 | miou: 0.6251 | f1_macro: 0.7327 | pixel_accuracy: 0.8561 | val_loss: 0.5332
+Epoch 201/1000 | train_loss: 0.7540 | miou: 0.5920 | f1_macro: 0.7087 | pixel_accuracy: 0.8355 | val_loss: 0.5796
+Epoch 202/1000 | train_loss: 0.7250 | miou: 0.6116 | f1_macro: 0.7225 | pixel_accuracy: 0.8481 | val_loss: 0.5604
+Epoch 203/1000 | train_loss: 0.7194 | miou: 0.6127 | f1_macro: 0.7206 | pixel_accuracy: 0.8511 | val_loss: 0.5566
+Epoch 204/1000 | train_loss: 0.7338 | miou: 0.6083 | f1_macro: 0.7215 | pixel_accuracy: 0.8475 | val_loss: 0.5827
+Epoch 205/1000 | train_loss: 0.7365 | miou: 0.6116 | f1_macro: 0.7200 | pixel_accuracy: 0.8488 | val_loss: 0.5815
+Epoch 206/1000 | train_loss: 0.6957 | miou: 0.6255 | f1_macro: 0.7388 | pixel_accuracy: 0.8545 | val_loss: 0.5788
+Epoch 207/1000 | train_loss: 0.7014 | miou: 0.6203 | f1_macro: 0.7280 | pixel_accuracy: 0.8541 | val_loss: 0.5656
+Epoch 208/1000 | train_loss: 0.7112 | miou: 0.6013 | f1_macro: 0.7126 | pixel_accuracy: 0.8469 | val_loss: 0.5906
+Epoch 209/1000 | train_loss: 0.7247 | miou: 0.6357 | f1_macro: 0.7486 | pixel_accuracy: 0.8576 | val_loss: 0.5536
+Epoch 210/1000 | train_loss: 0.6969 | miou: 0.6004 | f1_macro: 0.7220 | pixel_accuracy: 0.8367 | val_loss: 0.6642
+Epoch 211/1000 | train_loss: 0.7543 | miou: 0.6185 | f1_macro: 0.7298 | pixel_accuracy: 0.8532 | val_loss: 0.5431
+Epoch 212/1000 | train_loss: 0.7247 | miou: 0.6213 | f1_macro: 0.7340 | pixel_accuracy: 0.8447 | val_loss: 0.5217
+Epoch 213/1000 | train_loss: 0.7206 | miou: 0.6259 | f1_macro: 0.7379 | pixel_accuracy: 0.8566 | val_loss: 0.5381
+Epoch 214/1000 | train_loss: 0.7250 | miou: 0.6235 | f1_macro: 0.7375 | pixel_accuracy: 0.8523 | val_loss: 0.5472
+Epoch 215/1000 | train_loss: 0.7143 | miou: 0.6226 | f1_macro: 0.7377 | pixel_accuracy: 0.8490 | val_loss: 0.5315
+Epoch 216/1000 | train_loss: 0.6906 | miou: 0.6226 | f1_macro: 0.7340 | pixel_accuracy: 0.8530 | val_loss: 0.5710
+Epoch 217/1000 | train_loss: 0.7094 | miou: 0.6110 | f1_macro: 0.7222 | pixel_accuracy: 0.8535 | val_loss: 0.5785
+Epoch 218/1000 | train_loss: 0.7035 | miou: 0.6272 | f1_macro: 0.7389 | pixel_accuracy: 0.8542 | val_loss: 0.5306
+Epoch 219/1000 | train_loss: 0.7064 | miou: 0.6264 | f1_macro: 0.7396 | pixel_accuracy: 0.8503 | val_loss: 0.5264
+Epoch 220/1000 | train_loss: 0.7300 | miou: 0.6092 | f1_macro: 0.7229 | pixel_accuracy: 0.8460 | val_loss: 0.5728
+Epoch 221/1000 | train_loss: 0.7057 | miou: 0.6358 | f1_macro: 0.7470 | pixel_accuracy: 0.8574 | val_loss: 0.5663
+Epoch 222/1000 | train_loss: 0.7082 | miou: 0.6213 | f1_macro: 0.7323 | pixel_accuracy: 0.8517 | val_loss: 0.5626
+Epoch 223/1000 | train_loss: 0.6849 | miou: 0.6152 | f1_macro: 0.7256 | pixel_accuracy: 0.8498 | val_loss: 0.5797
+Epoch 224/1000 | train_loss: 0.6977 | miou: 0.6086 | f1_macro: 0.7219 | pixel_accuracy: 0.8480 | val_loss: 0.6431
+Epoch 225/1000 | train_loss: 0.7435 | miou: 0.6351 | f1_macro: 0.7466 | pixel_accuracy: 0.8557 | val_loss: 0.5053
+Epoch 226/1000 | train_loss: 0.7076 | miou: 0.6381 | f1_macro: 0.7510 | pixel_accuracy: 0.8616 | val_loss: 0.5024
+Epoch 227/1000 | train_loss: 0.6841 | miou: 0.6043 | f1_macro: 0.7198 | pixel_accuracy: 0.8430 | val_loss: 0.6356
+Epoch 228/1000 | train_loss: 0.7425 | miou: 0.6217 | f1_macro: 0.7355 | pixel_accuracy: 0.8552 | val_loss: 0.5498
+Epoch 229/1000 | train_loss: 0.7236 | miou: 0.6234 | f1_macro: 0.7330 | pixel_accuracy: 0.8577 | val_loss: 0.5248
+Epoch 230/1000 | train_loss: 0.6942 | miou: 0.6309 | f1_macro: 0.7430 | pixel_accuracy: 0.8569 | val_loss: 0.5625
+Epoch 231/1000 | train_loss: 0.6947 | miou: 0.6132 | f1_macro: 0.7248 | pixel_accuracy: 0.8508 | val_loss: 0.5762
+Epoch 232/1000 | train_loss: 0.7135 | miou: 0.6422 | f1_macro: 0.7543 | pixel_accuracy: 0.8614 | val_loss: 0.5608
+Epoch 233/1000 | train_loss: 0.6905 | miou: 0.6462 | f1_macro: 0.7580 | pixel_accuracy: 0.8628 | val_loss: 0.5101
+Epoch 234/1000 | train_loss: 0.6983 | miou: 0.6305 | f1_macro: 0.7416 | pixel_accuracy: 0.8586 | val_loss: 0.5531
+Epoch 235/1000 | train_loss: 0.6725 | miou: 0.6330 | f1_macro: 0.7450 | pixel_accuracy: 0.8567 | val_loss: 0.5842
+Epoch 236/1000 | train_loss: 0.6882 | miou: 0.6322 | f1_macro: 0.7469 | pixel_accuracy: 0.8548 | val_loss: 0.5326
+Epoch 237/1000 | train_loss: 0.7169 | miou: 0.6196 | f1_macro: 0.7302 | pixel_accuracy: 0.8512 | val_loss: 0.5738
+Epoch 238/1000 | train_loss: 0.6921 | miou: 0.6304 | f1_macro: 0.7387 | pixel_accuracy: 0.8599 | val_loss: 0.5699
+Epoch 239/1000 | train_loss: 0.6828 | miou: 0.6416 | f1_macro: 0.7543 | pixel_accuracy: 0.8614 | val_loss: 0.5857
+Epoch 240/1000 | train_loss: 0.6763 | miou: 0.6399 | f1_macro: 0.7493 | pixel_accuracy: 0.8643 | val_loss: 0.5725
+Epoch 241/1000 | train_loss: 0.7116 | miou: 0.6136 | f1_macro: 0.7262 | pixel_accuracy: 0.8495 | val_loss: 0.5986
+Epoch 242/1000 | train_loss: 0.6946 | miou: 0.6154 | f1_macro: 0.7311 | pixel_accuracy: 0.8450 | val_loss: 0.5532
+Epoch 243/1000 | train_loss: 0.6990 | miou: 0.6354 | f1_macro: 0.7507 | pixel_accuracy: 0.8559 | val_loss: 0.5496
+Epoch 244/1000 | train_loss: 0.6925 | miou: 0.6268 | f1_macro: 0.7388 | pixel_accuracy: 0.8565 | val_loss: 0.5665
+Epoch 245/1000 | train_loss: 0.6907 | miou: 0.6450 | f1_macro: 0.7573 | pixel_accuracy: 0.8623 | val_loss: 0.5786
+Epoch 246/1000 | train_loss: 0.7801 | miou: 0.6110 | f1_macro: 0.7230 | pixel_accuracy: 0.8474 | val_loss: 0.5318
+Epoch 247/1000 | train_loss: 0.7329 | miou: 0.6300 | f1_macro: 0.7408 | pixel_accuracy: 0.8574 | val_loss: 0.5207
+Epoch 248/1000 | train_loss: 0.6768 | miou: 0.6416 | f1_macro: 0.7547 | pixel_accuracy: 0.8589 | val_loss: 0.5301
+Epoch 249/1000 | train_loss: 0.6873 | miou: 0.6294 | f1_macro: 0.7420 | pixel_accuracy: 0.8546 | val_loss: 0.5075
+Epoch 250/1000 | train_loss: 0.6749 | miou: 0.6293 | f1_macro: 0.7424 | pixel_accuracy: 0.8563 | val_loss: 0.5647
+Epoch 251/1000 | train_loss: 0.6762 | miou: 0.6305 | f1_macro: 0.7463 | pixel_accuracy: 0.8554 | val_loss: 0.5729
+Epoch 252/1000 | train_loss: 0.6873 | miou: 0.6220 | f1_macro: 0.7405 | pixel_accuracy: 0.8475 | val_loss: 0.6592
+Epoch 253/1000 | train_loss: 0.6800 | miou: 0.6164 | f1_macro: 0.7406 | pixel_accuracy: 0.8323 | val_loss: 0.6039
+Epoch 254/1000 | train_loss: 0.6887 | miou: 0.6334 | f1_macro: 0.7448 | pixel_accuracy: 0.8596 | val_loss: 0.5667
+Epoch 255/1000 | train_loss: 0.6710 | miou: 0.6333 | f1_macro: 0.7487 | pixel_accuracy: 0.8535 | val_loss: 0.5701
+Epoch 256/1000 | train_loss: 0.6788 | miou: 0.6282 | f1_macro: 0.7396 | pixel_accuracy: 0.8574 | val_loss: 0.5824
+Epoch 257/1000 | train_loss: 0.6864 | miou: 0.6107 | f1_macro: 0.7254 | pixel_accuracy: 0.8467 | val_loss: 0.6182
+Epoch 258/1000 | train_loss: 0.6941 | miou: 0.6439 | f1_macro: 0.7574 | pixel_accuracy: 0.8641 | val_loss: 0.5447
+Epoch 259/1000 | train_loss: 0.6961 | miou: 0.6187 | f1_macro: 0.7306 | pixel_accuracy: 0.8518 | val_loss: 0.5665
+Epoch 260/1000 | train_loss: 0.6725 | miou: 0.6426 | f1_macro: 0.7543 | pixel_accuracy: 0.8629 | val_loss: 0.5351
+Epoch 261/1000 | train_loss: 0.6592 | miou: 0.6117 | f1_macro: 0.7228 | pixel_accuracy: 0.8553 | val_loss: 0.6486
+Epoch 262/1000 | train_loss: 0.6624 | miou: 0.6441 | f1_macro: 0.7528 | pixel_accuracy: 0.8663 | val_loss: 0.5491
+Epoch 263/1000 | train_loss: 0.6858 | miou: 0.6247 | f1_macro: 0.7361 | pixel_accuracy: 0.8570 | val_loss: 0.5847
+Epoch 264/1000 | train_loss: 0.6799 | miou: 0.6385 | f1_macro: 0.7518 | pixel_accuracy: 0.8590 | val_loss: 0.5424
+Epoch 265/1000 | train_loss: 0.6851 | miou: 0.6278 | f1_macro: 0.7355 | pixel_accuracy: 0.8599 | val_loss: 0.5526
+Epoch 266/1000 | train_loss: 0.7409 | miou: 0.6164 | f1_macro: 0.7292 | pixel_accuracy: 0.8482 | val_loss: 0.5875
+Epoch 267/1000 | train_loss: 0.6920 | miou: 0.6440 | f1_macro: 0.7620 | pixel_accuracy: 0.8555 | val_loss: 0.5621
+Epoch 268/1000 | train_loss: 0.6899 | miou: 0.6321 | f1_macro: 0.7460 | pixel_accuracy: 0.8537 | val_loss: 0.5431
+Epoch 269/1000 | train_loss: 0.6617 | miou: 0.6260 | f1_macro: 0.7371 | pixel_accuracy: 0.8551 | val_loss: 0.5746
+Epoch 270/1000 | train_loss: 0.6592 | miou: 0.6244 | f1_macro: 0.7382 | pixel_accuracy: 0.8532 | val_loss: 0.5523
+Epoch 271/1000 | train_loss: 0.6580 | miou: 0.6261 | f1_macro: 0.7335 | pixel_accuracy: 0.8590 | val_loss: 0.5915
+Epoch 272/1000 | train_loss: 0.7201 | miou: 0.6224 | f1_macro: 0.7436 | pixel_accuracy: 0.8432 | val_loss: 0.6040
+Epoch 273/1000 | train_loss: 0.6822 | miou: 0.6195 | f1_macro: 0.7371 | pixel_accuracy: 0.8491 | val_loss: 0.5846
+Epoch 274/1000 | train_loss: 0.6704 | miou: 0.6336 | f1_macro: 0.7504 | pixel_accuracy: 0.8557 | val_loss: 0.5982

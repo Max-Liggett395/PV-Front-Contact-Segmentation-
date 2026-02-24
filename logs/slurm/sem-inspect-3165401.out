@@ -1,0 +1,25 @@
+=== LATEST CHECKPOINT ===
+Keys: ['epoch', 'model_state_dict', 'optimizer_state_dict', 'train_losses', 'val_losses', 'best_val_loss']
+Epoch: 999
+Best val_loss: 0.052897736931649536
+Num train_losses: 1000
+Num val_losses: 1000
+
+Train loss range: 0.0067 - 1.7987
+  First 5: [1.7987, 1.5205, 1.3736, 1.2696, 1.192]
+  Last 5: [0.0068, 0.0067, 0.0068, 0.0072, 0.0069]
+
+Val loss range: 0.0529 - 1.4690
+  First 5: [1.469, 1.4104, 1.2602, 1.1725, 1.1312]
+  Last 5: [0.3434, 0.348, 0.3129, 0.3523, 0.3559]
+  Best val_loss epoch: 569 (val_loss=0.0529)
+  Train loss at best epoch: 0.0280
+
+Optimizer: lr=5e-05, weight_decay=0
+
+=== BEST MODEL ===
+Keys: ['enc1.weight', 'enc1.bias', 'enc1b.weight', 'enc1b.bias', 'enc2.weight', 'enc2.bias', 'enc2b.weight', 'enc2b.bias', 'enc3.weight', 'enc3.bias']...
+Num parameters: 58
+
+=== COMPARISON ===
+Best model == latest model weights? False

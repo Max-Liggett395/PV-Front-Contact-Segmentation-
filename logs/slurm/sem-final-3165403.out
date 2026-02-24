@@ -1,0 +1,75 @@
+Device: cuda
+
+================================================================================
+SPLIT ANALYSIS
+================================================================================
+
+Notebook split:
+  Val cells: ['NPERT.c40', 'SLTE.C16CR11', 'SLTE.C17BB11', 'SLTE.C17CRA1', 'SLTE.C36BB21', 'TOPCon.sp3224a', 'VCAD.C33BB21', 'Yingli.C36BB21', 'gLASSgLASS.GG1']
+  Val cells with train cell-mates: 8/9
+  Matched cells: ['NPERT.c40', 'SLTE.C16CR11', 'SLTE.C17BB11', 'SLTE.C17CRA1', 'SLTE.C36BB21', 'TOPCon.sp3224a', 'VCAD.C33BB21', 'Yingli.C36BB21']
+
+Pipeline split (seed=42):
+  Val cells: ['NPERT.CG006', 'NPERT.c40', 'SLTE.C16CR11', 'SLTE.C17BB11', 'SLTE.C17CRA1', 'SLTE.C17CRA2', 'SLTE.C36BB21', 'TOPCon.sp3224a', 'VCADPERC.C33CR2', 'Yingli.C36BB21']
+  Val cells with train cell-mates: 9/10
+  Matched cells: ['NPERT.CG006', 'NPERT.c40', 'SLTE.C16CR11', 'SLTE.C17BB11', 'SLTE.C17CRA1', 'SLTE.C17CRA2', 'SLTE.C36BB21', 'TOPCon.sp3224a', 'VCADPERC.C33CR2']
+
+  Notebook val cells with NO training cell-mate: ['gLASSgLASS.GG1']
+  Pipeline val cells with NO training cell-mate: ['Yingli.C36BB21']
+
+================================================================================
+NOTEBOOK CHECKPOINT EVALUATION
+================================================================================
+
+  NB ckpt → NB val (no seed)
+    Global:    mIoU=0.9578  F1=0.9781  Acc=0.9911
+    Per-image: mIoU=0.9210  F1=0.9460  Acc=0.9911
+    sklearn:   mIoU=0.9210  F1=0.9460
+
+  NB ckpt → Pipeline val (seed=42)
+    Global:    mIoU=0.9460  F1=0.9717  Acc=0.9842
+    Per-image: mIoU=0.9321  F1=0.9627  Acc=0.9842
+    sklearn:   mIoU=0.9321  F1=0.9627
+
+  NB ckpt → ALL 83 images
+    Global:    mIoU=0.9598  F1=0.9792  Acc=0.9897
+    Per-image: mIoU=0.9245  F1=0.9508  Acc=0.9897
+    sklearn:   mIoU=0.9245  F1=0.9508
+
+  Images NB model never trained on (in both val sets): 4
+  Indices: [48, 59, 36, 78]
+  Files: ['SLTE.C36BB21.w4.2.jpg', 'TOPCon.sp3224a.baseline.c4.1.png', 'SLTE.C17CRA1.c4.1.png', 'Yingli.C36BB21.w1.5.png']
+
+  NB ckpt → 4 truly unseen images
+    Global:    mIoU=0.9572  F1=0.9778  Acc=0.9900
+    Per-image: mIoU=0.9379  F1=0.9664  Acc=0.9900
+    sklearn:   mIoU=0.9379  F1=0.9664
+
+  Images in NB train AND pipeline train: 61
+
+================================================================================
+PIPELINE RAW CHECKPOINT EVALUATION
+================================================================================
+  Raw checkpoint best epoch: 57
+
+  Pipeline raw ckpt → Pipeline val (seed=42)
+    Global:    mIoU=0.5785  F1=0.6905  Acc=0.8372
+    Per-image: mIoU=0.5714  F1=0.6713  Acc=0.8372
+    sklearn:   mIoU=0.5714  F1=0.6713
+
+  Pipeline raw ckpt → ALL 83 images
+    Global:    mIoU=0.6429  F1=0.7438  Acc=0.8865
+    Per-image: mIoU=0.6210  F1=0.7114  Acc=0.8865
+    sklearn:   mIoU=0.6210  F1=0.7114
+
+================================================================================
+TRAINING CURVE COMPARISON
+================================================================================
+  Notebook best val_loss:        0.0529  (epoch 569/1000)
+  Pipeline raw best val_loss:     0.5662  (epoch 57/~150)
+  Pipeline norm+aug best val_loss: 0.4650  (epoch 632/1000)
+
+  The notebook's val_loss is 10x lower than any pipeline run.
+  This means the notebook's val images were 10x more predictable
+  from the notebook's training images than our seed=42 val images
+  are from our seed=42 training images.
