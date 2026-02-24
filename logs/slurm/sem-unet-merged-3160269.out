@@ -1,0 +1,49 @@
+==========================================
+Job ID: 3160269
+Node: gput074
+GPU: 0
+Experiment: configs/experiment/baseline.yaml
+Run Name: unet-merged-1000ep
+==========================================
+Sun Feb 22 12:32:59 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 4090        On  |   00000000:0A:00.0 Off |                  Off |
+| 32%   22C    P8             21W /  450W |       1MiB /  24564MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 110 train / 20 val (from 130 total)
+Model: unet
+Trainable parameters: 31,030,918
+Epoch 1/1000 | train_loss: 1.6259 | miou: 0.1175 | f1_macro: 0.1725 | pixel_accuracy: 0.3994 | val_loss: 1.5163
+Epoch 2/1000 | train_loss: 1.4657 | miou: 0.1965 | f1_macro: 0.2791 | pixel_accuracy: 0.5345 | val_loss: 1.4093
+Epoch 3/1000 | train_loss: 1.4387 | miou: 0.2566 | f1_macro: 0.3375 | pixel_accuracy: 0.6168 | val_loss: 1.3343
+Epoch 4/1000 | train_loss: 1.4095 | miou: 0.2540 | f1_macro: 0.3356 | pixel_accuracy: 0.6167 | val_loss: 1.2856
+Epoch 5/1000 | train_loss: 1.3722 | miou: 0.2627 | f1_macro: 0.3426 | pixel_accuracy: 0.6253 | val_loss: 1.2190
+Epoch 6/1000 | train_loss: 1.3404 | miou: 0.2667 | f1_macro: 0.3458 | pixel_accuracy: 0.6293 | val_loss: 1.1824
+Epoch 7/1000 | train_loss: 1.3100 | miou: 0.2513 | f1_macro: 0.3320 | pixel_accuracy: 0.6041 | val_loss: 1.2192
+Epoch 8/1000 | train_loss: 1.2924 | miou: 0.2563 | f1_macro: 0.3355 | pixel_accuracy: 0.6105 | val_loss: 1.2274
+Epoch 9/1000 | train_loss: 1.2865 | miou: 0.2360 | f1_macro: 0.3160 | pixel_accuracy: 0.5712 | val_loss: 1.2365
+Epoch 10/1000 | train_loss: 1.2834 | miou: 0.2653 | f1_macro: 0.3430 | pixel_accuracy: 0.6191 | val_loss: 1.1347
+Epoch 11/1000 | train_loss: 1.2280 | miou: 0.2388 | f1_macro: 0.3203 | pixel_accuracy: 0.5826 | val_loss: 1.2539
+Epoch 12/1000 | train_loss: 1.2099 | miou: 0.2315 | f1_macro: 0.3231 | pixel_accuracy: 0.4340 | val_loss: 1.3268
+Epoch 13/1000 | train_loss: 1.2205 | miou: 0.2489 | f1_macro: 0.3303 | pixel_accuracy: 0.5943 | val_loss: 1.2531
+Epoch 14/1000 | train_loss: 1.2162 | miou: 0.2995 | f1_macro: 0.4057 | pixel_accuracy: 0.6256 | val_loss: 1.1054
+Epoch 15/1000 | train_loss: 1.1824 | miou: 0.2693 | f1_macro: 0.3463 | pixel_accuracy: 0.6243 | val_loss: 1.0825
+Epoch 16/1000 | train_loss: 1.1782 | miou: 0.2986 | f1_macro: 0.4006 | pixel_accuracy: 0.6283 | val_loss: 1.1300
+Epoch 17/1000 | train_loss: 1.1889 | miou: 0.3586 | f1_macro: 0.4879 | pixel_accuracy: 0.6443 | val_loss: 1.0598
+Epoch 18/1000 | train_loss: 1.1714 | miou: 0.3372 | f1_macro: 0.4558 | pixel_accuracy: 0.6414 | val_loss: 1.1232
+Epoch 19/1000 | train_loss: 1.1658 | miou: 0.3031 | f1_macro: 0.4184 | pixel_accuracy: 0.5843 | val_loss: 1.2136

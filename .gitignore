@@ -4,6 +4,7 @@
 
 # Logs and outputs
 logs/
+!logs/slurm/*.out
 *.pt
 *.pth
 

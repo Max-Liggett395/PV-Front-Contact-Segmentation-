@@ -1,0 +1,40 @@
+==========================================
+Job ID: 3160284
+Node: dgxt001
+GPU: 0
+Experiment: configs/experiment/deeplabv3_dataset83.yaml
+Run Name: deeplabv3-d83-1000ep
+==========================================
+Sun Feb 22 12:37:53 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:07:00.0 Off |                    0 |
+| N/A   26C    P0             51W /  400W |       0MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 11 train / 3 val (from 14 total)
+Model: deeplabv3
+Trainable parameters: 39,635,014
+Epoch 1/1000 | train_loss: 1.9475 | miou: 0.1189 | f1_macro: 0.1760 | pixel_accuracy: 0.3049 | val_loss: 1.7840
+Epoch 2/1000 | train_loss: 1.6888 | miou: 0.2169 | f1_macro: 0.3098 | pixel_accuracy: 0.4706 | val_loss: 1.7119
+Epoch 3/1000 | train_loss: 1.5281 | miou: 0.2765 | f1_macro: 0.3921 | pixel_accuracy: 0.5407 | val_loss: 1.5707
+Epoch 4/1000 | train_loss: 1.3388 | miou: 0.2919 | f1_macro: 0.3958 | pixel_accuracy: 0.6555 | val_loss: 1.3347
+Epoch 5/1000 | train_loss: 1.0663 | miou: 0.2809 | f1_macro: 0.3758 | pixel_accuracy: 0.6698 | val_loss: 1.2485
+Epoch 6/1000 | train_loss: 0.9935 | miou: 0.2840 | f1_macro: 0.3768 | pixel_accuracy: 0.6778 | val_loss: 1.2192
+Epoch 7/1000 | train_loss: 0.9142 | miou: 0.2853 | f1_macro: 0.3846 | pixel_accuracy: 0.6633 | val_loss: 1.2270
+Epoch 8/1000 | train_loss: 0.9087 | miou: 0.2807 | f1_macro: 0.3828 | pixel_accuracy: 0.6496 | val_loss: 1.2332
+Epoch 9/1000 | train_loss: 0.8543 | miou: 0.2768 | f1_macro: 0.3782 | pixel_accuracy: 0.6455 | val_loss: 1.2243
+Epoch 10/1000 | train_loss: 0.8141 | miou: 0.2749 | f1_macro: 0.3733 | pixel_accuracy: 0.6467 | val_loss: 1.2269

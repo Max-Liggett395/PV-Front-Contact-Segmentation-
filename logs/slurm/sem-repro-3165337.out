@@ -1,0 +1,83 @@
+==========================================
+Job ID: 3165337
+Node: dgxt001
+GPU: 0
+==========================================
+Device: cuda
+
+================================================================================
+TEST 1: Exact notebook reproduction
+  Model: NotebookUNet (LazyConv2d)
+  Checkpoint: notebook best_model.pth
+  Data: notebook path, no seed, no transform
+================================================================================
+  Dataset size: 83
+
+  sklearn per-image:  mIoU=0.9501  F1=0.9734  Acc=0.9917
+  global pooled:      mIoU=0.9683  F1=0.9838  Acc=0.9917
+  pipeline per-image: mIoU=0.9501  F1=0.9734  Acc=0.9917
+
+  Val split indices: [11, 16, 24, 30, 33, 35, 36, 47, 48, 59, 62, 78, 82]
+  Val filenames: ['NPERT.c40.es08DI.c3.1.png', 'SLTE.C16CR11.w1.1.png', 'SLTE.C17BB11.c2.1.jpg', 'SLTE.C17BB11.w2.2.jpg', 'SLTE.C17CRA1.c1.1.png', 'SLTE.C17CRA1.c3.1.png', 'SLTE.C17CRA1.c4.1.png', 'SLTE.C36BB21.w3.2.jpg', 'SLTE.C36BB21.w4.2.jpg', 'TOPCon.sp3224a.baseline.c4.1.png', 'VCAD.C33BB21.c3.1.png', 'Yingli.C36BB21.w1.5.png', 'gLASSgLASS.GG1.w1.1.png']
+
+================================================================================
+TEST 2: Notebook checkpoint on pipeline's val split (seed=42)
+================================================================================
+  Val split indices: [6, 7, 12, 19, 31, 36, 40, 45, 48, 59, 73, 78, 79]
+  Val filenames: ['NPERT.CG006.BL.c2.1.png', 'NPERT.CG006.BL.c3.1.png', 'NPERT.c40.es08DI.c4.1.png', 'SLTE.C16CR11.w2.2.jpg', 'SLTE.C17BB11.w2.4.png', 'SLTE.C17CRA1.c4.1.png', 'SLTE.C17CRA2.c1.2.png', 'SLTE.C36BB21.w1.2.jpg', 'SLTE.C36BB21.w4.2.jpg', 'TOPCon.sp3224a.baseline.c4.1.png', 'VCADPERC.C33CR2.c1.2.png', 'Yingli.C36BB21.w1.5.png', 'Yingli.C36BB21.w2.3.png']
+  Overlap with Test 1: 4 / 13 images
+
+  sklearn per-image:  mIoU=0.9321  F1=0.9627  Acc=0.9842
+  global pooled:      mIoU=0.9460  F1=0.9717  Acc=0.9842
+  pipeline per-image: mIoU=0.9321  F1=0.9627  Acc=0.9842
+
+================================================================================
+TEST 3: Notebook checkpoint on ALL 83 images (is it memorization?)
+================================================================================
+
+  sklearn per-image:  mIoU=0.9245  F1=0.9508  Acc=0.9897
+  global pooled:      mIoU=0.9598  F1=0.9792  Acc=0.9897
+  pipeline per-image: mIoU=0.9245  F1=0.9508  Acc=0.9897
+
+================================================================================
+TEST 4: Pipeline checkpoint on raw [0-255] pixels (seed=42 split)
+  (To test if normalization matters)
+================================================================================
+
+  sklearn per-image:  mIoU=0.0410  F1=0.0639  Acc=0.2315
+  global pooled:      mIoU=0.0401  F1=0.0660  Acc=0.2315
+  pipeline per-image: mIoU=0.0410  F1=0.0639  Acc=0.2315
+
+================================================================================
+TEST 5: Pipeline checkpoint on normalized data (seed=42) — baseline
+================================================================================
+
+  sklearn per-image:  mIoU=0.6646  F1=0.7632  Acc=0.8797
+  global pooled:      mIoU=0.6911  F1=0.8064  Acc=0.8797
+  pipeline per-image: mIoU=0.6646  F1=0.7632  Acc=0.8797
+
+================================================================================
+TEST 6: Notebook checkpoint, UNSORTED file list (exact os.listdir order)
+================================================================================
+  Val filenames (unsorted listdir): ['FGCU.C18BB24.c3.3.png', 'FGCU.C18BB24.w2.3.png', 'NPERT.CG006.BL.c4.1.png', 'SLTE.C16CR11.c2.2.jpg', 'SLTE.C16CR11.w1.1.png', 'SLTE.C17BB11.c1.2.jpg', 'SLTE.C17BB11.c5.1.jpg', 'SLTE.C17BB11.w2.2.jpg', 'SLTE.C17CRA2.w1.3.png', 'SLTE.C36BB21.w4.2.jpg', 'SLTE.C46CR11.c1.2.png', 'VCADControl.C17CR11.w1.1.png', 'VCADPERC.C33CR2.c2.2.png']
+  Same as Test 1? False
+
+  sklearn per-image:  mIoU=0.9160  F1=0.9405  Acc=0.9906
+  global pooled:      mIoU=0.9620  F1=0.9804  Acc=0.9906
+
+
+====================================================================================================
+SUMMARY
+====================================================================================================
+Test                                                     sk_mIoU    sk_F1  gl_mIoU    gl_F1
+----------------------------------------------------------------------------------------------------
+1: NB ckpt + NB data + no seed + raw                      0.9501   0.9734   0.9683   0.9838
+2: NB ckpt + NB data + seed=42 + raw                      0.9321   0.9627   0.9460   0.9717
+3: NB ckpt + ALL 83 images + raw                          0.9245   0.9508   0.9598   0.9792
+4: Pipeline ckpt + seed=42 + raw [0-255]                  0.0410   0.0639   0.0401   0.0660
+5: Pipeline ckpt + seed=42 + normalized                   0.6646   0.7632   0.6911   0.8064
+6: NB ckpt + unsorted listdir + no seed + raw             0.9160   0.9405   0.9620   0.9804
+====================================================================================================
+
+Notebook reported:                                      0.9496   0.9732
+Pipeline reported (unet-d83, global):                                       0.6911   0.8064

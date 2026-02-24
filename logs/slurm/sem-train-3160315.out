@@ -1,0 +1,168 @@
+==========================================
+Job ID: 3160315
+Node: gput059
+GPU: 0
+Experiment: configs/experiment/deeplabv3plus_dataset83.yaml
+Run Name: deeplabv3plus-d83
+==========================================
+Sun Feb 22 12:45:06 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-PCIE-32GB           On  |   00000000:D8:00.0 Off |                    0 |
+| N/A   30C    P0             23W /  250W |       0MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 11 train / 3 val (from 14 total)
+Model: deeplabv3plus
+Trainable parameters: 58,627,142
+Epoch 1/1000 | train_loss: 1.6713 | miou: 0.1288 | f1_macro: 0.2061 | pixel_accuracy: 0.3605 | val_loss: 1.7934
+Epoch 2/1000 | train_loss: 1.3504 | miou: 0.1491 | f1_macro: 0.2327 | pixel_accuracy: 0.4175 | val_loss: 1.7355
+Epoch 3/1000 | train_loss: 1.2522 | miou: 0.2367 | f1_macro: 0.3433 | pixel_accuracy: 0.5613 | val_loss: 1.5030
+Epoch 4/1000 | train_loss: 1.2542 | miou: 0.2652 | f1_macro: 0.3794 | pixel_accuracy: 0.6180 | val_loss: 1.0684
+Epoch 5/1000 | train_loss: 1.1140 | miou: 0.2829 | f1_macro: 0.3936 | pixel_accuracy: 0.6435 | val_loss: 1.0208
+Epoch 6/1000 | train_loss: 1.0079 | miou: 0.2951 | f1_macro: 0.4012 | pixel_accuracy: 0.6605 | val_loss: 1.0105
+Epoch 7/1000 | train_loss: 0.9410 | miou: 0.3235 | f1_macro: 0.4482 | pixel_accuracy: 0.6753 | val_loss: 0.9579
+Epoch 8/1000 | train_loss: 0.8750 | miou: 0.3308 | f1_macro: 0.4589 | pixel_accuracy: 0.6750 | val_loss: 0.9620
+Epoch 9/1000 | train_loss: 1.0004 | miou: 0.3476 | f1_macro: 0.4833 | pixel_accuracy: 0.6782 | val_loss: 0.9622
+Epoch 10/1000 | train_loss: 0.9516 | miou: 0.3411 | f1_macro: 0.4711 | pixel_accuracy: 0.6837 | val_loss: 0.9800
+Epoch 11/1000 | train_loss: 1.0106 | miou: 0.3395 | f1_macro: 0.4629 | pixel_accuracy: 0.6817 | val_loss: 0.9227
+Epoch 12/1000 | train_loss: 0.8790 | miou: 0.3496 | f1_macro: 0.4767 | pixel_accuracy: 0.6758 | val_loss: 0.9369
+Epoch 13/1000 | train_loss: 0.7532 | miou: 0.3414 | f1_macro: 0.4727 | pixel_accuracy: 0.6759 | val_loss: 1.0089
+Epoch 14/1000 | train_loss: 0.7372 | miou: 0.3498 | f1_macro: 0.4857 | pixel_accuracy: 0.6838 | val_loss: 0.9527
+Epoch 15/1000 | train_loss: 0.7318 | miou: 0.3865 | f1_macro: 0.5263 | pixel_accuracy: 0.7023 | val_loss: 0.8809
+Epoch 16/1000 | train_loss: 0.6585 | miou: 0.4034 | f1_macro: 0.5434 | pixel_accuracy: 0.7201 | val_loss: 0.8342
+Epoch 17/1000 | train_loss: 0.6743 | miou: 0.4068 | f1_macro: 0.5449 | pixel_accuracy: 0.7385 | val_loss: 0.7866
+Epoch 18/1000 | train_loss: 0.6591 | miou: 0.4638 | f1_macro: 0.5882 | pixel_accuracy: 0.8106 | val_loss: 0.7112
+Epoch 19/1000 | train_loss: 0.6134 | miou: 0.4760 | f1_macro: 0.6001 | pixel_accuracy: 0.8207 | val_loss: 0.6619
+Epoch 20/1000 | train_loss: 0.5850 | miou: 0.4914 | f1_macro: 0.6088 | pixel_accuracy: 0.8449 | val_loss: 0.5867
+Epoch 21/1000 | train_loss: 0.5674 | miou: 0.5110 | f1_macro: 0.6229 | pixel_accuracy: 0.8630 | val_loss: 0.5210
+Epoch 22/1000 | train_loss: 0.5363 | miou: 0.5290 | f1_macro: 0.6441 | pixel_accuracy: 0.8723 | val_loss: 0.4981
+Epoch 23/1000 | train_loss: 0.5556 | miou: 0.4975 | f1_macro: 0.6178 | pixel_accuracy: 0.8448 | val_loss: 0.5572
+Epoch 24/1000 | train_loss: 0.6308 | miou: 0.4572 | f1_macro: 0.5867 | pixel_accuracy: 0.7877 | val_loss: 0.6698
+Epoch 25/1000 | train_loss: 0.6084 | miou: 0.4527 | f1_macro: 0.5816 | pixel_accuracy: 0.7771 | val_loss: 0.7696
+Epoch 26/1000 | train_loss: 0.5719 | miou: 0.4447 | f1_macro: 0.5836 | pixel_accuracy: 0.7643 | val_loss: 0.7807
+Epoch 27/1000 | train_loss: 0.5383 | miou: 0.4554 | f1_macro: 0.5958 | pixel_accuracy: 0.7739 | val_loss: 0.7154
+Epoch 28/1000 | train_loss: 0.5508 | miou: 0.4687 | f1_macro: 0.6065 | pixel_accuracy: 0.7916 | val_loss: 0.6665
+Epoch 29/1000 | train_loss: 0.4997 | miou: 0.4504 | f1_macro: 0.5920 | pixel_accuracy: 0.7719 | val_loss: 0.7217
+Epoch 30/1000 | train_loss: 0.5394 | miou: 0.4858 | f1_macro: 0.6197 | pixel_accuracy: 0.8027 | val_loss: 0.6981
+Epoch 31/1000 | train_loss: 0.5424 | miou: 0.5336 | f1_macro: 0.6615 | pixel_accuracy: 0.8525 | val_loss: 0.6063
+Epoch 32/1000 | train_loss: 0.5488 | miou: 0.5650 | f1_macro: 0.6950 | pixel_accuracy: 0.8644 | val_loss: 0.5377
+Epoch 33/1000 | train_loss: 0.5354 | miou: 0.5186 | f1_macro: 0.6475 | pixel_accuracy: 0.8386 | val_loss: 0.5592
+Epoch 34/1000 | train_loss: 0.4721 | miou: 0.5065 | f1_macro: 0.6318 | pixel_accuracy: 0.8338 | val_loss: 0.5954
+Epoch 35/1000 | train_loss: 0.4687 | miou: 0.5024 | f1_macro: 0.6242 | pixel_accuracy: 0.8398 | val_loss: 0.5854
+Epoch 36/1000 | train_loss: 0.4752 | miou: 0.5194 | f1_macro: 0.6442 | pixel_accuracy: 0.8483 | val_loss: 0.5471
+Epoch 37/1000 | train_loss: 0.5070 | miou: 0.5224 | f1_macro: 0.6434 | pixel_accuracy: 0.8537 | val_loss: 0.5283
+Epoch 38/1000 | train_loss: 0.4997 | miou: 0.5276 | f1_macro: 0.6484 | pixel_accuracy: 0.8532 | val_loss: 0.5456
+Epoch 39/1000 | train_loss: 0.5037 | miou: 0.5331 | f1_macro: 0.6595 | pixel_accuracy: 0.8493 | val_loss: 0.5668
+Epoch 40/1000 | train_loss: 0.4661 | miou: 0.5238 | f1_macro: 0.6503 | pixel_accuracy: 0.8475 | val_loss: 0.5508
+Epoch 41/1000 | train_loss: 0.5101 | miou: 0.5148 | f1_macro: 0.6423 | pixel_accuracy: 0.8380 | val_loss: 0.5866
+Epoch 42/1000 | train_loss: 0.4832 | miou: 0.5176 | f1_macro: 0.6458 | pixel_accuracy: 0.8335 | val_loss: 0.6114
+Epoch 43/1000 | train_loss: 0.5018 | miou: 0.5112 | f1_macro: 0.6391 | pixel_accuracy: 0.8276 | val_loss: 0.6482
+Epoch 44/1000 | train_loss: 0.4596 | miou: 0.4906 | f1_macro: 0.6202 | pixel_accuracy: 0.8099 | val_loss: 0.7093
+Epoch 45/1000 | train_loss: 0.4685 | miou: 0.5155 | f1_macro: 0.6452 | pixel_accuracy: 0.8299 | val_loss: 0.6131
+Epoch 46/1000 | train_loss: 0.4624 | miou: 0.5447 | f1_macro: 0.6772 | pixel_accuracy: 0.8468 | val_loss: 0.5556
+Epoch 47/1000 | train_loss: 0.4628 | miou: 0.5442 | f1_macro: 0.6761 | pixel_accuracy: 0.8511 | val_loss: 0.5548
+Epoch 48/1000 | train_loss: 0.4818 | miou: 0.5467 | f1_macro: 0.6773 | pixel_accuracy: 0.8522 | val_loss: 0.5677
+Epoch 49/1000 | train_loss: 0.4573 | miou: 0.5387 | f1_macro: 0.6703 | pixel_accuracy: 0.8454 | val_loss: 0.5613
+Epoch 50/1000 | train_loss: 0.5149 | miou: 0.5290 | f1_macro: 0.6593 | pixel_accuracy: 0.8357 | val_loss: 0.5721
+Epoch 51/1000 | train_loss: 0.4654 | miou: 0.5396 | f1_macro: 0.6653 | pixel_accuracy: 0.8540 | val_loss: 0.5127
+Epoch 52/1000 | train_loss: 0.4748 | miou: 0.5310 | f1_macro: 0.6573 | pixel_accuracy: 0.8494 | val_loss: 0.5328
+Epoch 53/1000 | train_loss: 0.4190 | miou: 0.5328 | f1_macro: 0.6576 | pixel_accuracy: 0.8504 | val_loss: 0.5393
+Epoch 54/1000 | train_loss: 0.4560 | miou: 0.5469 | f1_macro: 0.6712 | pixel_accuracy: 0.8584 | val_loss: 0.5180
+Epoch 55/1000 | train_loss: 0.4805 | miou: 0.5511 | f1_macro: 0.6778 | pixel_accuracy: 0.8568 | val_loss: 0.5070
+Epoch 56/1000 | train_loss: 0.4518 | miou: 0.5488 | f1_macro: 0.6738 | pixel_accuracy: 0.8568 | val_loss: 0.5439
+Epoch 57/1000 | train_loss: 0.4176 | miou: 0.5274 | f1_macro: 0.6530 | pixel_accuracy: 0.8419 | val_loss: 0.6182
+Epoch 58/1000 | train_loss: 0.4936 | miou: 0.5174 | f1_macro: 0.6431 | pixel_accuracy: 0.8340 | val_loss: 0.6424
+Epoch 59/1000 | train_loss: 0.4555 | miou: 0.5324 | f1_macro: 0.6568 | pixel_accuracy: 0.8468 | val_loss: 0.5997
+Epoch 60/1000 | train_loss: 0.4439 | miou: 0.5525 | f1_macro: 0.6765 | pixel_accuracy: 0.8583 | val_loss: 0.5539
+Epoch 61/1000 | train_loss: 0.4859 | miou: 0.5632 | f1_macro: 0.6860 | pixel_accuracy: 0.8707 | val_loss: 0.5062
+Epoch 62/1000 | train_loss: 0.4019 | miou: 0.5607 | f1_macro: 0.6830 | pixel_accuracy: 0.8676 | val_loss: 0.5267
+Epoch 63/1000 | train_loss: 0.4741 | miou: 0.5426 | f1_macro: 0.6668 | pixel_accuracy: 0.8542 | val_loss: 0.5713
+Epoch 64/1000 | train_loss: 0.4433 | miou: 0.5097 | f1_macro: 0.6365 | pixel_accuracy: 0.8303 | val_loss: 0.6444
+Epoch 65/1000 | train_loss: 0.4305 | miou: 0.4994 | f1_macro: 0.6288 | pixel_accuracy: 0.8188 | val_loss: 0.6478
+Epoch 66/1000 | train_loss: 0.3987 | miou: 0.5048 | f1_macro: 0.6363 | pixel_accuracy: 0.8235 | val_loss: 0.6259
+Epoch 67/1000 | train_loss: 0.4746 | miou: 0.5293 | f1_macro: 0.6653 | pixel_accuracy: 0.8297 | val_loss: 0.5768
+Epoch 68/1000 | train_loss: 0.4363 | miou: 0.5480 | f1_macro: 0.6765 | pixel_accuracy: 0.8598 | val_loss: 0.5277
+Epoch 69/1000 | train_loss: 0.4693 | miou: 0.5362 | f1_macro: 0.6660 | pixel_accuracy: 0.8474 | val_loss: 0.5143
+Epoch 70/1000 | train_loss: 0.4286 | miou: 0.5158 | f1_macro: 0.6426 | pixel_accuracy: 0.8387 | val_loss: 0.5503
+Epoch 71/1000 | train_loss: 0.4188 | miou: 0.5138 | f1_macro: 0.6426 | pixel_accuracy: 0.8321 | val_loss: 0.5838
+Epoch 72/1000 | train_loss: 0.4135 | miou: 0.5387 | f1_macro: 0.6700 | pixel_accuracy: 0.8403 | val_loss: 0.5595
+Epoch 73/1000 | train_loss: 0.4120 | miou: 0.5607 | f1_macro: 0.6942 | pixel_accuracy: 0.8507 | val_loss: 0.5407
+Epoch 74/1000 | train_loss: 0.4388 | miou: 0.5256 | f1_macro: 0.6624 | pixel_accuracy: 0.8188 | val_loss: 0.5928
+Epoch 75/1000 | train_loss: 0.4220 | miou: 0.5103 | f1_macro: 0.6452 | pixel_accuracy: 0.8119 | val_loss: 0.6540
+Epoch 76/1000 | train_loss: 0.3966 | miou: 0.5053 | f1_macro: 0.6373 | pixel_accuracy: 0.8157 | val_loss: 0.6391
+Epoch 77/1000 | train_loss: 0.3947 | miou: 0.5185 | f1_macro: 0.6522 | pixel_accuracy: 0.8272 | val_loss: 0.6014
+Epoch 78/1000 | train_loss: 0.4163 | miou: 0.5334 | f1_macro: 0.6678 | pixel_accuracy: 0.8380 | val_loss: 0.5751
+Epoch 79/1000 | train_loss: 0.3878 | miou: 0.5387 | f1_macro: 0.6733 | pixel_accuracy: 0.8415 | val_loss: 0.5950
+Epoch 80/1000 | train_loss: 0.4288 | miou: 0.5297 | f1_macro: 0.6613 | pixel_accuracy: 0.8399 | val_loss: 0.5842
+Epoch 81/1000 | train_loss: 0.4499 | miou: 0.5283 | f1_macro: 0.6592 | pixel_accuracy: 0.8400 | val_loss: 0.5842
+Epoch 82/1000 | train_loss: 0.4154 | miou: 0.5191 | f1_macro: 0.6534 | pixel_accuracy: 0.8275 | val_loss: 0.6260
+Epoch 83/1000 | train_loss: 0.4136 | miou: 0.5264 | f1_macro: 0.6613 | pixel_accuracy: 0.8295 | val_loss: 0.6122
+Epoch 84/1000 | train_loss: 0.4513 | miou: 0.5527 | f1_macro: 0.6833 | pixel_accuracy: 0.8493 | val_loss: 0.5911
+Epoch 85/1000 | train_loss: 0.4009 | miou: 0.5588 | f1_macro: 0.6872 | pixel_accuracy: 0.8576 | val_loss: 0.5670
+Epoch 86/1000 | train_loss: 0.3962 | miou: 0.5461 | f1_macro: 0.6720 | pixel_accuracy: 0.8588 | val_loss: 0.5433
+Epoch 87/1000 | train_loss: 0.3822 | miou: 0.5446 | f1_macro: 0.6717 | pixel_accuracy: 0.8586 | val_loss: 0.5342
+Epoch 88/1000 | train_loss: 0.4021 | miou: 0.5782 | f1_macro: 0.7012 | pixel_accuracy: 0.8828 | val_loss: 0.4775
+Epoch 89/1000 | train_loss: 0.4186 | miou: 0.5618 | f1_macro: 0.6888 | pixel_accuracy: 0.8687 | val_loss: 0.5095
+Epoch 90/1000 | train_loss: 0.4265 | miou: 0.5429 | f1_macro: 0.6671 | pixel_accuracy: 0.8605 | val_loss: 0.5204
+Epoch 91/1000 | train_loss: 0.4445 | miou: 0.5282 | f1_macro: 0.6562 | pixel_accuracy: 0.8452 | val_loss: 0.5722
+Epoch 92/1000 | train_loss: 0.4442 | miou: 0.5330 | f1_macro: 0.6623 | pixel_accuracy: 0.8484 | val_loss: 0.5794
+Epoch 93/1000 | train_loss: 0.3944 | miou: 0.5427 | f1_macro: 0.6704 | pixel_accuracy: 0.8546 | val_loss: 0.5599
+Epoch 94/1000 | train_loss: 0.3837 | miou: 0.5695 | f1_macro: 0.6933 | pixel_accuracy: 0.8744 | val_loss: 0.5047
+Epoch 95/1000 | train_loss: 0.3530 | miou: 0.5743 | f1_macro: 0.6966 | pixel_accuracy: 0.8813 | val_loss: 0.4800
+Epoch 96/1000 | train_loss: 0.4234 | miou: 0.5646 | f1_macro: 0.6868 | pixel_accuracy: 0.8799 | val_loss: 0.4999
+Epoch 97/1000 | train_loss: 0.4434 | miou: 0.5703 | f1_macro: 0.6903 | pixel_accuracy: 0.8847 | val_loss: 0.4934
+Epoch 98/1000 | train_loss: 0.4074 | miou: 0.5749 | f1_macro: 0.6917 | pixel_accuracy: 0.8885 | val_loss: 0.4771
+Epoch 99/1000 | train_loss: 0.3940 | miou: 0.5639 | f1_macro: 0.6834 | pixel_accuracy: 0.8795 | val_loss: 0.4878
+Epoch 100/1000 | train_loss: 0.3840 | miou: 0.5428 | f1_macro: 0.6677 | pixel_accuracy: 0.8616 | val_loss: 0.5369
+Epoch 101/1000 | train_loss: 0.4179 | miou: 0.5317 | f1_macro: 0.6600 | pixel_accuracy: 0.8496 | val_loss: 0.5618
+Epoch 102/1000 | train_loss: 0.4488 | miou: 0.5273 | f1_macro: 0.6573 | pixel_accuracy: 0.8436 | val_loss: 0.5599
+Epoch 103/1000 | train_loss: 0.4049 | miou: 0.5113 | f1_macro: 0.6386 | pixel_accuracy: 0.8370 | val_loss: 0.5859
+Epoch 104/1000 | train_loss: 0.3569 | miou: 0.5428 | f1_macro: 0.6702 | pixel_accuracy: 0.8561 | val_loss: 0.5724
+Epoch 105/1000 | train_loss: 0.3843 | miou: 0.5622 | f1_macro: 0.6905 | pixel_accuracy: 0.8666 | val_loss: 0.5601
+Epoch 106/1000 | train_loss: 0.3833 | miou: 0.5475 | f1_macro: 0.6721 | pixel_accuracy: 0.8633 | val_loss: 0.5601
+Epoch 107/1000 | train_loss: 0.4182 | miou: 0.5641 | f1_macro: 0.6898 | pixel_accuracy: 0.8690 | val_loss: 0.4967
+Epoch 108/1000 | train_loss: 0.3823 | miou: 0.5634 | f1_macro: 0.6885 | pixel_accuracy: 0.8685 | val_loss: 0.4739
+Epoch 109/1000 | train_loss: 0.4022 | miou: 0.5553 | f1_macro: 0.6836 | pixel_accuracy: 0.8587 | val_loss: 0.4950
+Epoch 110/1000 | train_loss: 0.4085 | miou: 0.5540 | f1_macro: 0.6816 | pixel_accuracy: 0.8594 | val_loss: 0.4937
+Epoch 111/1000 | train_loss: 0.3572 | miou: 0.5485 | f1_macro: 0.6789 | pixel_accuracy: 0.8508 | val_loss: 0.5247
+Epoch 112/1000 | train_loss: 0.4069 | miou: 0.5606 | f1_macro: 0.6906 | pixel_accuracy: 0.8585 | val_loss: 0.4974
+Epoch 113/1000 | train_loss: 0.4284 | miou: 0.5566 | f1_macro: 0.6878 | pixel_accuracy: 0.8548 | val_loss: 0.5054
+Epoch 114/1000 | train_loss: 0.4206 | miou: 0.5603 | f1_macro: 0.6888 | pixel_accuracy: 0.8625 | val_loss: 0.5062
+Epoch 115/1000 | train_loss: 0.3960 | miou: 0.5542 | f1_macro: 0.6810 | pixel_accuracy: 0.8631 | val_loss: 0.5331
+Epoch 116/1000 | train_loss: 0.3921 | miou: 0.5560 | f1_macro: 0.6813 | pixel_accuracy: 0.8655 | val_loss: 0.5287
+Epoch 117/1000 | train_loss: 0.4313 | miou: 0.5680 | f1_macro: 0.6869 | pixel_accuracy: 0.8814 | val_loss: 0.4651
+Epoch 118/1000 | train_loss: 0.3799 | miou: 0.5821 | f1_macro: 0.7043 | pixel_accuracy: 0.8854 | val_loss: 0.4279
+Epoch 119/1000 | train_loss: 0.3843 | miou: 0.5787 | f1_macro: 0.7043 | pixel_accuracy: 0.8767 | val_loss: 0.4624
+Epoch 120/1000 | train_loss: 0.4028 | miou: 0.5573 | f1_macro: 0.6905 | pixel_accuracy: 0.8492 | val_loss: 0.5207
+Epoch 121/1000 | train_loss: 0.4306 | miou: 0.5395 | f1_macro: 0.6717 | pixel_accuracy: 0.8420 | val_loss: 0.5537
+Epoch 122/1000 | train_loss: 0.3625 | miou: 0.5392 | f1_macro: 0.6705 | pixel_accuracy: 0.8401 | val_loss: 0.5383
+Epoch 123/1000 | train_loss: 0.4133 | miou: 0.5210 | f1_macro: 0.6531 | pixel_accuracy: 0.8321 | val_loss: 0.5596
+Epoch 124/1000 | train_loss: 0.3842 | miou: 0.5383 | f1_macro: 0.6738 | pixel_accuracy: 0.8335 | val_loss: 0.5620
+Epoch 125/1000 | train_loss: 0.4609 | miou: 0.5709 | f1_macro: 0.7068 | pixel_accuracy: 0.8473 | val_loss: 0.5224
+Epoch 126/1000 | train_loss: 0.3682 | miou: 0.5298 | f1_macro: 0.6645 | pixel_accuracy: 0.8298 | val_loss: 0.5700
+Epoch 127/1000 | train_loss: 0.3424 | miou: 0.5251 | f1_macro: 0.6559 | pixel_accuracy: 0.8341 | val_loss: 0.5815
+Epoch 128/1000 | train_loss: 0.3648 | miou: 0.5442 | f1_macro: 0.6762 | pixel_accuracy: 0.8446 | val_loss: 0.5609
+Epoch 129/1000 | train_loss: 0.3763 | miou: 0.5583 | f1_macro: 0.6876 | pixel_accuracy: 0.8603 | val_loss: 0.5015
+Epoch 130/1000 | train_loss: 0.3292 | miou: 0.5476 | f1_macro: 0.6779 | pixel_accuracy: 0.8516 | val_loss: 0.5147
+Epoch 131/1000 | train_loss: 0.3654 | miou: 0.5313 | f1_macro: 0.6620 | pixel_accuracy: 0.8385 | val_loss: 0.5420
+Epoch 132/1000 | train_loss: 0.3988 | miou: 0.5313 | f1_macro: 0.6636 | pixel_accuracy: 0.8353 | val_loss: 0.5778
+Epoch 133/1000 | train_loss: 0.3987 | miou: 0.5391 | f1_macro: 0.6739 | pixel_accuracy: 0.8313 | val_loss: 0.6175
+Epoch 134/1000 | train_loss: 0.4257 | miou: 0.5615 | f1_macro: 0.6938 | pixel_accuracy: 0.8494 | val_loss: 0.5306
+Epoch 135/1000 | train_loss: 0.3807 | miou: 0.5571 | f1_macro: 0.6884 | pixel_accuracy: 0.8506 | val_loss: 0.5280
+Epoch 136/1000 | train_loss: 0.4156 | miou: 0.5591 | f1_macro: 0.6921 | pixel_accuracy: 0.8483 | val_loss: 0.5278
+Epoch 137/1000 | train_loss: 0.4016 | miou: 0.5607 | f1_macro: 0.6939 | pixel_accuracy: 0.8497 | val_loss: 0.5295
+Training complete for deeplabv3plus-d83

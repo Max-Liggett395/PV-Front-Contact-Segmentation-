@@ -1,0 +1,39 @@
+==========================================
+Job ID: 3160283
+Node: dgxt001
+GPU: 0
+Experiment: configs/experiment/unet_dataset83.yaml
+Run Name: unet-d83-1000ep
+==========================================
+Sun Feb 22 12:37:53 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:90:00.0 Off |                    0 |
+| N/A   46C    P0             58W /  400W |       0MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 11 train / 3 val (from 14 total)
+Model: unet
+Trainable parameters: 31,030,918
+Epoch 1/1000 | train_loss: 1.7851 | miou: 0.0664 | f1_macro: 0.0950 | pixel_accuracy: 0.3987 | val_loss: 1.7775
+Epoch 2/1000 | train_loss: 1.7741 | miou: 0.0664 | f1_macro: 0.0950 | pixel_accuracy: 0.3987 | val_loss: 1.7472
+Epoch 3/1000 | train_loss: 1.7540 | miou: 0.0664 | f1_macro: 0.0950 | pixel_accuracy: 0.3987 | val_loss: 1.6782
+Epoch 4/1000 | train_loss: 1.7015 | miou: 0.0664 | f1_macro: 0.0950 | pixel_accuracy: 0.3987 | val_loss: 1.5315
+Epoch 5/1000 | train_loss: 1.6392 | miou: 0.0726 | f1_macro: 0.1062 | pixel_accuracy: 0.4102 | val_loss: 1.4083
+Epoch 6/1000 | train_loss: 1.6377 | miou: 0.1545 | f1_macro: 0.2138 | pixel_accuracy: 0.5428 | val_loss: 1.4650
+Epoch 7/1000 | train_loss: 1.5874 | miou: 0.1631 | f1_macro: 0.2188 | pixel_accuracy: 0.5772 | val_loss: 1.3429
+Epoch 8/1000 | train_loss: 1.5793 | miou: 0.1615 | f1_macro: 0.2173 | pixel_accuracy: 0.5740 | val_loss: 1.3646
+Epoch 9/1000 | train_loss: 1.5551 | miou: 0.1589 | f1_macro: 0.2150 | pixel_accuracy: 0.5684 | val_loss: 1.2839

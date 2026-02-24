@@ -1,0 +1,52 @@
+==========================================
+Job ID: 3160271
+Node: gput074
+GPU: 0
+Experiment: configs/experiment/deeplabv3plus.yaml
+Run Name: deeplabv3plus-merged-1000ep
+==========================================
+Sun Feb 22 12:32:58 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.158.01             Driver Version: 570.158.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 4090        On  |   00000000:83:00.0 Off |                  Off |
+| 31%   24C    P8             12W /  450W |       1MiB /  24564MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Split: 110 train / 20 val (from 130 total)
+Model: deeplabv3plus
+Trainable parameters: 58,627,142
+Epoch 1/1000 | train_loss: 1.1594 | miou: 0.4752 | f1_macro: 0.5818 | pixel_accuracy: 0.7921 | val_loss: 0.7661
+Epoch 2/1000 | train_loss: 0.8503 | miou: 0.5844 | f1_macro: 0.6979 | pixel_accuracy: 0.8655 | val_loss: 0.5117
+Epoch 3/1000 | train_loss: 0.7355 | miou: 0.6437 | f1_macro: 0.7554 | pixel_accuracy: 0.8861 | val_loss: 0.4294
+Epoch 4/1000 | train_loss: 0.6768 | miou: 0.6669 | f1_macro: 0.7760 | pixel_accuracy: 0.8987 | val_loss: 0.3835
+Epoch 5/1000 | train_loss: 0.6503 | miou: 0.6679 | f1_macro: 0.7773 | pixel_accuracy: 0.9012 | val_loss: 0.3579
+Epoch 6/1000 | train_loss: 0.6341 | miou: 0.6775 | f1_macro: 0.7885 | pixel_accuracy: 0.8951 | val_loss: 0.3880
+Epoch 7/1000 | train_loss: 0.5944 | miou: 0.6966 | f1_macro: 0.8039 | pixel_accuracy: 0.9063 | val_loss: 0.3437
+Epoch 8/1000 | train_loss: 0.5622 | miou: 0.6715 | f1_macro: 0.7787 | pixel_accuracy: 0.9030 | val_loss: 0.3639
+Epoch 9/1000 | train_loss: 0.5448 | miou: 0.6688 | f1_macro: 0.7754 | pixel_accuracy: 0.8954 | val_loss: 0.3638
+Epoch 10/1000 | train_loss: 0.5525 | miou: 0.7211 | f1_macro: 0.8232 | pixel_accuracy: 0.9166 | val_loss: 0.2892
+Epoch 11/1000 | train_loss: 0.5006 | miou: 0.6965 | f1_macro: 0.8018 | pixel_accuracy: 0.9073 | val_loss: 0.3622
+Epoch 12/1000 | train_loss: 0.5369 | miou: 0.7122 | f1_macro: 0.8153 | pixel_accuracy: 0.9147 | val_loss: 0.3245
+Epoch 13/1000 | train_loss: 0.5218 | miou: 0.6852 | f1_macro: 0.7914 | pixel_accuracy: 0.9100 | val_loss: 0.3350
+Epoch 14/1000 | train_loss: 0.5127 | miou: 0.7127 | f1_macro: 0.8132 | pixel_accuracy: 0.9185 | val_loss: 0.3077
+Epoch 15/1000 | train_loss: 0.4775 | miou: 0.6929 | f1_macro: 0.7959 | pixel_accuracy: 0.9100 | val_loss: 0.3202
+Epoch 16/1000 | train_loss: 0.4577 | miou: 0.7331 | f1_macro: 0.8318 | pixel_accuracy: 0.9221 | val_loss: 0.2764
+Epoch 17/1000 | train_loss: 0.4457 | miou: 0.7117 | f1_macro: 0.8124 | pixel_accuracy: 0.9190 | val_loss: 0.3132
+Epoch 18/1000 | train_loss: 0.4605 | miou: 0.7310 | f1_macro: 0.8292 | pixel_accuracy: 0.9227 | val_loss: 0.2804
+Epoch 19/1000 | train_loss: 0.4476 | miou: 0.7287 | f1_macro: 0.8258 | pixel_accuracy: 0.9262 | val_loss: 0.2794
+Epoch 20/1000 | train_loss: 0.4323 | miou: 0.7304 | f1_macro: 0.8277 | pixel_accuracy: 0.9269 | val_loss: 0.2881
+Epoch 21/1000 | train_loss: 0.4194 | miou: 0.7388 | f1_macro: 0.8362 | pixel_accuracy: 0.9239 | val_loss: 0.2809
+Epoch 22/1000 | train_loss: 0.4119 | miou: 0.7261 | f1_macro: 0.8255 | pixel_accuracy: 0.9227 | val_loss: 0.2783

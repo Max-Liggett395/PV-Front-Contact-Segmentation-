@@ -1,0 +1,75 @@
+Total images: 83
+
+Pipeline (seed=42) val files (13):
+  NPERT.CG006.BL.c2.1.png
+  NPERT.CG006.BL.c3.1.png
+  NPERT.c40.es08DI.c4.1.png
+  SLTE.C16CR11.w2.2.jpg
+  SLTE.C17BB11.w2.4.png
+  SLTE.C17CRA1.c4.1.png
+  SLTE.C17CRA2.c1.2.png
+  SLTE.C36BB21.w1.2.jpg
+  SLTE.C36BB21.w4.2.jpg
+  TOPCon.sp3224a.baseline.c4.1.png
+  VCADPERC.C33CR2.c1.2.png
+  Yingli.C36BB21.w1.5.png
+  Yingli.C36BB21.w2.3.png
+
+================================================================================
+Testing 100 random no-seed splits to understand variance:
+================================================================================
+
+Of the 13 pipeline val images, how many land in a random split's TRAIN set?
+  Min: 7
+  Max: 13
+  Mean: 11.0
+  (If high, it means the notebook model likely TRAINED on most of pipeline's val images)
+
+================================================================================
+Notebook (Test 1) split analysis:
+================================================================================
+Notebook val files: ['NPERT.c40.es08DI.c3.1.png', 'SLTE.C16CR11.w1.1.png', 'SLTE.C17BB11.c2.1.jpg', 'SLTE.C17BB11.w2.2.jpg', 'SLTE.C17CRA1.c1.1.png', 'SLTE.C17CRA1.c3.1.png', 'SLTE.C17CRA1.c4.1.png', 'SLTE.C36BB21.w3.2.jpg', 'SLTE.C36BB21.w4.2.jpg', 'TOPCon.sp3224a.baseline.c4.1.png', 'VCAD.C33BB21.c3.1.png', 'Yingli.C36BB21.w1.5.png', 'gLASSgLASS.GG1.w1.1.png']
+Pipeline val files: ['NPERT.CG006.BL.c2.1.png', 'NPERT.CG006.BL.c3.1.png', 'NPERT.c40.es08DI.c4.1.png', 'SLTE.C16CR11.w2.2.jpg', 'SLTE.C17BB11.w2.4.png', 'SLTE.C17CRA1.c4.1.png', 'SLTE.C17CRA2.c1.2.png', 'SLTE.C36BB21.w1.2.jpg', 'SLTE.C36BB21.w4.2.jpg', 'TOPCon.sp3224a.baseline.c4.1.png', 'VCADPERC.C33CR2.c1.2.png', 'Yingli.C36BB21.w1.5.png', 'Yingli.C36BB21.w2.3.png']
+
+Images in BOTH val sets: 4
+  SLTE.C17CRA1.c4.1.png
+  SLTE.C36BB21.w4.2.jpg
+  TOPCon.sp3224a.baseline.c4.1.png
+  Yingli.C36BB21.w1.5.png
+
+Pipeline val images that were in notebook's TRAINING set: 9/13
+  NPERT.CG006.BL.c2.1.png
+  NPERT.CG006.BL.c3.1.png
+  NPERT.c40.es08DI.c4.1.png
+  SLTE.C16CR11.w2.2.jpg
+  SLTE.C17BB11.w2.4.png
+  SLTE.C17CRA2.c1.2.png
+  SLTE.C36BB21.w1.2.jpg
+  VCADPERC.C33CR2.c1.2.png
+  Yingli.C36BB21.w2.3.png
+
+Notebook val images that were in pipeline's TRAINING set: 9/13
+  NPERT.c40.es08DI.c3.1.png
+  SLTE.C16CR11.w1.1.png
+  SLTE.C17BB11.c2.1.jpg
+  SLTE.C17BB11.w2.2.jpg
+  SLTE.C17CRA1.c1.1.png
+  SLTE.C17CRA1.c3.1.png
+  SLTE.C36BB21.w3.2.jpg
+  VCAD.C33BB21.c3.1.png
+  gLASSgLASS.GG1.w1.1.png
+
+================================================================================
+CONCLUSION:
+================================================================================
+The notebook model trained on 9/13 of the pipeline's val images.
+So when we evaluated the notebook checkpoint on the pipeline's val split (Test 2)
+and got mIoU=0.93, 9 of those 13 'val' images were images
+the model had memorized during training.
+
+Similarly, 9/13 of the notebook's own val images were in
+the pipeline's training set.
+
+With 85/15 split on 83 images, ANY random split will have ~85% of another
+split's val images in its training set. This is expected and means cross-split
+evaluation is measuring memorization, not generalization.
