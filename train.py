@@ -5,10 +5,10 @@ import os
 from datetime import datetime
 
 import torch
-import torch.nn as nn
 
 from src.data import SEMDataModule
 from src.models import create_model
+from src.models.losses import create_loss
 from src.training import Trainer
 from src.utils.config import load_config
 
@@ -51,11 +51,9 @@ def main():
     param_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Trainable parameters: {param_count:,}")
 
-    # Loss
+    # Loss — use factory for flexibility (supports ce, dice, dice_ce)
     loss_cfg = exp_cfg.get("loss", {})
-    class_weights = loss_cfg.get("class_weights", None)
-    weight = torch.tensor(class_weights, dtype=torch.float32) if class_weights else None
-    loss_fn = nn.CrossEntropyLoss(weight=weight)
+    loss_fn = create_loss(loss_cfg)
 
     # Optimizer
     opt_cfg = exp_cfg.get("optimizer", {})
