@@ -95,6 +95,39 @@ def get_train_transform(in_channels=1):
     ])
 
 
+def get_strong_train_transform(in_channels=1):
+    """Stronger training augmentation preset for harder regularisation.
+
+    Builds on get_train_transform but increases geometric strength and adds
+    photometric / dropout augmentations:
+        - Rotation increased to 15° (from 5°)
+        - ElasticTransform probability increased to 0.3 (from 0.2)
+        - RandomBrightnessContrast (p=0.3)
+        - CLAHE (p=0.2)
+        - CoarseDropout max_holes=8, max_height/width=32 (p=0.3)
+        - ShiftScaleRotate shift=0.1, scale=0.1, rotate=15 (p=0.4)
+    """
+    if in_channels == 3:
+        norm = A.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+    else:
+        norm = A.Normalize(mean=(0.5,), std=(0.5,))
+
+    return A.Compose([
+        A.HorizontalFlip(p=0.5),
+        A.VerticalFlip(p=0.5),
+        A.Rotate(limit=15, p=0.3),
+        A.ElasticTransform(alpha=1, sigma=50, p=0.3),
+        A.GaussianBlur(blur_limit=(1, 3), p=0.2),
+        A.GaussNoise(std_range=(0.02, 0.05), p=0.2),
+        A.RandomBrightnessContrast(p=0.3),
+        A.CLAHE(p=0.2),
+        A.CoarseDropout(max_holes=8, max_height=32, max_width=32, p=0.3),
+        A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=15, p=0.4),
+        norm,
+        ToTensorV2(),
+    ])
+
+
 def get_val_transform(in_channels=1):
     """Validation/test transform — normalize only."""
     if in_channels == 3:
