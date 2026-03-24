@@ -1,0 +1,5 @@
+# DeepLabV3+ with ResNet101 backbone (torchvision, ImageNet pretrained weights)
+architecture: deeplabv3plus
+in_channels: 3
+num_classes: 6
+pretrained: true
