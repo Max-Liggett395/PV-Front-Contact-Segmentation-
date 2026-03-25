@@ -1,0 +1,6 @@
+# DeepLabV3+ with EfficientNet-B4 encoder via segmentation_models_pytorch
+architecture: smp_deeplabv3plus
+encoder_name: efficientnet-b4
+encoder_weights: imagenet
+in_channels: 3
+num_classes: 6
