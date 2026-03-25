@@ -91,12 +91,13 @@ def print_leaderboard(results):
 
 
 def main():
+    global BASELINE_MIOU
+
     parser = argparse.ArgumentParser(description="Evaluate autoresearch batch")
     parser.add_argument("--results-dir", type=str, default="autoresearch/results")
     parser.add_argument("--baseline-miou", type=float, default=BASELINE_MIOU)
     args = parser.parse_args()
 
-    global BASELINE_MIOU
     BASELINE_MIOU = args.baseline_miou
 
     results = load_results(args.results_dir)
