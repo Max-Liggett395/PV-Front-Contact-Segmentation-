@@ -1,0 +1,30 @@
+# AR Phase 3 — Exp 15: Pretrained DeepLabV3+ RN101 + cosine annealing
+# Baseline: DeepLabV3+ merged mIoU 0.781
+# Change: imagenet pretrained weights + cosine annealing lr=1e-4 + 1000 epochs full run
+data: data/merged
+model: model/deeplabv3plus_resnet101_pretrained
+
+data_overrides:
+  batch_size: 2
+
+training:
+  max_epochs: 1000
+  device: auto
+  mixed_precision: false
+  monitor: val_loss
+  monitor_mode: min
+  patience: 200
+  min_delta: 0.0
+
+optimizer:
+  type: adam
+  lr: 0.0001
+  weight_decay: 0.0
+
+scheduler:
+  type: cosine_annealing
+  T_max: 1000
+
+loss:
+  type: ce
+  class_weights: [1.0, 1.0, 1.5, 1.0, 1.5, 1.5]
