@@ -89,7 +89,7 @@ def get_train_transform(in_channels=1):
         A.Rotate(limit=5, p=0.3),
         A.ElasticTransform(alpha=1, sigma=50, p=0.2),
         A.GaussianBlur(blur_limit=(1, 3), p=0.2),
-        A.GaussNoise(std_range=(0.02, 0.05), p=0.2),
+        A.GaussNoise(var_limit=(10, 50), p=0.2),
         norm,
         ToTensorV2(),
     ])
@@ -118,7 +118,7 @@ def get_strong_train_transform(in_channels=1):
         A.Rotate(limit=15, p=0.3),
         A.ElasticTransform(alpha=1, sigma=50, p=0.3),
         A.GaussianBlur(blur_limit=(1, 3), p=0.2),
-        A.GaussNoise(std_range=(0.02, 0.05), p=0.2),
+        A.GaussNoise(var_limit=(10, 50), p=0.2),
         A.RandomBrightnessContrast(p=0.3),
         A.CLAHE(p=0.2),
         A.CoarseDropout(max_holes=8, max_height=32, max_width=32, p=0.3),
