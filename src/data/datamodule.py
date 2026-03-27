@@ -6,7 +6,7 @@ import glob
 import torch
 from torch.utils.data import DataLoader, random_split
 
-from .dataset import SEMDataset, get_train_transform, get_val_transform
+from .dataset import SEMDataset, get_train_transform, get_strong_train_transform, get_val_transform
 
 
 class SEMDataModule:
@@ -62,9 +62,16 @@ class SEMDataModule:
             generator=torch.Generator().manual_seed(self.seed),
         )
 
+        # Select training augmentation preset
+        augmentation_preset = self.cfg.get("augmentation_preset", "default")
+        if augmentation_preset == "strong":
+            train_transform = get_strong_train_transform(self.in_channels)
+        else:
+            train_transform = get_train_transform(self.in_channels)
+
         # Wrap subsets with transforms
         self.train_dataset = _TransformSubset(
-            train_subset, get_train_transform(self.in_channels), self.in_channels,
+            train_subset, train_transform, self.in_channels,
         )
         self.val_dataset = _TransformSubset(
             val_subset, get_val_transform(self.in_channels), self.in_channels,

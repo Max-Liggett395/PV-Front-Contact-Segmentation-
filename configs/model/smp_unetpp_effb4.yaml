@@ -1,0 +1,6 @@
+# UNet++ with EfficientNet-B4 encoder via segmentation_models_pytorch
+architecture: smp_unetpp
+encoder_name: efficientnet-b4
+encoder_weights: imagenet
+in_channels: 3
+num_classes: 6

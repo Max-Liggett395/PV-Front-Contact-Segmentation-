@@ -1,0 +1,29 @@
+# AR Phase 2 — Exp 11: SMP DeepLabV3+ with EfficientNet-B4 encoder
+# Baseline: DeepLabV3+ merged mIoU 0.781
+# Change: SMP's DeepLabV3+ + EfficientNet-B4 encoder + imagenet pretrained weights
+# (different from exp08 which used UNet++; different from baseline which is torchvision DLV3+)
+data: data/merged
+model: model/smp_deeplabv3plus_effb4
+
+data_overrides:
+  batch_size: 2
+
+training:
+  max_epochs: 200
+  device: auto
+  mixed_precision: false
+  monitor: val_loss
+  monitor_mode: min
+  patience: 50
+  min_delta: 0.0
+
+optimizer:
+  type: adam
+  lr: 0.00005
+  weight_decay: 0.0
+
+scheduler: null
+
+loss:
+  type: ce
+  class_weights: [1.0, 1.0, 1.5, 1.0, 1.5, 1.5]

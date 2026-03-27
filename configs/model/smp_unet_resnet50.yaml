@@ -1,0 +1,6 @@
+# UNet with ResNet50 encoder via segmentation_models_pytorch
+architecture: smp_unet
+encoder_name: resnet50
+encoder_weights: imagenet
+in_channels: 3
+num_classes: 6

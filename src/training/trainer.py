@@ -118,19 +118,13 @@ class Trainer:
             if self.use_amp:
                 with autocast(device_type=self.device.type):
                     logits = self._forward(images)
-                    # Flatten: (N,C,H,W) -> (N*H*W, C) for loss computation
-                    logits_flat = logits.permute(0, 2, 3, 1).reshape(-1, self.num_classes)
-                    masks_flat = masks.view(-1).long()
-                    loss = self.loss_fn(logits_flat, masks_flat)
+                    loss = self.loss_fn(logits, masks.long())
                 self.scaler.scale(loss).backward()
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
             else:
                 logits = self._forward(images)
-                # Flatten: (N,C,H,W) -> (N*H*W, C) for loss computation
-                logits_flat = logits.permute(0, 2, 3, 1).reshape(-1, self.num_classes)
-                masks_flat = masks.view(-1).long()
-                loss = self.loss_fn(logits_flat, masks_flat)
+                loss = self.loss_fn(logits, masks.long())
                 loss.backward()
                 self.optimizer.step()
 
@@ -151,10 +145,7 @@ class Trainer:
             masks = masks.to(self.device)
 
             logits = self._forward(images)
-            # Flatten for loss (same as training)
-            logits_flat = logits.permute(0, 2, 3, 1).reshape(-1, self.num_classes)
-            masks_flat = masks.view(-1).long()
-            loss = self.loss_fn(logits_flat, masks_flat)
+            loss = self.loss_fn(logits, masks.long())
             total_loss += loss.item()
 
             preds = logits.argmax(dim=1)
