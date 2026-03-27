@@ -7,8 +7,10 @@ import torch
 import yaml
 try:
     from torch.amp import GradScaler, autocast
+    _autocast_kwargs = lambda dev: {"device_type": dev}
 except ImportError:
     from torch.cuda.amp import GradScaler, autocast
+    _autocast_kwargs = lambda dev: {}
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
@@ -119,7 +121,7 @@ class Trainer:
             self.optimizer.zero_grad()
 
             if self.use_amp:
-                with autocast(device_type=self.device.type):
+                with autocast(**_autocast_kwargs(self.device.type)):
                     logits = self._forward(images)
                     loss = self.loss_fn(logits, masks.long())
                 self.scaler.scale(loss).backward()
