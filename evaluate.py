@@ -14,21 +14,23 @@ from src.utils.config import load_config
 def main():
     parser = argparse.ArgumentParser(description="Evaluate SEM segmentation model")
     parser.add_argument("--checkpoint", type=str, required=True, help="Path to model checkpoint")
-    parser.add_argument("--data-config", type=str, required=True, help="Path to data config")
+    parser.add_argument("--experiment", type=str, required=True, help="Path to experiment config")
     parser.add_argument("--output", type=str, default="logs/results.json", help="Output path for results")
     args = parser.parse_args()
 
-    # Load checkpoint
-    checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
-    model_cfg = checkpoint["config"].get("model", checkpoint.get("config", {}))
+    # Load experiment config to get model architecture
+    exp_cfg = load_config(args.experiment)
+    model_cfg = load_config(os.path.join("configs", exp_cfg["model"] + ".yaml"))
+    data_cfg = load_config(os.path.join("configs", exp_cfg["data"] + ".yaml"))
 
-    # If model config isn't in checkpoint, infer from data config
-    if "architecture" not in model_cfg:
-        print("Warning: model config not found in checkpoint, using default UNet ResNet34")
-        model_cfg = load_config("configs/model/unet_resnet34.yaml")
+    # Allow experiment config to override data settings
+    data_cfg["in_channels"] = model_cfg.get("in_channels", 1)
+    data_overrides = exp_cfg.get("data_overrides", {})
+    data_cfg.update(data_overrides)
 
     # Create model and load weights
     model = create_model(model_cfg)
+    checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     model.load_state_dict(checkpoint["model_state_dict"])
 
     # Device
@@ -40,13 +42,12 @@ def main():
         device = torch.device("cpu")
 
     # Data
-    data_cfg = load_config(args.data_config)
     dm = SEMDataModule(data_cfg)
     dm.setup()
 
     # Evaluate
     evaluator = Evaluator(model, device, num_classes=model_cfg.get("num_classes", 6))
-    metrics = evaluator.run(dm.test_dataloader())
+    metrics = evaluator.run(dm.val_dataloader())
     evaluator.save_results(metrics, args.output)
 
     print(f"\nmIoU: {metrics['miou']:.4f}")
