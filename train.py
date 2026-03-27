@@ -57,29 +57,68 @@ def main():
 
     # Optimizer
     opt_cfg = exp_cfg.get("optimizer", {})
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=opt_cfg.get("lr", 5e-5),
-        weight_decay=opt_cfg.get("weight_decay", 0.0),
-    )
+    opt_type = opt_cfg.get("type", "adam").lower()
+    if opt_type == "adamw":
+        optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=opt_cfg.get("lr", 5e-5),
+            weight_decay=opt_cfg.get("weight_decay", 1e-2),
+        )
+    elif opt_type == "sgd":
+        optimizer = torch.optim.SGD(
+            model.parameters(),
+            lr=opt_cfg.get("lr", 1e-2),
+            momentum=opt_cfg.get("momentum", 0.9),
+            weight_decay=opt_cfg.get("weight_decay", 1e-4),
+        )
+    else:
+        optimizer = torch.optim.Adam(
+            model.parameters(),
+            lr=opt_cfg.get("lr", 5e-5),
+            weight_decay=opt_cfg.get("weight_decay", 0.0),
+        )
+
+    max_epochs = training_cfg.get("max_epochs", 1000)
 
     # Scheduler (optional)
     sched_cfg = exp_cfg.get("scheduler", None)
     scheduler = None
-    if sched_cfg and sched_cfg.get("type") == "reduce_on_plateau":
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer,
-            factor=sched_cfg.get("factor", 0.5),
-            patience=sched_cfg.get("patience", 10),
-            min_lr=sched_cfg.get("min_lr", 1e-7),
-        )
+    if sched_cfg:
+        sched_type = sched_cfg.get("type", "").lower()
+        if sched_type == "reduce_on_plateau":
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                optimizer,
+                factor=sched_cfg.get("factor", 0.5),
+                patience=sched_cfg.get("patience", 10),
+                min_lr=sched_cfg.get("min_lr", 1e-7),
+            )
+        elif sched_type in ("cosine", "cosine_annealing"):
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer,
+                T_max=sched_cfg.get("T_max", max_epochs),
+                eta_min=sched_cfg.get("min_lr", 1e-7),
+            )
+        elif sched_type == "cosine_warm_restarts":
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+                optimizer,
+                T_0=sched_cfg.get("T_0", 50),
+                T_mult=sched_cfg.get("T_mult", 2),
+                eta_min=sched_cfg.get("min_lr", 1e-7),
+            )
+        elif sched_type == "one_cycle":
+            scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                optimizer,
+                max_lr=opt_cfg.get("lr", 5e-5) * 10,
+                epochs=max_epochs,
+                steps_per_epoch=len(dm.train_dataloader()),
+            )
 
     # Train
     trainer = Trainer(model, loss_fn, optimizer, scheduler, training_cfg)
     best = trainer.fit(
         dm.train_dataloader(),
         dm.val_dataloader(),
-        max_epochs=training_cfg.get("max_epochs", 1000),
+        max_epochs=max_epochs,
     )
     print(f"Training complete. Best {training_cfg.get('monitor', 'val_loss')}: {best:.4f}")
 
