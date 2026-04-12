@@ -15,6 +15,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from src.evaluation.metrics import compute_metrics
+from src.utils.plotting import plot_training_curves, plot_sample_predictions
 
 
 class Trainer:
@@ -55,6 +56,16 @@ class Trainer:
 
         self.num_classes = cfg.get("num_classes", 6)
 
+        # Metric history for plotting
+        self.history = {
+            "train_loss": [],
+            "val_loss": [],
+            "miou": [],
+            "f1_macro": [],
+            "pixel_accuracy": [],
+            "lr": [],
+        }
+
     def fit(self, train_loader, val_loader, max_epochs):
         """Run the full training loop."""
         best_metric = float("inf") if self.monitor_mode == "min" else float("-inf")
@@ -64,6 +75,14 @@ class Trainer:
             train_loss = self._train_epoch(train_loader, epoch)
             val_metrics = self._validate_epoch(val_loader, epoch)
             val_loss = val_metrics["val_loss"]
+
+            # Track history for plotting
+            self.history["train_loss"].append(train_loss)
+            self.history["val_loss"].append(val_loss)
+            self.history["miou"].append(val_metrics.get("miou", 0.0))
+            self.history["f1_macro"].append(val_metrics.get("f1_macro", 0.0))
+            self.history["pixel_accuracy"].append(val_metrics.get("pixel_accuracy", 0.0))
+            self.history["lr"].append(self.optimizer.param_groups[0]["lr"])
 
             # Logging
             self.writer.add_scalar("train/loss", train_loss, epoch)
@@ -107,6 +126,19 @@ class Trainer:
                 break
 
         self.writer.close()
+
+        # Auto-generate plots
+        plot_dir = os.path.join(os.path.dirname(self.checkpoint_dir), "plots")
+        plot_training_curves(self.history, plot_dir)
+        plot_sample_predictions(
+            self.model, train_loader, self.device, plot_dir,
+            split_name="train", num_classes=self.num_classes,
+        )
+        plot_sample_predictions(
+            self.model, val_loader, self.device, plot_dir,
+            split_name="val", num_classes=self.num_classes,
+        )
+
         return best_metric
 
     def _train_epoch(self, loader, epoch):
