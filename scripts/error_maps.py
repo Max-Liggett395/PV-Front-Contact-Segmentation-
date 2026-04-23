@@ -172,19 +172,53 @@ def get_val_stems(dm):
     return [os.path.splitext(os.path.basename(base.image_paths[i]))[0] for i in subset.indices]
 
 
+def build_all_images_loader(data_cfg):
+    """Build a DataLoader over every image/mask pair in the dataset (no train/val split)."""
+    import glob
+    from torch.utils.data import DataLoader
+    from src.data.dataset import SEMDataset, get_val_transform
+
+    image_dir = data_cfg["image_dir"]
+    mask_dir = data_cfg["mask_dir"]
+    in_channels = data_cfg.get("in_channels", 1)
+
+    image_paths = []
+    for ext in ("*.png", "*.PNG", "*.jpg", "*.JPG"):
+        image_paths.extend(glob.glob(os.path.join(image_dir, ext)))
+    image_paths = [
+        p for p in image_paths
+        if os.path.exists(os.path.join(mask_dir, os.path.splitext(os.path.basename(p))[0] + ".npy"))
+    ]
+    image_paths.sort()
+    if not image_paths:
+        raise RuntimeError(f"No image/mask pairs in {image_dir} + {mask_dir}")
+
+    ds = SEMDataset(image_paths, mask_dir, transform=get_val_transform(in_channels), in_channels=in_channels)
+    loader = DataLoader(ds, batch_size=1, shuffle=False, num_workers=0, pin_memory=True)
+    stems = [os.path.splitext(os.path.basename(p))[0] for p in image_paths]
+    return loader, stems
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint", default="logs/runs/deeplabv3plus-d83/checkpoints/best.pt")
     parser.add_argument("--experiment", default="configs/experiment/deeplabv3plus_dataset83.yaml")
+    parser.add_argument("--data", default=None,
+                        help="Optional data config to override the experiment's data (e.g. configs/data/merged.yaml)")
+    parser.add_argument("--all-images", action="store_true",
+                        help="Evaluate on every image in the dataset (ignore train/val split)")
     parser.add_argument("--output", default="predictions/error_maps_dlv3p_d83")
-    parser.add_argument("--limit", type=int, default=None, help="Only process first N val images (for debugging)")
+    parser.add_argument("--limit", type=int, default=None, help="Only process first N images (for debugging)")
     args = parser.parse_args()
 
     os.makedirs(args.output, exist_ok=True)
 
     exp_cfg = load_config(args.experiment)
     model_cfg = load_config(os.path.join("configs", exp_cfg["model"] + ".yaml"))
-    data_cfg = load_config(os.path.join("configs", exp_cfg["data"] + ".yaml"))
+    if args.data is not None:
+        data_cfg = load_config(args.data)
+    else:
+        data_cfg = load_config(os.path.join("configs", exp_cfg["data"] + ".yaml"))
     data_cfg["in_channels"] = model_cfg.get("in_channels", 1)
     data_cfg.update(exp_cfg.get("data_overrides", {}))
     data_cfg["batch_size"] = 1  # one image at a time for per-image reporting
@@ -202,11 +236,14 @@ def main():
     model.to(device).eval()
     print(f"Loaded {args.checkpoint} (epoch {ckpt.get('epoch','?')})")
 
-    dm = SEMDataModule(data_cfg)
-    dm.setup()
-    stems = get_val_stems(dm)
-
-    loader = dm.val_dataloader()
+    if args.all_images:
+        loader, stems = build_all_images_loader(data_cfg)
+        print(f"Evaluating all {len(stems)} image/mask pairs (no train/val split)")
+    else:
+        dm = SEMDataModule(data_cfg)
+        dm.setup()
+        stems = get_val_stems(dm)
+        loader = dm.val_dataloader()
     confusion = np.zeros((NUM_CLASSES, NUM_CLASSES), dtype=np.int64)
     ranked_rows = []  # (stem, miou, f1, pxacc, per_class_iou...)
 
