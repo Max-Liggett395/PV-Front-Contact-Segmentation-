@@ -91,13 +91,24 @@ def save_overlay_heatmap(img_u8, heat, path, cmap="jet", alpha=0.5):
 
 
 def save_error_on_input(img_u8, gt, pred, path):
-    """Save error overlay (wrong pixels colored by predicted class) on top of input."""
-    fig, ax = plt.subplots(figsize=(10, 7.5))
+    """Save error overlay (wrong pixels colored by predicted class) on top of input,
+    with a right-side legend mapping each color to its class name."""
+    from matplotlib.patches import Patch
+    fig, ax = plt.subplots(figsize=(12, 7.5))
     ax.imshow(img_u8, cmap="gray")
     ax.imshow(error_rgba(gt, pred))
+    wrong_frac = (gt != pred).mean() * 100
+    ax.set_title(f"errors: {wrong_frac:.1f}% wrong, colored by predicted class",
+                 fontsize=11)
     ax.axis("off")
-    plt.tight_layout(pad=0)
-    plt.savefig(path, dpi=100, bbox_inches="tight", pad_inches=0)
+    handles = [
+        Patch(facecolor=np.array(c) / 255.0, edgecolor="black", label=n)
+        for n, c in zip(CLASS_NAMES, CLASS_COLORS)
+    ]
+    ax.legend(handles=handles, loc="center left", bbox_to_anchor=(1.01, 0.5),
+              frameon=False, fontsize=10, title="predicted class")
+    plt.tight_layout()
+    plt.savefig(path, dpi=100, bbox_inches="tight", pad_inches=0.1)
     plt.close(fig)
 
 
