@@ -8,9 +8,9 @@ import torch.nn.functional as F
 class UNet(nn.Module):
     """U-Net with 5 encoder blocks, 4 decoder blocks, skip connections, and dropout.
 
-    Architecture:
+    Architecture matching the original notebook (LazyConv2d behavior):
         Encoder: 64 → 128 → 256 → 512 → 1024 (bottleneck)
-        Decoder: 512 → 256 → 128 → 64 → num_classes
+        Decoder: 1024 → 512 → 256 → 128 → num_classes
         Dropout: 0.3 after each pool and before each decoder conv block
         Activation: ReLU (no BatchNorm)
         Skip connections with padding for size mismatch
@@ -35,25 +35,26 @@ class UNet(nn.Module):
         self.bottleneck_a = nn.Conv2d(512, 1024, 3, 1, 1)
         self.bottleneck_b = nn.Conv2d(1024, 1024, 3, 1, 1)
 
-        # Decoder (transposed convolutions for upsampling)
+        # Decoder — channels match notebook's LazyConv2d behavior:
+        # After concat, conv blocks preserve the concat width (not halve it)
         self.up1 = nn.ConvTranspose2d(1024, 512, 2, 2, 0)
-        self.dec1a = nn.Conv2d(1024, 512, 3, 1, 1)
-        self.dec1b = nn.Conv2d(512, 512, 3, 1, 1)
+        self.dec1a = nn.Conv2d(1024, 1024, 3, 1, 1)
+        self.dec1b = nn.Conv2d(1024, 1024, 3, 1, 1)
 
-        self.up2 = nn.ConvTranspose2d(512, 256, 2, 2, 0)
-        self.dec2a = nn.Conv2d(512, 256, 3, 1, 1)
-        self.dec2b = nn.Conv2d(256, 256, 3, 1, 1)
+        self.up2 = nn.ConvTranspose2d(1024, 256, 2, 2, 0)
+        self.dec2a = nn.Conv2d(512, 512, 3, 1, 1)
+        self.dec2b = nn.Conv2d(512, 512, 3, 1, 1)
 
-        self.up3 = nn.ConvTranspose2d(256, 128, 2, 2, 0)
-        self.dec3a = nn.Conv2d(256, 128, 3, 1, 1)
-        self.dec3b = nn.Conv2d(128, 128, 3, 1, 1)
+        self.up3 = nn.ConvTranspose2d(512, 128, 2, 2, 0)
+        self.dec3a = nn.Conv2d(256, 256, 3, 1, 1)
+        self.dec3b = nn.Conv2d(256, 256, 3, 1, 1)
 
-        self.up4 = nn.ConvTranspose2d(128, 64, 2, 2, 0)
-        self.dec4a = nn.Conv2d(128, 64, 3, 1, 1)
-        self.dec4b = nn.Conv2d(64, 64, 3, 1, 1)
+        self.up4 = nn.ConvTranspose2d(256, 64, 2, 2, 0)
+        self.dec4a = nn.Conv2d(128, 128, 3, 1, 1)
+        self.dec4b = nn.Conv2d(128, 128, 3, 1, 1)
 
         # Output
-        self.out = nn.Conv2d(64, num_classes, 1, 1, 0)
+        self.out = nn.Conv2d(128, num_classes, 1, 1, 0)
 
     def _downsample(self, x, conv_a, conv_b):
         f = F.relu(conv_a(x))

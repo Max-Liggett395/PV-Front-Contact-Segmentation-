@@ -139,3 +139,10 @@ def get_val_transform(in_channels=1):
         norm,
         ToTensorV2(),
     ])
+
+
+def get_raw_transform():
+    """Raw transform — no augmentation, no normalization. Just convert to tensor."""
+    return A.Compose([
+        ToTensorV2(),
+    ])

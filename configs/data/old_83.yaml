@@ -1,0 +1,7 @@
+# Old dataset: 83 images with original NPY masks
+data_path: data/old_83
+val_split: 0.2
+test_split: 0.0
+seed: 42
+num_workers: 4
+image_size: [768, 1024]

@@ -1,6 +1,6 @@
 # 116-image dataset
-image_dir: data/images
-mask_dir: data/dataset_116_masks
+image_dir: data/new_116/images
+mask_dir: data/new_116/masks
 batch_size: 1
 num_workers: 2
 seed: 42

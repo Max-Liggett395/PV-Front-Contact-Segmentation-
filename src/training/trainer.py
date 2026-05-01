@@ -125,6 +125,18 @@ class Trainer:
                 print(f"Early stopping at epoch {epoch} (patience={self.patience})")
                 break
 
+        # Restore best weights
+        best_path = os.path.join(self.checkpoint_dir, "best.pt")
+        if os.path.isfile(best_path):
+            best_ckpt = torch.load(best_path, map_location=self.device, weights_only=False)
+            self.model.load_state_dict(best_ckpt["model_state_dict"])
+            best_epoch = best_ckpt.get("epoch", "?")
+            best_metrics = best_ckpt.get("metrics", {})
+            metric_str = " | ".join(
+                f"{k}: {v:.4f}" for k, v in best_metrics.items() if not isinstance(v, list)
+            )
+            print(f"Restored best weights from epoch {best_epoch} ({metric_str})")
+
         self.writer.close()
 
         # Auto-generate plots
