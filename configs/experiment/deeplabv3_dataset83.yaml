@@ -11,7 +11,7 @@ training:
   mixed_precision: true
   monitor: val_loss
   monitor_mode: min
-  patience: 100
+  patience: 9999
   min_delta: 0.0
 
 optimizer:

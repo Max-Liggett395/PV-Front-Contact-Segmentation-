@@ -1,0 +1,52 @@
+#!/bin/bash
+#SBATCH --job-name=sem-10k
+#SBATCH --output=logs/slurm/%x-%j.out
+#SBATCH --error=logs/slurm/%x-%j.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --account=rxf131
+#SBATCH --partition=gpu
+#SBATCH --gres=gpu:1
+#SBATCH --time=7-00:00:00
+#SBATCH --mem=32G
+
+# Usage: sbatch --job-name=sem-10k-unet scripts/train_model_10k.slurm configs/experiment/unet_dataset83_raw_10k.yaml unet-raw-10k
+
+EXPERIMENT=$1
+RUN_NAME=$2
+
+if [ -z "$EXPERIMENT" ] || [ -z "$RUN_NAME" ]; then
+    echo "Usage: sbatch scripts/train_model_10k.slurm <experiment_config> <run_name>"
+    exit 1
+fi
+
+echo "=========================================="
+echo "Job ID: $SLURM_JOB_ID"
+echo "Node: $SLURM_NODELIST"
+echo "GPU: $CUDA_VISIBLE_DEVICES"
+echo "Experiment: $EXPERIMENT"
+echo "Run Name: $RUN_NAME"
+echo "Wall time: 7 days"
+echo "=========================================="
+
+# Load modules (must match Python version used to create .venv)
+module load GCCcore/12.3.0
+module load Python/3.11.3-GCCcore-12.3.0
+
+# Activate environment
+source $HOME/sem/.venv/bin/activate
+
+# Create log directories
+mkdir -p logs/slurm
+
+# Print GPU info
+nvidia-smi
+
+# Change to project directory
+cd $HOME/sem
+
+# Train
+python train.py --experiment "$EXPERIMENT" --run-name "$RUN_NAME"
+
+echo "Training complete for $RUN_NAME"

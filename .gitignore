@@ -1,6 +1,10 @@
 # Data (large files, but keep symlink dir and data configs)
 /data/*
 !/data/dataset_116_masks/
+/113_Image_Checkpoint.zip
+
+# Claude Code session state
+/.claude/
 
 # Logs and outputs
 logs/

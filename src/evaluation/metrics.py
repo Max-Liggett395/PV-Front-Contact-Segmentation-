@@ -4,17 +4,8 @@ import torch
 import numpy as np
 
 
-def compute_metrics(preds, targets, num_classes):
-    """Compute segmentation metrics.
-
-    Args:
-        preds: (N, H, W) integer tensor of predicted classes
-        targets: (N, H, W) integer tensor of ground truth classes
-        num_classes: number of classes
-
-    Returns:
-        dict with miou, per_class_iou, f1_macro, pixel_accuracy
-    """
+def _compute_single(preds, targets, num_classes):
+    """Compute IoU, F1, and pixel accuracy for a single (H, W) pair or pooled batch."""
     iou_per_class = []
     f1_per_class = []
 
@@ -44,9 +35,40 @@ def compute_metrics(preds, targets, num_classes):
     total = targets.numel()
     pixel_acc = (correct / total).item()
 
+    return miou, f1_macro, pixel_acc, iou_per_class
+
+
+def compute_metrics(preds, targets, num_classes):
+    """Compute segmentation metrics (global and per-image).
+
+    Args:
+        preds: (N, H, W) integer tensor of predicted classes
+        targets: (N, H, W) integer tensor of ground truth classes
+        num_classes: number of classes
+
+    Returns:
+        dict with global metrics (miou, f1_macro, pixel_accuracy, per_class_iou)
+        and per-image averaged metrics (img_miou, img_f1_macro, img_pixel_accuracy)
+    """
+    # Global metrics (pooled across all images)
+    miou, f1_macro, pixel_acc, iou_per_class = _compute_single(preds, targets, num_classes)
+
+    # Per-image metrics (averaged across images, like sklearn per-image)
+    img_mious = []
+    img_f1s = []
+    img_accs = []
+    for i in range(preds.shape[0]):
+        m, f, a, _ = _compute_single(preds[i], targets[i], num_classes)
+        img_mious.append(m)
+        img_f1s.append(f)
+        img_accs.append(a)
+
     return {
         "miou": miou,
         "f1_macro": f1_macro,
         "pixel_accuracy": pixel_acc,
         "per_class_iou": iou_per_class,
+        "img_miou": np.mean(img_mious),
+        "img_f1_macro": np.mean(img_f1s),
+        "img_pixel_accuracy": np.mean(img_accs),
     }

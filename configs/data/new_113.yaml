@@ -1,0 +1,7 @@
+# 113-image dataset (3 problematic images dropped from new_116)
+image_dir: data/new_113/images
+mask_dir: data/new_113/masks
+batch_size: 1
+num_workers: 2
+seed: 42
+train_split: 0.85

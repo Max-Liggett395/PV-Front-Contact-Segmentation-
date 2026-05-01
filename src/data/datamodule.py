@@ -6,7 +6,7 @@ import glob
 import torch
 from torch.utils.data import DataLoader, random_split
 
-from .dataset import SEMDataset, get_train_transform, get_strong_train_transform, get_val_transform
+from .dataset import SEMDataset, get_train_transform, get_val_transform, get_raw_transform
 
 
 class SEMDataModule:
@@ -21,6 +21,7 @@ class SEMDataModule:
         self.seed = cfg.get("seed", 42)
         self.train_split = cfg.get("train_split", 0.85)
         self.in_channels = cfg.get("in_channels", 1)
+        self.raw_mode = cfg.get("raw_mode", False)
 
         self.train_dataset = None
         self.val_dataset = None
@@ -62,20 +63,22 @@ class SEMDataModule:
             generator=torch.Generator().manual_seed(self.seed),
         )
 
-        # Select training augmentation preset
-        augmentation_preset = self.cfg.get("augmentation_preset", "default")
-        if augmentation_preset == "strong":
-            train_transform = get_strong_train_transform(self.in_channels)
-        else:
-            train_transform = get_train_transform(self.in_channels)
-
         # Wrap subsets with transforms
-        self.train_dataset = _TransformSubset(
-            train_subset, train_transform, self.in_channels,
-        )
-        self.val_dataset = _TransformSubset(
-            val_subset, get_val_transform(self.in_channels), self.in_channels,
-        )
+        if self.raw_mode:
+            raw_tf = get_raw_transform()
+            self.train_dataset = _TransformSubset(
+                train_subset, raw_tf, self.in_channels,
+            )
+            self.val_dataset = _TransformSubset(
+                val_subset, raw_tf, self.in_channels,
+            )
+        else:
+            self.train_dataset = _TransformSubset(
+                train_subset, get_train_transform(self.in_channels), self.in_channels,
+            )
+            self.val_dataset = _TransformSubset(
+                val_subset, get_val_transform(self.in_channels), self.in_channels,
+            )
 
         print(f"Split: {train_size} train / {val_size} val (from {len(full_dataset)} total)")
 
