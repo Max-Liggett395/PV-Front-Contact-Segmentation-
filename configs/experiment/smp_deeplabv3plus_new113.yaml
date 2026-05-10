@@ -1,0 +1,27 @@
+# DeepLabV3+ (SMP, ResNet50/ImageNet) on the 113-image dataset
+# Up to 250 epochs with early stopping on val_loss (patience=25)
+data: data/new_113
+model: model/smp_deeplabv3plus_rn50
+
+data_overrides:
+  batch_size: 2
+
+training:
+  max_epochs: 250
+  device: auto
+  mixed_precision: true
+  monitor: val_loss
+  monitor_mode: min
+  patience: 25
+  min_delta: 0.0
+
+optimizer:
+  type: adam
+  lr: 0.00005
+  weight_decay: 0.0
+
+scheduler: null
+
+loss:
+  type: ce
+  class_weights: [1.0, 1.0, 1.5, 1.0, 1.5, 1.5]
