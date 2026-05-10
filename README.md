@@ -77,7 +77,8 @@ bash scripts/post_new113_5models.sh
 │   ├── results_new113.md            # Aggregate metrics table
 │   └── runs/smp-*-new113/           # Checkpoints + tensorboard per model
 ├── viz/
-│   └── saliency_smp-*-new113/       # SmoothGrad saliency PNGs (5 sample images per model)
+│   ├── saliency_smp-*-new113/       # SmoothGrad saliency PNGs (5 sample images per model)
+│   └── training_curves/             # Per-model training-history plots (loss + metrics over epochs)
 ├── train.py                         # Training entrypoint
 ├── evaluate.py                      # Evaluation entrypoint
 ├── predict.py                       # Inference on new images

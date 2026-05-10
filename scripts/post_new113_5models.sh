@@ -38,8 +38,10 @@ for i in "${!NAMES[@]}"; do
     TABLE_ARGS+=("${LABEL}=logs/runs/${NAME}")
 done
 
-echo "Plotting curves -> logs/runs/new113_5model_curves.png"
-python scripts/plot_curves.py "${PLOT_ARGS[@]}" --out logs/runs/new113_5model_curves.png
+echo "Plotting curves -> logs/runs/new113_5model_curves.png + viz/training_curves/<model>.png"
+python scripts/plot_curves.py "${PLOT_ARGS[@]}" \
+    --out logs/runs/new113_5model_curves.png \
+    --per-model-dir viz/training_curves
 
 echo ""
 echo "Building results table -> logs/results_new113.md"
