@@ -4,75 +4,82 @@ Semantic segmentation of SEM (Scanning Electron Microscope) images of photovolta
 
 ## Dataset
 
-- **130 SEM images** at 1024x768 (grayscale)
+- **113 SEM images** at 1024×768 (grayscale) — `data/new_113/`
 - **6 classes:** background, silver, glass, silicon, void, interfacial_void
 - **Split:** 85% train / 15% val (seed=42)
 
 ## Results
 
-**Best model: DeepLabV3+ ResNet101 with COCO-pretrained backbone + cosine annealing**
+Five [`segmentation_models.pytorch`](https://github.com/qubvel-org/segmentation_models.pytorch) architectures benchmarked on the 113-image dataset:
 
-| Rank | Method | val mIoU | vs Baseline |
-|------|--------|----------|-------------|
-| **1** | **Pretrained + Cosine Annealing** | **0.786** | **+0.005** |
-| 2 | Pretrained COCO backbone | 0.777 | -0.004 |
-| 3 | Cosine annealing (lr=1e-4) | 0.772 | -0.009 |
-| 4 | Dice+CE loss (0.5/0.5) | 0.772 | -0.009 |
-| 5 | Batch size 4 + AMP | 0.769 | -0.012 |
-| 6 | AdamW (wd=0.01) | 0.768 | -0.013 |
-| 7 | SMP UNet++ EffNet-B4 | 0.763 | -0.018 |
-| 8 | SMP UNet ResNet50 | 0.751 | -0.030 |
-| 9 | SMP DeepLabV3+ EffNet-B4 | 0.748 | -0.033 |
-| 10 | Focal loss (gamma=2.0) | 0.699 | -0.082 |
-| 11 | Higher LR (3e-4) + cosine | 0.658 | -0.124 |
-| 12 | Strong augmentations | 0.647 | -0.134 |
-| 13 | OneCycleLR (max_lr=1e-3) | 0.564 | -0.217 |
-| — | **Baseline** | **0.781** | — |
+| Model | Encoder | Best Epoch | Macro F1 | Pixel Acc | mIoU |
+|-------|---------|------------|----------|-----------|------|
+| **DeepLabV3+** | ResNet50 | 77 | 0.8516 | 0.9432 | **0.7626** |
+| **SegFormer**  | MiT-B2   | 33 | **0.8529** | 0.9385 | 0.7623 |
+| DeepLabV3      | ResNet50 | 64 | 0.8286 | 0.9332 | 0.7333 |
+| U-Net++        | ResNet50 | 40 | 0.8278 | 0.9299 | 0.7305 |
+| U-Net          | ResNet50 | 75 | 0.8243 | 0.9258 | 0.7259 |
 
-Baseline: DeepLabV3+ ResNet101 (random init), Adam lr=5e-5, CrossEntropyLoss, 1000 epochs.
+Source: [`logs/results_new113.md`](logs/results_new113.md). Training curves: [`logs/runs/new113_5model_curves.png`](logs/runs/new113_5model_curves.png).
 
-Full experiment details in [docs/autoresearch-report.md](docs/autoresearch-report.md).
+_Micro F1 ≡ pixel accuracy by construction for multiclass single-label segmentation, so only one column is shown above._
 
 ## Key Findings
 
-- **Pretrained weights matter more than architecture.** COCO-pretrained DeepLabV3+ beat all ImageNet-pretrained SMP variants.
-- **Conservative optimization is key.** Low learning rate (1e-4), cosine decay, no aggressive scheduling.
-- **Less augmentation is more.** Light augmentation outperformed strong augmentation by 13 mIoU points on this small dataset.
-- **Architecture swaps didn't help.** UNet++, UNet, and alternative backbones all underperformed the baseline architecture.
+- **DeepLabV3+** wins on mIoU and pixel accuracy.
+- **SegFormer** wins on macro F1 and converges fastest (peak at epoch 33 vs. 60–80 for the CNN-based models).
+- The U-Net family trails by 0.02–0.04 on F1 and mIoU.
 
 ## Quick Start
 
 ```bash
 pip install -r requirements.txt
 
-# Train baseline
-python train.py --config configs/experiment/autoresearch/ar_exp07_pretrained.yaml
+# Train all five models (SLURM, with chained saliency job per model)
+bash scripts/train_new113_5models.sh
 
-# Train best model (pretrained + cosine)
-python train.py --config configs/experiment/autoresearch/ar_exp15_pretrained_cosine.yaml
+# ...or train one
+python train.py --config configs/experiment/smp_segformer_new113.yaml
 
-# Evaluate
-python evaluate.py --checkpoint logs/runs/<run_name>/checkpoints/best.pt
+# Evaluate one
+python evaluate.py --experiment smp_segformer_new113 \
+  --checkpoint logs/runs/smp-segformer-new113/checkpoints/best.pt
+
+# Per-image SmoothGrad saliency
+sbatch scripts/saliency_new113.slurm
+
+# After all five trainings finish: assemble results table + comparison plot
+bash scripts/post_new113_5models.sh
 ```
 
 ## Project Structure
 
 ```
 ├── configs/
-│   ├── data/                # Dataset configs
-│   ├── model/               # Model architecture configs
-│   └── experiment/
-│       └── autoresearch/    # All experiment configs (exp01-19)
+│   ├── data/new_113.yaml
+│   ├── model/                       # smp_{unet,unetpp,deeplabv3,deeplabv3plus}_rn50.yaml,
+│   │                                # smp_segformer_mitb2.yaml
+│   └── experiment/                  # smp_*_new113.yaml (five experiment configs)
 ├── src/
-│   ├── data/                # Dataset, transforms, loading
-│   ├── models/              # Model factory, losses
-│   ├── training/            # Trainer, schedulers
-│   ├── evaluation/          # Metrics
-│   └── utils/               # Config, logging
-├── autoresearch/            # Experiment runner and evaluation scripts
-├── docs/
-│   └── autoresearch-report.md  # Full experiment report
-├── train.py                 # Training entrypoint
-├── evaluate.py              # Evaluation entrypoint
+│   ├── data/                        # Dataset, transforms, loading
+│   ├── models/                      # Model factory (registers SMP architectures), losses
+│   ├── training/                    # Trainer, schedulers
+│   ├── evaluation/                  # Metrics (mIoU, macro/micro F1, pixel acc, per-class IoU)
+│   └── utils/                       # Config, logging
+├── scripts/
+│   ├── train_new113_5models.sh      # Submit all five trainings + chained saliency jobs
+│   ├── saliency_new113.slurm        # SLURM saliency job (SmoothGrad)
+│   ├── post_new113_5models.sh       # After-training: build table + plot
+│   ├── build_results_table.py       # → logs/results_new113.md
+│   ├── plot_curves.py               # → logs/runs/new113_5model_curves.png
+│   └── error_maps.py                # Per-image error visualization (with class legend)
+├── logs/
+│   ├── results_new113.md            # Aggregate metrics table
+│   └── runs/smp-*-new113/           # Checkpoints + tensorboard per model
+├── predictions/
+│   └── saliency_smp-*-new113/       # SmoothGrad saliency PNGs (5 sample images per model)
+├── train.py                         # Training entrypoint
+├── evaluate.py                      # Evaluation entrypoint
+├── predict.py                       # Inference on new images
 └── requirements.txt
 ```
