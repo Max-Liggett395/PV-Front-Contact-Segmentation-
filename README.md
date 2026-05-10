@@ -45,8 +45,11 @@ python train.py --config configs/experiment/smp_segformer_new113.yaml
 python evaluate.py --experiment smp_segformer_new113 \
   --checkpoint logs/runs/smp-segformer-new113/checkpoints/best.pt
 
-# Per-image SmoothGrad saliency
-sbatch scripts/saliency_new113.slurm
+# Per-model artifact jobs (each takes <experiment> <run_name>)
+sbatch scripts/saliency_new113.slurm    configs/experiment/smp_segformer_new113.yaml smp-segformer-new113
+sbatch scripts/error_maps_new113.slurm  configs/experiment/smp_segformer_new113.yaml smp-segformer-new113
+sbatch scripts/predict_new113.slurm     configs/experiment/smp_segformer_new113.yaml smp-segformer-new113
+# (train_new113_5models.sh chains all three after each training automatically)
 
 # After all five trainings finish: assemble results table + comparison plot
 bash scripts/post_new113_5models.sh
@@ -67,18 +70,23 @@ bash scripts/post_new113_5models.sh
 │   ├── evaluation/                  # Metrics (mIoU, macro/micro F1, pixel acc, per-class IoU)
 │   └── utils/                       # Config, logging
 ├── scripts/
-│   ├── train_new113_5models.sh      # Submit all five trainings + chained saliency jobs
-│   ├── saliency_new113.slurm        # SLURM saliency job (SmoothGrad)
+│   ├── train_new113_5models.sh      # Submit all five trainings + chained artifact jobs
+│   ├── saliency_new113.slurm        # SmoothGrad saliency  -> viz/<short>/saliency/
+│   ├── error_maps_new113.slurm     # Per-image error maps -> viz/<short>/error_maps/
+│   ├── predict_new113.slurm         # Predicted masks      -> viz/<short>/masks/
 │   ├── post_new113_5models.sh       # After-training: build table + plot
 │   ├── build_results_table.py       # → logs/results_new113.md
-│   ├── plot_curves.py               # → logs/runs/new113_5model_curves.png
+│   ├── plot_curves.py               # → logs/runs/new113_5model_curves.png + viz/<short>/training_history.png
 │   └── error_maps.py                # Per-image error visualization (with class legend)
 ├── logs/
 │   ├── results_new113.md            # Aggregate metrics table
 │   └── runs/smp-*-new113/           # Checkpoints + tensorboard per model
-├── viz/
-│   ├── saliency_smp-*-new113/       # SmoothGrad saliency PNGs (5 sample images per model)
-│   └── training_curves/             # Per-model training-history plots (loss + metrics over epochs)
+├── viz/                             # Per-model visual outputs (one dir per model)
+│   └── {dlv3,dlv3p,unet,unetpp,segformer}/
+│       ├── training_history.png     # 2x2 plot: loss + val mIoU + pixel acc + macro F1 over epochs
+│       ├── saliency/                # SmoothGrad PNGs (5 sample images)
+│       ├── error_maps/              # Per-image 4-panel error PNGs + summary.png + ranked.csv
+│       └── masks/                   # Colored predicted masks (full dataset) + overlay PNGs
 ├── train.py                         # Training entrypoint
 ├── evaluate.py                      # Evaluation entrypoint
 ├── predict.py                       # Inference on new images

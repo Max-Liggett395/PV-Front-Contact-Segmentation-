@@ -10,9 +10,9 @@ Usage:
         dlv3=logs/slurm/sem-dlv3-new113-1235.out \
         --out compare.png
 
-    # Also write one per-model plot per run to viz/training_curves/<label>.png
+    # Also write one per-model plot per run to viz/<label>/training_history.png
     python scripts/plot_curves.py unet=...out dlv3=...out \
-        --out compare.png --per-model-dir viz/training_curves
+        --out compare.png --per-model-dir viz
 """
 
 import argparse
@@ -89,7 +89,7 @@ def main():
     ap.add_argument(
         "--per-model-dir",
         default=None,
-        help="If set, also write one per-run plot to <dir>/<label>.png",
+        help="If set, also write one per-run plot to <dir>/<label>/training_history.png",
     )
     args = ap.parse_args()
 
@@ -105,8 +105,6 @@ def main():
     fig, axes = plt.subplots(2, 2, figsize=(13, 9))
     _set_titles(axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1])
 
-    if args.per_model_dir:
-        os.makedirs(args.per_model_dir, exist_ok=True)
 
     for label, path in runs:
         d = parse_log(path)
@@ -129,7 +127,9 @@ def main():
             for ax in pm_axes.flat:
                 ax.legend(fontsize=8)
             pm_fig.tight_layout()
-            pm_path = os.path.join(args.per_model_dir, f"{label}.png")
+            pm_dir = os.path.join(args.per_model_dir, label)
+            os.makedirs(pm_dir, exist_ok=True)
+            pm_path = os.path.join(pm_dir, "training_history.png")
             pm_fig.savefig(pm_path, dpi=150)
             plt.close(pm_fig)
             print(f"    -> {pm_path}")

@@ -25,7 +25,10 @@ if [ -z "$EXPERIMENT" ] || [ -z "$RUN_NAME" ]; then
 fi
 
 CHECKPOINT=logs/runs/${RUN_NAME}/checkpoints/best.pt
-OUTPUT=viz/saliency_${RUN_NAME}
+# Derive short name (smp-dlv3p-new113 -> dlv3p) for per-model viz layout.
+SHORT_NAME="${RUN_NAME#smp-}"
+SHORT_NAME="${SHORT_NAME%-new113}"
+OUTPUT=viz/${SHORT_NAME}/saliency
 
 echo "=========================================="
 echo "Job ID:     $SLURM_JOB_ID"
