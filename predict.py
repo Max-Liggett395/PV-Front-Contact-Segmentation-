@@ -2,19 +2,19 @@
 
 Usage:
     # Single image
-    python predict.py --checkpoint logs/runs/my-run/checkpoints/best.pt \
-        --experiment configs/experiment/autoresearch/ar_exp15_pretrained_cosine.yaml \
-        --input image.tif --output predictions/
+    python predict.py --checkpoint logs/runs/smp-segformer-new113/checkpoints/best.pt \
+        --experiment configs/experiment/smp_segformer_new113.yaml \
+        --input image.tif --output viz/predictions/
 
     # Directory of images
-    python predict.py --checkpoint logs/runs/my-run/checkpoints/best.pt \
-        --experiment configs/experiment/autoresearch/ar_exp15_pretrained_cosine.yaml \
-        --input images/ --output predictions/
+    python predict.py --checkpoint logs/runs/smp-segformer-new113/checkpoints/best.pt \
+        --experiment configs/experiment/smp_segformer_new113.yaml \
+        --input images/ --output viz/predictions/
 
     # Save raw class indices as .npy instead of colored PNGs
-    python predict.py --checkpoint logs/runs/my-run/checkpoints/best.pt \
-        --experiment configs/experiment/autoresearch/ar_exp15_pretrained_cosine.yaml \
-        --input images/ --output predictions/ --save-npy
+    python predict.py --checkpoint logs/runs/smp-segformer-new113/checkpoints/best.pt \
+        --experiment configs/experiment/smp_segformer_new113.yaml \
+        --input images/ --output viz/predictions/ --save-npy
 """
 
 import argparse

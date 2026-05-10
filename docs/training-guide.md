@@ -10,7 +10,7 @@ python train.py --experiment configs/experiment/autoresearch/ar_exp15_pretrained
 python evaluate.py --checkpoint logs/runs/my-run/checkpoints/best.pt --data-config configs/data/merged.yaml
 
 # Run inference on new images (see Section 5)
-python predict.py --checkpoint logs/runs/my-run/checkpoints/best.pt --input images/ --output predictions/
+python predict.py --checkpoint logs/runs/my-run/checkpoints/best.pt --input images/ --output viz/predictions/
 ```
 
 ---

@@ -25,7 +25,7 @@ if [ -z "$EXPERIMENT" ] || [ -z "$RUN_NAME" ]; then
 fi
 
 CHECKPOINT=logs/runs/${RUN_NAME}/checkpoints/best.pt
-OUTPUT=predictions/saliency_${RUN_NAME}
+OUTPUT=viz/saliency_${RUN_NAME}
 
 echo "=========================================="
 echo "Job ID:     $SLURM_JOB_ID"
