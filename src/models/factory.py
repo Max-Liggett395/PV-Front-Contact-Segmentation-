@@ -98,8 +98,12 @@ def _create_smp_model(arch, cfg):
         return smp.UnetPlusPlus(**smp_kwargs)
     elif arch == "smp_unet":
         return smp.Unet(**smp_kwargs)
+    elif arch == "smp_deeplabv3":
+        return smp.DeepLabV3(**smp_kwargs)
     elif arch == "smp_deeplabv3plus":
         return smp.DeepLabV3Plus(**smp_kwargs)
+    elif arch == "smp_segformer":
+        return smp.Segformer(**smp_kwargs)
     else:
         raise ValueError(f"Unknown SMP architecture: '{arch}'")
 
@@ -108,12 +112,14 @@ def create_model(cfg):
     """Create a segmentation model from config.
 
     Supported architectures:
-        unet             - custom U-Net matching the original notebook
-        deeplabv3        - torchvision deeplabv3_resnet50; set pretrained=true for COCO weights
-        deeplabv3plus    - torchvision deeplabv3_resnet101; set pretrained=true for COCO weights
-        smp_unet         - smp.Unet with configurable encoder
-        smp_unetpp       - smp.UnetPlusPlus with configurable encoder
+        unet              - custom U-Net matching the original notebook
+        deeplabv3         - torchvision deeplabv3_resnet50; set pretrained=true for COCO weights
+        deeplabv3plus     - torchvision deeplabv3_resnet101; set pretrained=true for COCO weights
+        smp_unet          - smp.Unet with configurable encoder
+        smp_unetpp        - smp.UnetPlusPlus with configurable encoder
+        smp_deeplabv3     - smp.DeepLabV3 with configurable encoder
         smp_deeplabv3plus - smp.DeepLabV3Plus with configurable encoder
+        smp_segformer     - smp.Segformer (use a MiT encoder, e.g. mit_b2)
 
     Config keys:
         architecture    (str, required)
@@ -136,11 +142,17 @@ def create_model(cfg):
         )
     elif arch in ("deeplabv3", "deeplabv3plus"):
         return _create_deeplab(arch, cfg)
-    elif arch in ("smp_unet", "smp_unetpp", "smp_deeplabv3plus"):
+    elif arch in (
+        "smp_unet",
+        "smp_unetpp",
+        "smp_deeplabv3",
+        "smp_deeplabv3plus",
+        "smp_segformer",
+    ):
         return _create_smp_model(arch, cfg)
     else:
         raise ValueError(
             f"Unknown architecture '{arch}'. "
             "Choose from: unet, deeplabv3, deeplabv3plus, "
-            "smp_unet, smp_unetpp, smp_deeplabv3plus"
+            "smp_unet, smp_unetpp, smp_deeplabv3, smp_deeplabv3plus, smp_segformer"
         )

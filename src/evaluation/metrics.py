@@ -8,6 +8,9 @@ def _compute_single(preds, targets, num_classes):
     """Compute IoU, F1, and pixel accuracy for a single (H, W) pair or pooled batch."""
     iou_per_class = []
     f1_per_class = []
+    tp_total = 0.0
+    fp_total = 0.0
+    fn_total = 0.0
 
     for c in range(num_classes):
         pred_c = (preds == c)
@@ -18,6 +21,9 @@ def _compute_single(preds, targets, num_classes):
         tp = intersection
         fp = (pred_c & ~target_c).sum().float()
         fn = (~pred_c & target_c).sum().float()
+        tp_total += tp.item()
+        fp_total += fp.item()
+        fn_total += fn.item()
 
         iou = (intersection / (union + 1e-8)).item() if union > 0 else float("nan")
         iou_per_class.append(iou)
@@ -31,11 +37,17 @@ def _compute_single(preds, targets, num_classes):
     miou = np.mean(valid_ious) if valid_ious else 0.0
     f1_macro = np.mean(f1_per_class)
 
+    # Micro F1: pooled across classes. For multiclass single-label segmentation
+    # this equals pixel accuracy (each pixel contributes exactly one TP or one FP+FN).
+    p_micro = tp_total / (tp_total + fp_total + 1e-8)
+    r_micro = tp_total / (tp_total + fn_total + 1e-8)
+    f1_micro = 2 * p_micro * r_micro / (p_micro + r_micro + 1e-8) if (p_micro + r_micro) > 0 else 0.0
+
     correct = (preds == targets).sum().float()
     total = targets.numel()
     pixel_acc = (correct / total).item()
 
-    return miou, f1_macro, pixel_acc, iou_per_class
+    return miou, f1_macro, f1_micro, pixel_acc, iou_per_class
 
 
 def compute_metrics(preds, targets, num_classes):
@@ -51,14 +63,16 @@ def compute_metrics(preds, targets, num_classes):
         and per-image averaged metrics (img_miou, img_f1_macro, img_pixel_accuracy)
     """
     # Global metrics (pooled across all images)
-    miou, f1_macro, pixel_acc, iou_per_class = _compute_single(preds, targets, num_classes)
+    miou, f1_macro, f1_micro, pixel_acc, iou_per_class = _compute_single(
+        preds, targets, num_classes
+    )
 
     # Per-image metrics (averaged across images, like sklearn per-image)
     img_mious = []
     img_f1s = []
     img_accs = []
     for i in range(preds.shape[0]):
-        m, f, a, _ = _compute_single(preds[i], targets[i], num_classes)
+        m, f, _fmi, a, _ = _compute_single(preds[i], targets[i], num_classes)
         img_mious.append(m)
         img_f1s.append(f)
         img_accs.append(a)
@@ -66,6 +80,7 @@ def compute_metrics(preds, targets, num_classes):
     return {
         "miou": miou,
         "f1_macro": f1_macro,
+        "f1_micro": f1_micro,
         "pixel_accuracy": pixel_acc,
         "per_class_iou": iou_per_class,
         "img_miou": np.mean(img_mious),
