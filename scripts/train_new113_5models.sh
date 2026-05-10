@@ -1,8 +1,10 @@
 #!/bin/bash
 # Submit 5 parallel training jobs (DLv3, DLv3+, U-Net, U-Net++, Segformer) on
-# the new_113 dataset, each up to 250 epochs with early stopping.
-# Each training job has a chained saliency job (--dependency=afterok) that
-# runs SmoothGrad on 5 fixed val stems once training finishes.
+# the new_113 dataset, each up to 250 epochs with early stopping. After each
+# training finishes (afterok), three artifact-generation jobs are queued:
+#   - saliency:    SmoothGrad on 5 fixed val stems   -> viz/<short>/saliency/
+#   - error_maps:  per-image error panels + summary  -> viz/<short>/error_maps/
+#   - predict:     colored predicted masks (full set)-> viz/<short>/masks/
 #
 # Usage: bash scripts/train_new113_5models.sh
 
@@ -26,7 +28,7 @@ declare -a EXPS=(
 )
 
 echo "Submitting 5 training jobs (250 epochs, early stop patience=25 on val_loss)"
-echo "and 5 chained saliency jobs (afterok dependency)."
+echo "and 3 chained artifact jobs per training (saliency, error_maps, predict)."
 echo ""
 
 for i in "${!NAMES[@]}"; do
@@ -40,13 +42,22 @@ for i in "${!NAMES[@]}"; do
         --dependency=afterok:"$TRAIN_JOB" \
         scripts/saliency_new113.slurm "$EXP" "$NAME")
 
-    printf "  %-22s  train=%s  saliency=%s (afterok:%s)\n" \
-        "$NAME" "$TRAIN_JOB" "$SAL_JOB" "$TRAIN_JOB"
+    ERR_JOB=$(sbatch --job-name="sem-err-${NAME}" --parsable \
+        --dependency=afterok:"$TRAIN_JOB" \
+        scripts/error_maps_new113.slurm "$EXP" "$NAME")
+
+    PRED_JOB=$(sbatch --job-name="sem-pred-${NAME}" --parsable \
+        --dependency=afterok:"$TRAIN_JOB" \
+        scripts/predict_new113.slurm "$EXP" "$NAME")
+
+    printf "  %-22s  train=%s  sal=%s  err=%s  pred=%s\n" \
+        "$NAME" "$TRAIN_JOB" "$SAL_JOB" "$ERR_JOB" "$PRED_JOB"
 done
 
 echo ""
 echo "Monitor with:    squeue -u \$USER"
 echo "Training logs:   logs/slurm/sem-smp-*.out"
 echo "Run dirs:        logs/runs/<run_name>/"
+echo "Per-model viz:   viz/<short>/{training_history.png,saliency,error_maps,masks}/"
 echo "After training, build plots and table with:"
 echo "  bash scripts/post_new113_5models.sh"

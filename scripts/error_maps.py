@@ -11,7 +11,7 @@ Usage:
     python scripts/error_maps.py \
         --checkpoint logs/runs/smp-dlv3p-new113/checkpoints/best.pt \
         --experiment configs/experiment/smp_deeplabv3plus_new113.yaml \
-        --output viz/error_maps_dlv3p_new113
+        --output viz/dlv3p/error_maps
 """
 
 import argparse
@@ -207,7 +207,7 @@ def main():
                         help="Optional data config to override the experiment's data (e.g. configs/data/merged.yaml)")
     parser.add_argument("--all-images", action="store_true",
                         help="Evaluate on every image in the dataset (ignore train/val split)")
-    parser.add_argument("--output", default="viz/error_maps_dlv3p_new113")
+    parser.add_argument("--output", default="viz/dlv3p/error_maps")
     parser.add_argument("--limit", type=int, default=None, help="Only process first N images (for debugging)")
     args = parser.parse_args()
 
