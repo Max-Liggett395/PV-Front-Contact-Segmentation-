@@ -72,12 +72,26 @@ def preprocess_image(image_path: str, in_channels: int) -> torch.Tensor:
 
 
 def predict_image(model, tensor: torch.Tensor, device: torch.device) -> np.ndarray:
-    """Run inference and return class index map (H, W)."""
+    """Run inference and return class index map (H, W).
+
+    Pads the input to a multiple of 32 along H and W so SMP encoders that
+    require divisible spatial dims (DeepLabV3, DeepLabV3+, UnetPlusPlus,
+    Segformer) accept the tensor. The output is cropped back to the
+    original image size.
+    """
     tensor = tensor.to(device)
+    _, _, h, w = tensor.shape
+    pad_h = (-h) % 32
+    pad_w = (-w) % 32
+    if pad_h or pad_w:
+        # F.pad takes (left, right, top, bottom) for the last two dims.
+        tensor = torch.nn.functional.pad(tensor, (0, pad_w, 0, pad_h), mode="reflect")
     with torch.no_grad():
         output = model(tensor)
         if isinstance(output, dict):
             output = output["out"]
+        # Crop back to original H, W before argmax to keep things tidy.
+        output = output[..., :h, :w]
         pred = output.argmax(dim=1).squeeze().cpu().numpy()
     return pred
 
