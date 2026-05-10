@@ -262,7 +262,7 @@ def main():
             gt_np = gt[0].cpu().numpy().astype(np.int64)
 
             # Per-image metrics
-            miou, f1, pxacc, per_class_iou = _compute_single(
+            miou, f1, _f1_micro, pxacc, per_class_iou = _compute_single(
                 pred[0].cpu(), gt[0].cpu(), NUM_CLASSES,
             )
 

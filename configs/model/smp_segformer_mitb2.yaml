@@ -1,0 +1,6 @@
+# Segformer with MiT-B2 encoder via segmentation_models_pytorch
+architecture: smp_segformer
+encoder_name: mit_b2
+encoder_weights: imagenet
+in_channels: 3
+num_classes: 6
