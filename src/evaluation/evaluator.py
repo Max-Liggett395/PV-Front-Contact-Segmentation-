@@ -44,7 +44,10 @@ class Evaluator:
         # Format per-class results
         per_class = {}
         for i, name in enumerate(CLASS_NAMES[:self.num_classes]):
-            per_class[name] = {"iou": metrics["per_class_iou"][i]}
+            per_class[name] = {
+                "iou": metrics["per_class_iou"][i],
+                "f1": metrics["per_class_f1"][i],
+            }
         metrics["per_class"] = per_class
 
         return metrics

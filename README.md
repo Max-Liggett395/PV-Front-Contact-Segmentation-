@@ -6,7 +6,7 @@ Semantic segmentation of SEM (Scanning Electron Microscope) images of photovolta
 
 - **113 SEM images** at 1024×768 (grayscale) — `data/new_113/`
 - **6 classes:** background, silver, glass, silicon, void, interfacial_void
-- **Split:** 85% train / 15% val (seed=42)
+- **Split:** 85% train / 15% val — 96 train / 17 val images, drawn by `torch.utils.data.random_split` with `seed=42` (`src/data/datamodule.py:58-64`). Same split is reused for all five models and at evaluation time.
 
 ## Results
 
@@ -23,6 +23,18 @@ Five [`segmentation_models.pytorch`](https://github.com/qubvel-org/segmentation_
 Source: [`logs/results_new113.md`](logs/results_new113.md). Training curves: [`logs/runs/new113_5model_curves.png`](logs/runs/new113_5model_curves.png).
 
 _Micro F1 ≡ pixel accuracy by construction for multiclass single-label segmentation, so only one column is shown above._
+
+### Per-Class F1
+
+| Model | background | silver | glass | silicon | void | interfacial_void | Macro F1 |
+|---|---|---|---|---|---|---|---|
+| **DeepLabV3+** | 0.9749 | **0.9514** | 0.7024 | **0.9863** | 0.8178 | 0.6766 | 0.8516 |
+| **SegFormer**  | 0.9694 | 0.9460 | **0.7187** | 0.9805 | **0.8197** | **0.6829** | **0.8529** |
+| DeepLabV3      | 0.9725 | 0.9376 | 0.6674 | 0.9854 | 0.7827 | 0.6259 | 0.8286 |
+| U-Net++        | 0.9683 | 0.9438 | 0.6751 | 0.9749 | 0.7675 | 0.6372 | 0.8278 |
+| U-Net          | **0.9728** | 0.9343 | 0.6666 | 0.9676 | 0.7855 | 0.6187 | 0.8243 |
+
+Source: [`logs/per_class_f1_new113.md`](logs/per_class_f1_new113.md). Regenerate with `sbatch scripts/per_class_f1_new113.slurm`. The minority classes (`glass`, `interfacial_void`) are the bottleneck — SegFormer leads on both, which is why it edges out DeepLabV3+ on macro F1 despite trailing on mIoU.
 
 ## Key Findings
 
