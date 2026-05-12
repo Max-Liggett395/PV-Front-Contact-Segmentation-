@@ -47,7 +47,7 @@ def _compute_single(preds, targets, num_classes):
     total = targets.numel()
     pixel_acc = (correct / total).item()
 
-    return miou, f1_macro, f1_micro, pixel_acc, iou_per_class
+    return miou, f1_macro, f1_micro, pixel_acc, iou_per_class, f1_per_class
 
 
 def compute_metrics(preds, targets, num_classes):
@@ -59,11 +59,12 @@ def compute_metrics(preds, targets, num_classes):
         num_classes: number of classes
 
     Returns:
-        dict with global metrics (miou, f1_macro, pixel_accuracy, per_class_iou)
-        and per-image averaged metrics (img_miou, img_f1_macro, img_pixel_accuracy)
+        dict with global metrics (miou, f1_macro, f1_micro, pixel_accuracy,
+        per_class_iou, per_class_f1) and per-image averaged metrics
+        (img_miou, img_f1_macro, img_pixel_accuracy).
     """
     # Global metrics (pooled across all images)
-    miou, f1_macro, f1_micro, pixel_acc, iou_per_class = _compute_single(
+    miou, f1_macro, f1_micro, pixel_acc, iou_per_class, f1_per_class = _compute_single(
         preds, targets, num_classes
     )
 
@@ -72,7 +73,7 @@ def compute_metrics(preds, targets, num_classes):
     img_f1s = []
     img_accs = []
     for i in range(preds.shape[0]):
-        m, f, _fmi, a, _ = _compute_single(preds[i], targets[i], num_classes)
+        m, f, _fmi, a, _, _ = _compute_single(preds[i], targets[i], num_classes)
         img_mious.append(m)
         img_f1s.append(f)
         img_accs.append(a)
@@ -83,6 +84,7 @@ def compute_metrics(preds, targets, num_classes):
         "f1_micro": f1_micro,
         "pixel_accuracy": pixel_acc,
         "per_class_iou": iou_per_class,
+        "per_class_f1": f1_per_class,
         "img_miou": np.mean(img_mious),
         "img_f1_macro": np.mean(img_f1s),
         "img_pixel_accuracy": np.mean(img_accs),
